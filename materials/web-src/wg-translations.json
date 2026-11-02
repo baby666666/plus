@@ -1,0 +1,920 @@
+[
+  {
+    "key": "me346a55e46",
+    "zh-CN": "密钥生成失败，请点击生成密钥重试",
+    "en-US": "Key generation failed. Click Generate key to retry.",
+    "zh-TW": "密鑰生成失敗，請點擊生成密鑰重試"
+  },
+  {
+    "key": "m4299f03b55",
+    "zh-CN": "中心分流配置已保存",
+    "en-US": "Central routing settings saved",
+    "zh-TW": "中心分流配置已保存"
+  },
+  {
+    "key": "mde3a94beae",
+    "zh-CN": "已开始更新IP库并应用",
+    "en-US": "IP library update and apply started",
+    "zh-TW": "已開始更新IP庫並應用"
+  },
+  {
+    "key": "m8f6f8d979c",
+    "zh-CN": "已复制",
+    "en-US": "Copied",
+    "zh-TW": "已複製"
+  },
+  {
+    "key": "m6bf7933df3",
+    "zh-CN": "复制配置",
+    "en-US": "Copy configuration",
+    "zh-TW": "複製配置"
+  },
+  {
+    "key": "m1896675031",
+    "zh-CN": "正在分配地址，请稍候",
+    "en-US": "Assigning an address, please wait",
+    "zh-TW": "正在分配地址，請稍候"
+  },
+  {
+    "key": "mc947766410",
+    "zh-CN": "重新分配地址",
+    "en-US": "Assign another address",
+    "zh-TW": "重新分配地址"
+  },
+  {
+    "key": "mdbff056b5a",
+    "zh-CN": "生成对端密钥",
+    "en-US": "Generate peer keys",
+    "zh-TW": "生成對端密鑰"
+  },
+  {
+    "key": "m5715693536",
+    "zh-CN": "对端私钥：",
+    "en-US": "Peer private key:",
+    "zh-TW": "對端私鑰："
+  },
+  {
+    "key": "ma709b2553d",
+    "zh-CN": "自动生成，用于客户端配置/二维码",
+    "en-US": "Generated automatically for the client configuration and QR code",
+    "zh-TW": "自動生成，用於客戶端配置/二維碼"
+  },
+  {
+    "key": "m45b2b7e248",
+    "zh-CN": "客户端DNS：",
+    "en-US": "Client DNS:",
+    "zh-TW": "客戶端DNS："
+  },
+  {
+    "key": "mcb00f5ac48",
+    "zh-CN": "例如 223.5.5.5,8.8.8.8",
+    "en-US": "For example, 223.5.5.5,8.8.8.8",
+    "zh-TW": "例如 223.5.5.5,8.8.8.8"
+  },
+  {
+    "key": "m3177bd8ac9",
+    "zh-CN": "客户端配置：",
+    "en-US": "Client configuration:",
+    "zh-TW": "客戶端配置："
+  },
+  {
+    "key": "me304ca8fc7",
+    "zh-CN": "生成配置/二维码",
+    "en-US": "Generate configuration / QR code",
+    "zh-TW": "生成配置/二維碼"
+  },
+  {
+    "key": "m02db06d84c",
+    "zh-CN": "生成iKuai组网配置",
+    "en-US": "Generate iKuai site configuration",
+    "zh-TW": "生成iKuai組網配置"
+  },
+  {
+    "key": "m889476d726",
+    "zh-CN": "粘贴导入配置",
+    "en-US": "Paste configuration",
+    "zh-TW": "貼上導入配置"
+  },
+  {
+    "key": "m93b03686b4",
+    "zh-CN": "导入结果：",
+    "en-US": "Import result:",
+    "zh-TW": "導入結果："
+  },
+  {
+    "key": "m264bf8d4bb",
+    "zh-CN": "配置内容：",
+    "en-US": "Configuration:",
+    "zh-TW": "配置內容："
+  },
+  {
+    "key": "m723af3cb7e",
+    "zh-CN": "二维码：",
+    "en-US": "QR code:",
+    "zh-TW": "二維碼："
+  },
+  {
+    "key": "m59d070af82",
+    "zh-CN": "地址规划读取失败，请重试",
+    "en-US": "Could not read the address plan. Please retry.",
+    "zh-TW": "地址規劃讀取失敗，請重試"
+  },
+  {
+    "key": "mcbc1196812",
+    "zh-CN": "没有可用的默认地址，请手动规划",
+    "en-US": "No default address is available. Enter an address manually.",
+    "zh-TW": "沒有可用的默認地址，請手動規劃"
+  },
+  {
+    "key": "m7db8f14789",
+    "zh-CN": "接口已变化，请重新分配地址",
+    "en-US": "The interface has changed. Assign an address again.",
+    "zh-TW": "接口已變化，請重新分配地址"
+  },
+  {
+    "key": "m3cbea6c0cd",
+    "zh-CN": "地址规划请求未完成，请点击重新分配或手动填写",
+    "en-US": "Address assignment did not finish. Retry or enter an address manually.",
+    "zh-TW": "地址規劃請求未完成，請點擊重新分配或手動填寫"
+  },
+  {
+    "key": "mbcbf733924",
+    "zh-CN": "地址规划失败，请重试",
+    "en-US": "Address assignment failed. Please retry.",
+    "zh-TW": "地址規劃失敗，請重試"
+  },
+  {
+    "key": "mc5787e80b6",
+    "zh-CN": "请先创建 WG 服务接口",
+    "en-US": "Create a WG service interface first",
+    "zh-TW": "請先創建 WG 服務接口"
+  },
+  {
+    "key": "mdec1e934cc",
+    "zh-CN": "地址规划：",
+    "en-US": "Address assignment:",
+    "zh-TW": "地址規劃："
+  },
+  {
+    "key": "m44d20dbb88",
+    "zh-CN": "正在查找未使用地址…",
+    "en-US": "Looking for an unused address…",
+    "zh-TW": "正在查找未使用地址…"
+  },
+  {
+    "key": "mc7f88eee2a",
+    "zh-CN": "本接口源网段：",
+    "en-US": "Interface subnet:",
+    "zh-TW": "本接口源網段："
+  },
+  {
+    "key": "m6c73a6b0d0",
+    "zh-CN": "；客户端使用独立 /32 地址。",
+    "en-US": "; each client uses a separate /32 address.",
+    "zh-TW": "；客戶端使用獨立 /32 地址。"
+  },
+  {
+    "key": "md75c83ac35",
+    "zh-CN": "新增客户端按所选接口分配 /32 地址；手动输入和已有地址保留。",
+    "en-US": "New clients receive a /32 from the selected interface. Manual and existing addresses are preserved.",
+    "zh-TW": "新增客戶端按所選接口分配 /32 地址；手動輸入和已有地址保留。"
+  },
+  {
+    "key": "m208067ce94",
+    "zh-CN": "分配可用地址",
+    "en-US": "Assign an available address",
+    "zh-TW": "分配可用地址"
+  },
+  {
+    "key": "mbc7a1c1880",
+    "zh-CN": "请填写客户端 Endpoint IP，或点击重新获取",
+    "en-US": "Enter the client Endpoint IP or click Fetch again",
+    "zh-TW": "請填寫客戶端 Endpoint IP，或點擊重新獲取"
+  },
+  {
+    "key": "m99f08af6c2",
+    "zh-CN": "客户端 Endpoint IP 只支持 IPv4，不要填写域名、网址或端口",
+    "en-US": "Client Endpoint IP requires IPv4. Do not enter a hostname, URL or port.",
+    "zh-TW": "客戶端 Endpoint IP 只支持 IPv4，不要填寫域名、網址或端口"
+  },
+  {
+    "key": "m8a590c8bbe",
+    "zh-CN": "客户端 Endpoint IP 不能使用未指定、回环、链路本地或组播等保留地址",
+    "en-US": "Client Endpoint IP cannot be unspecified, loopback, link-local, multicast or another reserved address",
+    "zh-TW": "客戶端 Endpoint IP 不能使用未指定、回環、鏈路本地或組播等保留地址"
+  },
+  {
+    "key": "m0dc0eadfe1",
+    "zh-CN": "服务接口监听端口无效，请先保存服务接口",
+    "en-US": "Invalid service listen port. Save the service interface first.",
+    "zh-TW": "服務接口監聽端口無效，請先保存服務接口"
+  },
+  {
+    "key": "mfb14529a9e",
+    "zh-CN": "端口使用服务接口当前监听值：",
+    "en-US": "Current service listen port:",
+    "zh-TW": "端口使用服務接口當前監聽值："
+  },
+  {
+    "key": "m4ce3824b94",
+    "zh-CN": "手动输入 IPv4，端口使用服务接口监听值。",
+    "en-US": "Enter an IPv4 address. The port comes from the service interface.",
+    "zh-TW": "手動輸入 IPv4，端口使用服務接口監聽值。"
+  },
+  {
+    "key": "m57f3b64d13",
+    "zh-CN": "正在获取所选服务接口 WAN 的公网 IP…",
+    "en-US": "Fetching the public IP of the selected service interface WAN…",
+    "zh-TW": "正在獲取所選服務接口 WAN 的公網 IP…"
+  },
+  {
+    "key": "m3f65e6b9ca",
+    "zh-CN": "请先选择服务接口",
+    "en-US": "Select a service interface first",
+    "zh-TW": "請先選擇服務接口"
+  },
+  {
+    "key": "m71a6e8bdbc",
+    "zh-CN": "Endpoint IP 获取失败，请重试或手动填写 IPv4",
+    "en-US": "Could not fetch the Endpoint IP. Retry or enter IPv4 manually",
+    "zh-TW": "Endpoint IP 獲取失敗，請重試或手動填寫 IPv4"
+  },
+  {
+    "key": "m1c687dd536",
+    "zh-CN": "已获取 ",
+    "en-US": "Retrieved ",
+    "zh-TW": "已獲取 "
+  },
+  {
+    "key": "m837663285b",
+    "zh-CN": "所选 WAN",
+    "en-US": "selected WAN",
+    "zh-TW": "所選 WAN"
+  },
+  {
+    "key": "mc6b1fe049b",
+    "zh-CN": " 公网 IP：",
+    "en-US": " public IP:",
+    "zh-TW": " 公網 IP："
+  },
+  {
+    "key": "m55303a6202",
+    "zh-CN": "公网 IP 探测未成功，已回填 ",
+    "en-US": "Public IP detection failed. Using ",
+    "zh-TW": "公網 IP 探測未成功，已回填 "
+  },
+  {
+    "key": "m58b7a71e5d",
+    "zh-CN": " 本机 IP：",
+    "en-US": " local IP:",
+    "zh-TW": " 本機 IP："
+  },
+  {
+    "key": "md0fb36eaea",
+    "zh-CN": "Endpoint IP 获取失败，请重试或手动填写 IPv4。",
+    "en-US": "Could not fetch the Endpoint IP. Retry or enter IPv4 manually.",
+    "zh-TW": "Endpoint IP 獲取失敗，請重試或手動填寫 IPv4。"
+  },
+  {
+    "key": "m78900be99e",
+    "zh-CN": " 已保留原有填写值。",
+    "en-US": " The existing value has been preserved.",
+    "zh-TW": " 已保留原有填寫值。"
+  },
+  {
+    "key": "m61e198b5c5",
+    "zh-CN": "已保留原有填写值。",
+    "en-US": "The existing value has been preserved.",
+    "zh-TW": "已保留原有填寫值。"
+  },
+  {
+    "key": "m47acfef197",
+    "zh-CN": "已保留原有 Endpoint IP；端口使用服务接口当前监听值。",
+    "en-US": "The existing Endpoint IP is preserved. The port comes from the service interface.",
+    "zh-TW": "已保留原有 Endpoint IP；端口使用服務接口當前監聽值。"
+  },
+  {
+    "key": "m54fe4c2376",
+    "zh-CN": "原有 Endpoint 使用域名或旧格式。请手动改为 IPv4，或点击重新获取后再保存、生成配置。",
+    "en-US": "The existing Endpoint uses a hostname or legacy format. Enter IPv4 or click Fetch again before saving or generating a configuration.",
+    "zh-TW": "原有 Endpoint 使用域名或舊格式。請手動改為 IPv4，或點擊重新獲取後再保存、生成配置。"
+  },
+  {
+    "key": "m944859f55f",
+    "zh-CN": "已保留手动 Endpoint；请确认它适用于当前服务接口，或点击重新获取。",
+    "en-US": "The manual Endpoint is preserved. Verify it matches the current service interface or click Fetch again.",
+    "zh-TW": "已保留手動 Endpoint；請確認它適用於當前服務接口，或點擊重新獲取。"
+  },
+  {
+    "key": "ma75b99eb55",
+    "zh-CN": "互访网段格式无效",
+    "en-US": "Invalid site subnet format",
+    "zh-TW": "互訪網段格式無效"
+  },
+  {
+    "key": "m39b9adde0f",
+    "zh-CN": "每端最多填写 8 个互访网段",
+    "en-US": "Each side supports up to 8 site subnets",
+    "zh-TW": "每端最多填寫 8 個互訪網段"
+  },
+  {
+    "key": "me703fcde47",
+    "zh-CN": "互访网段须为有效 IPv4 网段",
+    "en-US": "Site subnets must be valid IPv4 networks",
+    "zh-TW": "互訪網段須為有效 IPv4 網段"
+  },
+  {
+    "key": "m3f976ec88f",
+    "zh-CN": "互访网段只支持私有 IPv4 和 100.64.0.0/10",
+    "en-US": "Site subnets support only private IPv4 networks and 100.64.0.0/10",
+    "zh-TW": "互訪網段只支持私有 IPv4 和 100.64.0.0/10"
+  },
+  {
+    "key": "m48bfedc6a1",
+    "zh-CN": "同侧互访网段不能重叠",
+    "en-US": "Subnets on the same side must not overlap",
+    "zh-TW": "同側互訪網段不能重疊"
+  },
+  {
+    "key": "ma1a0a21b33",
+    "zh-CN": "请同时填写本端和对端互访网段；不需要互访时两项留空",
+    "en-US": "Enter both local and remote site subnets, or leave both empty if site access is not needed",
+    "zh-TW": "請同時填寫本端和對端互訪網段；不需要互訪時兩項留空"
+  },
+  {
+    "key": "m1d5a5bd107",
+    "zh-CN": "两端互访网段不能重叠",
+    "en-US": "Local and remote subnets must not overlap",
+    "zh-TW": "兩端互訪網段不能重疊"
+  },
+  {
+    "key": "m241cd41d65",
+    "zh-CN": "正在获取 Endpoint IP，请稍候或手动填写 IPv4",
+    "en-US": "Fetching Endpoint IP. Please wait or enter IPv4 manually",
+    "zh-TW": "正在獲取 Endpoint IP，請稍候或手動填寫 IPv4"
+  },
+  {
+    "key": "m6bc5c199f8",
+    "zh-CN": "分流出口隧道须使用独立的 /32 对端地址",
+    "en-US": "A routing exit peer requires its own /32 address",
+    "zh-TW": "分流出口隧道須使用獨立的 /32 對端地址"
+  },
+  {
+    "key": "m58e619055a",
+    "zh-CN": "配置中的 Endpoint 与当前 IP／监听端口不一致，请重新生成配置",
+    "en-US": "The configuration Endpoint differs from the current IP or listen port. Generate it again.",
+    "zh-TW": "配置中的 Endpoint 與當前 IP／監聽端口不一致，請重新生成配置"
+  },
+  {
+    "key": "mb4c1a47062",
+    "zh-CN": "缺少对端私钥，请先生成对端密钥或手动填写对端私钥",
+    "en-US": "Missing peer private key. Generate peer keys or enter the private key.",
+    "zh-TW": "缺少對端私鑰，請先生成對端密鑰或手動填寫對端私鑰"
+  },
+  {
+    "key": "mafcdc4d372",
+    "zh-CN": "找不到服务接口参数，请先保存服务接口",
+    "en-US": "Service interface settings not found. Save the service interface first.",
+    "zh-TW": "找不到服務接口參數，請先保存服務接口"
+  },
+  {
+    "key": "m6f601fb748",
+    "zh-CN": "请填写对端 WireGuard 地址，不能把默认路由作为客户端地址",
+    "en-US": "Enter the peer WireGuard address. A default route cannot be used as a client address.",
+    "zh-TW": "請填寫對端 WireGuard 地址，不能把默認路由作為客戶端地址"
+  },
+  {
+    "key": "m6c8b0465ae",
+    "zh-CN": "服务接口地址无效",
+    "en-US": "Invalid service interface address",
+    "zh-TW": "服務接口地址無效"
+  },
+  {
+    "key": "mf2266d5115",
+    "zh-CN": "填写对端导入后允许访问的本端网段，多个用逗号分隔",
+    "en-US": "Enter the local networks this peer may access after import, separated by commas",
+    "zh-TW": "填寫對端導入後允許訪問的本端網段，多個用逗號分隔"
+  },
+  {
+    "key": "m2e9cc3c3f9",
+    "zh-CN": "允许地址必须是 IPv4 地址或网段",
+    "en-US": "Allowed addresses must be IPv4 addresses or networks",
+    "zh-TW": "允許地址必須是 IPv4 地址或網段"
+  },
+  {
+    "key": "m26b6f9ad10",
+    "zh-CN": "心跳间隔无效",
+    "en-US": "Invalid keepalive interval",
+    "zh-TW": "心跳間隔無效"
+  },
+  {
+    "key": "mbaad326d22",
+    "zh-CN": "DNS 地址格式无效",
+    "en-US": "Invalid DNS address format",
+    "zh-TW": "DNS 地址格式無效"
+  },
+  {
+    "key": "m6d091ca19e",
+    "zh-CN": "生成配置失败",
+    "en-US": "Could not generate the configuration",
+    "zh-TW": "生成配置失敗"
+  },
+  {
+    "key": "m367b7a3c52",
+    "zh-CN": "请填写 IPv4，或点击重新获取。",
+    "en-US": "Enter IPv4 or click Fetch again.",
+    "zh-TW": "請填寫 IPv4，或點擊重新獲取。"
+  },
+  {
+    "key": "m57d279e2d4",
+    "zh-CN": "本端互访网段：",
+    "en-US": "Local site subnets:",
+    "zh-TW": "本端互訪網段："
+  },
+  {
+    "key": "m4832bd39e6",
+    "zh-CN": "例如 192.168.10.0/24",
+    "en-US": "For example, 192.168.10.0/24",
+    "zh-TW": "例如 192.168.10.0/24"
+  },
+  {
+    "key": "mb76fcfdbd4",
+    "zh-CN": "对端互访网段：",
+    "en-US": "Remote site subnets:",
+    "zh-TW": "對端互訪網段："
+  },
+  {
+    "key": "mc24d29cbd3",
+    "zh-CN": "例如 192.168.20.0/24",
+    "en-US": "For example, 192.168.20.0/24",
+    "zh-TW": "例如 192.168.20.0/24"
+  },
+  {
+    "key": "m0c51f83b47",
+    "zh-CN": "选填，每行一个网段。两项同时填写，指定内网之间保留源 IP，直接经 WG 互访；其他流量仍按分流规则处理。",
+    "en-US": "Optional, one network per line. Fill in both sides to route directly over WG between these networks while preserving source IPs. Other traffic follows routing rules.",
+    "zh-TW": "選填，每行一個網段。兩項同時填寫，指定內網之間保留源 IP，直接經 WG 互訪；其他流量仍按分流規則處理。"
+  },
+  {
+    "key": "mb01d3815b7",
+    "zh-CN": "两端网段不能重叠。生成的组网配置会自动带上双方网段；也可同时勾选“用作分流出口”。",
+    "en-US": "The two sides must not overlap. Generated site configurations include both sides. Use as routing exit may also be enabled.",
+    "zh-TW": "兩端網段不能重疊。生成的組網配置會自動帶上雙方網段；也可同時勾選“用作分流出口”。"
+  },
+  {
+    "key": "m1aff0ec93b",
+    "zh-CN": "客户端 Endpoint IP：",
+    "en-US": "Client Endpoint IP:",
+    "zh-TW": "客戶端 Endpoint IP："
+  },
+  {
+    "key": "mec2c009828",
+    "zh-CN": "IPv4，例如 203.0.113.10",
+    "en-US": "IPv4, for example 203.0.113.10",
+    "zh-TW": "IPv4，例如 203.0.113.10"
+  },
+  {
+    "key": "m146da2e2a9",
+    "zh-CN": "获取中…",
+    "en-US": "Fetching…",
+    "zh-TW": "獲取中…"
+  },
+  {
+    "key": "m1d2a90550a",
+    "zh-CN": "重新获取",
+    "en-US": "Fetch again",
+    "zh-TW": "重新獲取"
+  },
+  {
+    "key": "m9f09fde4cd",
+    "zh-CN": "Endpoint 端口：",
+    "en-US": "Endpoint port:",
+    "zh-TW": "Endpoint 端口："
+  },
+  {
+    "key": "m2f5f1d6fbf",
+    "zh-CN": "未设置",
+    "en-US": "Not set",
+    "zh-TW": "未設置"
+  },
+  {
+    "key": "m0a15cd82f5",
+    "zh-CN": "（取服务接口监听端口）",
+    "en-US": "(service interface listen port)",
+    "zh-TW": "（取服務接口監聽端口）"
+  },
+  {
+    "key": "mc993235f67",
+    "zh-CN": "分流出口：",
+    "en-US": "Routing exit:",
+    "zh-TW": "分流出口："
+  },
+  {
+    "key": "m3b28c6e2a3",
+    "zh-CN": " 用作分流出口",
+    "en-US": " Use as routing exit",
+    "zh-TW": " 用作分流出口"
+  },
+  {
+    "key": "m75c984b325",
+    "zh-CN": "对端路由器须独占本服务接口。开启后，本机可按分流规则经它上网；对端保持自己的 WAN 默认出口。",
+    "en-US": "The peer router must be the only peer on this service interface. This router can then access the Internet through it according to routing rules; the peer keeps its own default WAN route.",
+    "zh-TW": "對端路由器須獨佔本服務接口。開啟後，本機可按分流規則經它上網；對端保持自己的 WAN 默認出口。"
+  },
+  {
+    "key": "m0c5a007324",
+    "zh-CN": "生成的配置供出口路由器导入，保留其 WAN 默认路由并启用心跳。对端 IP／域名可留空，由对端主动连接。",
+    "en-US": "Import this configuration on the exit router. It preserves that router's default WAN route and enables keepalive. The peer IP or hostname may be empty so the peer initiates the connection.",
+    "zh-TW": "生成的配置供出口路由器導入，保留其 WAN 默認路由並啟用心跳。對端 IP／域名可留空，由對端主動連接。"
+  },
+  {
+    "key": "m805248ecae",
+    "zh-CN": " 格式不正确，请粘贴完整配置。",
+    "en-US": " has an invalid format. Paste the complete configuration.",
+    "zh-TW": " 格式不正確，請貼上完整配置。"
+  },
+  {
+    "key": "m022ad9d446",
+    "zh-CN": " 超出有效范围。",
+    "en-US": " is outside the valid range.",
+    "zh-TW": " 超出有效範圍。"
+  },
+  {
+    "key": "ma1ea3c88bb",
+    "zh-CN": "请粘贴 WireGuard 配置。",
+    "en-US": "Paste a WireGuard configuration.",
+    "zh-TW": "請貼上 WireGuard 配置。"
+  },
+  {
+    "key": "m942988ea4b",
+    "zh-CN": "配置过长，请每次导入一份接口及一个隧道。",
+    "en-US": "Configuration too long. Import one interface and one peer at a time.",
+    "zh-TW": "配置過長，請每次導入一份接口及一個隧道。"
+  },
+  {
+    "key": "m3464d8d92e",
+    "zh-CN": "互访网段标记重复",
+    "en-US": "Duplicate site subnet marker",
+    "zh-TW": "互訪網段標記重複"
+  },
+  {
+    "key": "m8a7a2f7b29",
+    "zh-CN": "每次只支持一个 [Interface] 和一个 [Peer]，请拆分后导入。",
+    "en-US": "Only one [Interface] and one [Peer] are supported per import. Split the configuration first.",
+    "zh-TW": "每次只支持一個 [Interface] 和一個 [Peer]，請拆分後導入。"
+  },
+  {
+    "key": "m9552fe3bd3",
+    "zh-CN": "第 ",
+    "en-US": "Line ",
+    "zh-TW": "第 "
+  },
+  {
+    "key": "me8b7a96e63",
+    "zh-CN": " 行格式不正确，请保留配置换行。",
+    "en-US": " has an invalid format. Preserve the configuration line breaks.",
+    "zh-TW": " 行格式不正確，請保留配置換行。"
+  },
+  {
+    "key": "m9d6903a029",
+    "zh-CN": " 行字段重复，请检查配置。",
+    "en-US": " contains a duplicate field. Check the configuration.",
+    "zh-TW": " 行字段重複，請檢查配置。"
+  },
+  {
+    "key": "m7a29c577d8",
+    "zh-CN": "页面组件尚未就绪，请刷新后重试",
+    "en-US": "The page is not ready. Refresh and retry.",
+    "zh-TW": "頁面組件尚未就緒，請刷新後重試"
+  },
+  {
+    "key": "m5b2c3c1b2c",
+    "zh-CN": "缺少 [Peer] 段，未创建接口。",
+    "en-US": "Missing [Peer] section. No interface was created.",
+    "zh-TW": "缺少 [Peer] 段，未創建接口。"
+  },
+  {
+    "key": "m4470215cdd",
+    "zh-CN": "对端 PublicKey",
+    "en-US": "Peer PublicKey",
+    "zh-TW": "對端 PublicKey"
+  },
+  {
+    "key": "m1af3e1151a",
+    "zh-CN": "缺少 AllowedIPs，未创建接口。",
+    "en-US": "Missing AllowedIPs. No interface was created.",
+    "zh-TW": "缺少 AllowedIPs，未創建接口。"
+  },
+  {
+    "key": "m5857e05399",
+    "zh-CN": " 必须包含有效的 IPv4 地址或网段。",
+    "en-US": " must contain a valid IPv4 address or network.",
+    "zh-TW": " 必須包含有效的 IPv4 地址或網段。"
+  },
+  {
+    "key": "m369cfbe4b2",
+    "zh-CN": " 未包含 IPv4；当前版本不支持导入纯 IPv6 隧道。",
+    "en-US": " has no IPv4 entry. IPv6-only tunnel imports are not supported.",
+    "zh-TW": " 未包含 IPv4；當前版本不支持導入純 IPv6 隧道。"
+  },
+  {
+    "key": "mbf5a1b476c",
+    "zh-CN": " 中的 IPv6 项不会导入，当前版本仅配置 IPv4。",
+    "en-US": " IPv6 entries will be skipped. This version configures IPv4 only.",
+    "zh-TW": " 中的 IPv6 項不會導入，當前版本僅配置 IPv4。"
+  },
+  {
+    "key": "m685ee29910",
+    "zh-CN": "Endpoint 请使用 IPv4 或域名:端口，当前不支持 IPv6 端点。",
+    "en-US": "Endpoint must be IPv4 or hostname:port. IPv6 endpoints are not supported.",
+    "zh-TW": "Endpoint 請使用 IPv4 或域名:端口，當前不支持 IPv6 端點。"
+  },
+  {
+    "key": "m7bcb41f6f2",
+    "zh-CN": "Endpoint 端口",
+    "en-US": "Endpoint port",
+    "zh-TW": "Endpoint 端口"
+  },
+  {
+    "key": "mafd614cb90",
+    "zh-CN": "[Interface] 缺少 PrivateKey 或 Address，未创建接口。",
+    "en-US": "[Interface] is missing PrivateKey or Address. No interface was created.",
+    "zh-TW": "[Interface] 缺少 PrivateKey 或 Address，未創建接口。"
+  },
+  {
+    "key": "mdf48e9d958",
+    "zh-CN": "当前接口只支持一个 IPv4 本地地址，请调整 Address。",
+    "en-US": "Only one local IPv4 address is supported per interface. Adjust Address.",
+    "zh-TW": "當前接口只支持一個 IPv4 本地地址，請調整 Address。"
+  },
+  {
+    "key": "m838fbe5ae9",
+    "zh-CN": "接口脚本、Table 和 SaveConfig 不会执行；路由仍由爱快分流设置管理。",
+    "en-US": "Interface scripts, Table and SaveConfig will not run. Routing remains controlled by iKuai routing settings.",
+    "zh-TW": "接口腳本、Table 和 SaveConfig 不會執行；路由仍由愛快分流設置管理。"
+  },
+  {
+    "key": "m86e575e94d",
+    "zh-CN": "路由器未确认操作成功，请刷新接口列表后重试。",
+    "en-US": "The router did not confirm success. Refresh the interface list before retrying.",
+    "zh-TW": "路由器未確認操作成功，請刷新接口列表後重試。"
+  },
+  {
+    "key": "m002202adcd",
+    "zh-CN": "已新建服务接口 ",
+    "en-US": "Created service interface ",
+    "zh-TW": "已新建服務接口 "
+  },
+  {
+    "key": "maea8cde7f6",
+    "zh-CN": "已填入隧道配置，使用现有接口 ",
+    "en-US": "Tunnel settings filled using existing interface ",
+    "zh-TW": "已填入隧道配置，使用現有接口 "
+  },
+  {
+    "key": "m4fdec2ce77",
+    "zh-CN": "请点击页面底部“保存”启用隧道。",
+    "en-US": "Click Save at the bottom of the page to enable the tunnel.",
+    "zh-TW": "請點擊頁面底部“保存”啟用隧道。"
+  },
+  {
+    "key": "m1472c1a1ba",
+    "zh-CN": "，请保存隧道",
+    "en-US": ". Save the tunnel to finish",
+    "zh-TW": "，請保存隧道"
+  },
+  {
+    "key": "ma2f2e4bebd",
+    "zh-CN": "已填入隧道配置，请保存",
+    "en-US": "Tunnel settings filled. Save to finish",
+    "zh-TW": "已填入隧道配置，請保存"
+  },
+  {
+    "key": "m1ae79499b3",
+    "zh-CN": "仅有 [Peer] 配置：请在已有接口的隧道编辑页导入，或提供完整 [Interface] 配置。",
+    "en-US": "[Peer]-only configuration: import from a tunnel editor with an existing interface, or provide a complete [Interface] section.",
+    "zh-TW": "僅有 [Peer] 配置：請在已有接口的隧道編輯頁導入，或提供完整 [Interface] 配置。"
+  },
+  {
+    "key": "m4349f66945",
+    "zh-CN": "PrivateKey 无法生成公钥，未创建接口。",
+    "en-US": "Could not derive the public key from PrivateKey. No interface was created.",
+    "zh-TW": "PrivateKey 無法生成公鑰，未創建接口。"
+  },
+  {
+    "key": "md1c826377c",
+    "zh-CN": "上次接口创建结果待确认，请刷新页面检查接口列表，避免覆盖已有接口。",
+    "en-US": "The previous interface creation is unconfirmed. Refresh the interface list to avoid overwriting an existing interface.",
+    "zh-TW": "上次接口創建結果待確認，請刷新頁面檢查接口列表，避免覆蓋已有接口。"
+  },
+  {
+    "key": "m1d79777520",
+    "zh-CN": "ListenPort 已被其他 WG 接口使用，请调整后再导入。",
+    "en-US": "ListenPort is already used by another WG interface. Change it before importing.",
+    "zh-TW": "ListenPort 已被其他 WG 接口使用，請調整後再導入。"
+  },
+  {
+    "key": "m27bb8b2823",
+    "zh-CN": "没有可用的 WG 监听端口。",
+    "en-US": "No WG listen port is available.",
+    "zh-TW": "沒有可用的 WG 監聽端口。"
+  },
+  {
+    "key": "mc4cfef721d",
+    "zh-CN": "接口创建结果尚未确认，请重试或刷新接口列表检查。",
+    "en-US": "Interface creation is unconfirmed. Retry or refresh the interface list to check.",
+    "zh-TW": "接口創建結果尚未確認，請重試或刷新接口列表檢查。"
+  },
+  {
+    "key": "m64bdcf25d5",
+    "zh-CN": "请求失败，请检查连接并刷新接口列表确认结果后重试。",
+    "en-US": "Request failed. Check your connection and refresh the interface list before retrying.",
+    "zh-TW": "請求失敗，請檢查連接並刷新接口列表確認結果後重試。"
+  },
+  {
+    "key": "m49a20b8ed3",
+    "zh-CN": "导入 WireGuard 配置",
+    "en-US": "Import WireGuard configuration",
+    "zh-TW": "導入 WireGuard 配置"
+  },
+  {
+    "key": "mc0d276f9bf",
+    "zh-CN": "WireGuard 配置内容",
+    "en-US": "WireGuard configuration text",
+    "zh-TW": "WireGuard 配置內容"
+  },
+  {
+    "key": "me369032c99",
+    "zh-CN": "粘贴完整的 [Interface] 和 [Peer] 配置。完整配置会新建服务接口，现有接口不会修改；隧道需确认后保存。",
+    "en-US": "Paste complete [Interface] and [Peer] sections. A new service interface will be created; existing interfaces remain unchanged. Review and save the tunnel to enable it.",
+    "zh-TW": "貼上完整的 [Interface] 和 [Peer] 配置。完整配置會新建服務接口，現有接口不會修改；隧道需確認後保存。"
+  },
+  {
+    "key": "mf6dc1b1641",
+    "zh-CN": "正在导入…",
+    "en-US": "Importing…",
+    "zh-TW": "正在導入…"
+  },
+  {
+    "key": "m576d81bb06",
+    "zh-CN": "导入",
+    "en-US": "Import",
+    "zh-TW": "導入"
+  },
+  {
+    "key": "m2cd0f3be87",
+    "zh-CN": "取消",
+    "en-US": "Cancel",
+    "zh-TW": "取消"
+  },
+  {
+    "key": "mce6a744cbf",
+    "zh-CN": "请先勾选“用作分流出口”，并让此手机独占一个 WG 服务接口",
+    "en-US": "Enable Use as routing exit first, and dedicate one WG service interface to this phone",
+    "zh-TW": "請先勾選“用作分流出口”，並讓此手機獨佔一個 WG 服務接口"
+  },
+  {
+    "key": "m4a48420622",
+    "zh-CN": "对端私钥或服务接口公钥无效，请先生成并保存匹配的密钥",
+    "en-US": "Invalid peer private key or service public key; generate and save a matching key pair first",
+    "zh-TW": "對端私鑰或服務接口公鑰無效，請先生成並保存匹配的密鑰"
+  },
+  {
+    "key": "mb21407bd6b",
+    "zh-CN": "预共享密钥格式无效",
+    "en-US": "Invalid pre-shared key format",
+    "zh-TW": "預共享密鑰格式無效"
+  },
+  {
+    "key": "m279fac468a",
+    "zh-CN": "手机出口配置不支持两端内网互访，请使用单独的出口隧道并清空互访网段",
+    "en-US": "The phone exit profile does not support site-to-site LAN access; use a dedicated exit tunnel and clear the site subnets",
+    "zh-TW": "手機出口配置不支持兩端內網互訪，請使用單獨的出口隧道並清空互訪網段"
+  },
+  {
+    "key": "m3b2184fd2b",
+    "zh-CN": "配置超过单张二维码容量，请下载 JSON 文件导入",
+    "en-US": "The profile exceeds single-QR capacity; download the JSON file to import it",
+    "zh-TW": "配置超過單張二維碼容量，請下載 JSON 文件導入"
+  },
+  {
+    "key": "m304dd4b4c4",
+    "zh-CN": "二维码生成失败，请重新生成",
+    "en-US": "QR generation failed; generate the profile again",
+    "zh-TW": "二維碼生成失敗，請重新生成"
+  },
+  {
+    "key": "m6e401af085",
+    "zh-CN": "隧道参数已变化，请重新生成 sing-box 配置",
+    "en-US": "Tunnel settings changed; generate the sing-box profile again",
+    "zh-TW": "隧道參數已變化，請重新生成 sing-box 配置"
+  },
+  {
+    "key": "m7943f92702",
+    "zh-CN": "iPhone 上网出口：",
+    "en-US": "iPhone Internet exit:",
+    "zh-TW": "iPhone 上網出口："
+  },
+  {
+    "key": "m8021548cd0",
+    "zh-CN": "生成 sing-box JSON／二维码",
+    "en-US": "Generate sing-box JSON / QR",
+    "zh-TW": "生成 sing-box JSON／二維碼"
+  },
+  {
+    "key": "mf33560f1f7",
+    "zh-CN": "下载 JSON",
+    "en-US": "Download JSON",
+    "zh-TW": "下載 JSON"
+  },
+  {
+    "key": "mbbdaba3307",
+    "zh-CN": "适用于 sing-box MT 1.14.8。手机主动连接此路由器；异地设备经分流规则选择该 WG 出口，从手机当前的蜂窝网络或 Wi-Fi 上网。",
+    "en-US": "For sing-box MT 1.14.8. The phone connects to this router. Routing rules send remote devices through this WG exit and then through the phone's current cellular or Wi-Fi connection.",
+    "zh-TW": "適用於 sing-box MT 1.14.8。手機主動連接此路由器；異地設備經分流規則選擇該 WG 出口，從手機當前的蜂窩網絡或 Wi-Fi 上網。"
+  },
+  {
+    "key": "mec2ff66b51",
+    "zh-CN": "请先保存出口隧道，再在分流设置中选择其 WG 接口。手机须独占本服务接口；其他接入设备使用另一个服务接口。",
+    "en-US": "Save the exit tunnel first, then select its WG interface in routing settings. Dedicate this service interface to the phone; use another service interface for incoming clients.",
+    "zh-TW": "請先保存出口隧道，再在分流設置中選擇其 WG 接口。手機須獨佔本服務接口；其他接入設備使用另一個服務接口。"
+  },
+  {
+    "key": "m84da6f7310",
+    "zh-CN": "此配置会占用 iPhone 的 VPN 连接，不能与另一 VPN 同时运行；手机断网或 App 停止时出口不可用。当前转发范围为 IPv4 TCP／UDP。",
+    "en-US": "This profile uses the iPhone VPN connection and cannot run alongside another VPN. The exit becomes unavailable if the phone loses connectivity or the app stops. Forwarding currently covers IPv4 TCP / UDP.",
+    "zh-TW": "此配置會佔用 iPhone 的 VPN 連接，不能與另一 VPN 同時運行；手機斷網或 App 停止時出口不可用。當前轉發範圍為 IPv4 TCP／UDP。"
+  },
+  {
+    "key": "m7327d65e76",
+    "zh-CN": "sing-box 离线二维码：",
+    "en-US": "sing-box offline QR:",
+    "zh-TW": "sing-box 離線二維碼："
+  },
+  {
+    "key": "mbad08cf3d7",
+    "zh-CN": "在 sing-box App 内使用“扫描二维码”导入。不要用系统相机或其他扫码网站；二维码和 JSON 含私钥，请妥善保管。也可下载 JSON 后从文件导入。",
+    "en-US": "Use Scan QR Code inside the sing-box app. Do not use the system camera or a QR website. The QR and JSON contain a private key; keep them private. You can also download the JSON and import it from a file.",
+    "zh-TW": "在 sing-box App 內使用“掃描二維碼”導入。不要用系統相機或其他掃碼網站；二維碼和 JSON 含私鑰，請妥善保管。也可下載 JSON 後從文件導入。"
+  },
+  {
+    "key": "ma23521d74e",
+    "zh-CN": "正在生成密钥，请稍候",
+    "en-US": "Generating keys, please wait",
+    "zh-TW": "正在生成密鑰，請稍候"
+  },
+  {
+    "key": "md1e8fd9c67",
+    "zh-CN": "请先保存隧道，再重新打开编辑页生成 sing-box 配置",
+    "en-US": "Save the tunnel first, then reopen its editor to generate the sing-box configuration.",
+    "zh-TW": "請先儲存隧道，再重新開啟編輯頁生成 sing-box 設定"
+  },
+  {
+    "key": "me6ea329867",
+    "zh-CN": "请先启用隧道和服务接口，再生成 sing-box 配置",
+    "en-US": "Enable the tunnel and its service interface before generating the sing-box configuration.",
+    "zh-TW": "請先啟用隧道和服務介面，再生成 sing-box 設定"
+  },
+  {
+    "key": "m140b1b7cbb",
+    "zh-CN": "无法核对已保存配置，请确认隧道和服务接口已启用、密钥匹配，再保存并刷新后重试",
+    "en-US": "Could not verify the saved configuration. Check that the tunnel and service interface are enabled and their keys match, then save, refresh and retry.",
+    "zh-TW": "無法核對已儲存設定，請確認隧道和服務介面已啟用、密鑰相符，再儲存並重新整理後重試"
+  },
+  {
+    "key": "m7018e67842",
+    "zh-CN": "对端私钥与已保存的公钥不匹配，请重新生成并保存密钥",
+    "en-US": "The peer private key does not match the saved public key. Generate and save a matching key pair.",
+    "zh-TW": "對端私鑰與已儲存的公鑰不相符，請重新生成並儲存密鑰"
+  },
+  {
+    "key": "m4cebe84f43",
+    "zh-CN": "隧道存在未保存的更改，请先保存，再重新打开编辑页生成配置",
+    "en-US": "The tunnel has unsaved changes. Save it, then reopen its editor to generate the configuration.",
+    "zh-TW": "隧道存在未儲存的變更，請先儲存，再重新開啟編輯頁生成設定"
+  },
+  {
+    "key": "m5bbc26ec63",
+    "zh-CN": "服务接口设置已变化，请刷新页面后重新生成配置",
+    "en-US": "The service interface settings have changed. Refresh the page and generate the configuration again.",
+    "zh-TW": "服務介面設定已變更，請重新整理頁面後重新生成設定"
+  },
+  {
+    "key": "mbd865b73fa",
+    "zh-CN": "正在核对已保存配置…",
+    "en-US": "Verifying the saved configuration…",
+    "zh-TW": "正在核對已儲存設定…"
+  },
+  {
+    "key": "m3cc9131b1b",
+    "zh-CN": "请先保存出口隧道并重新打开编辑页，再生成配置；在分流设置中选择其 WG 接口。手机须独占本服务接口，其他接入设备使用另一个服务接口。",
+    "en-US": "Save the exit tunnel and reopen its editor before generating the configuration. Select its WG interface in the routing rules. The phone must be the only peer on this service interface; other clients use a separate service interface.",
+    "zh-TW": "請先儲存出口隧道並重新開啟編輯頁，再生成設定；在分流設定中選擇其 WG 介面。手機須獨佔本服務介面，其他接入裝置使用另一個服務介面。"
+  },
+  {
+    "key": "m650221015b",
+    "zh-CN": "iPhone 锁屏或切换 Wi-Fi／蜂窝网络后，请检查异地设备能否继续上网；若中断，请先在手机上重新连接。此配置不能保证后台持续转发。",
+    "en-US": "After locking the iPhone or switching between Wi-Fi and cellular, check that remote devices still have Internet access. If access stops, reconnect on the phone first. This configuration does not guarantee continuous background forwarding.",
+    "zh-TW": "iPhone 鎖定螢幕或切換 Wi-Fi／行動網路後，請檢查異地裝置能否繼續上網；若中斷，請先在手機上重新連線。此設定不能保證背景持續轉發。"
+  }
+]

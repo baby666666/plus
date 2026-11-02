@@ -1,0 +1,4 @@
+*.md text eol=lf
+tools/* text eol=lf
+release.json text eol=lf
+materials/** -text

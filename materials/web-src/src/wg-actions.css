@@ -1,0 +1,26 @@
+/* WG auxiliary actions use the native .btn component and form grid. */
+.wg-page .input_group.wg-client-actions {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+.wg-page .wg-client-actions > .btn {
+    margin: 0;
+    white-space: nowrap;
+}
+.wg-page .wg-import-content {
+    display: block;
+    max-width: 760px;
+}
+.wg-page .wg-import-actions {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+.wg-page .wg-import-actions > .btn { margin: 0; }
+
+.wg-singbox-qr svg{display:block;max-width:100%;height:auto;padding:16px;box-sizing:border-box;background:#fff}

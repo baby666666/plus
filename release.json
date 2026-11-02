@@ -1,0 +1,30 @@
+{
+  "release": "1.0",
+  "build_label": "V1_0",
+  "tag": "v1.0.0",
+  "firmware_filename": "iKuai8_x64_3.7.26_Enterprise_NativeRouting_V1_0.bin",
+  "firmware_sha256": "103da44b9f8e64ea8eda84c746481a081ec08dcaec1b38f9cfcea4da51ec9f70",
+  "signing_public_key_sha256": "3bab5c3830b7790a744b68cc7b1125d02679aac176fc206a924bb244cd6a0ec5",
+  "image_filename": "iKuai8_x64_3.7.26_Enterprise_NativeRouting_V1_0_EFI_eth0-WAN-Web.img.gz",
+  "image_sha256": "d06404a96f368fe279539e9b7f78b398480975be3d2b232f9a7fdac91e52cdb6",
+  "image_raw_sha256": "b66f02e266379e0f9947e41bb1c8698368cac630837a429628fed5cc0f05bcc0",
+  "rebuild_inputs": {
+    "name": "NativeRouting-1.0-build-inputs.tar.gz",
+    "sha256": "e8f6ba0ab4d34aeef44c0a115ac55bce2146a0a36dafe935810bee0b732c0853",
+    "bytes": 43894405,
+    "files": {
+      "official-enterprise.bin": {
+        "sha256": "79345ed39e9d12bfa99e3c1fa4d4f671da7efd2914bd328fc74d5b122fe6d2ab",
+        "bytes": 42785554
+      },
+      "efi-boot-template.img.gz": {
+        "sha256": "00dba53173528f00efc3a4858a95225908d65a4807e6376b8884d41416e70cbf",
+        "bytes": 1363045
+      }
+    }
+  },
+  "status": "release",
+  "github_published": true,
+  "source_repository": "baby666666/plus",
+  "release_url": "https://github.com/baby666666/plus/releases/tag/v1.0.0"
+}

@@ -1,0 +1,62 @@
+{
+  "format": 1,
+  "version": "d2b7ce4ccceb1ea26f6434aa7e373064eb14ea7ef2309def28243768ea344493",
+  "source": "https://www.ipdeny.com/ipblocks/data/countries/all-zones.tar.gz",
+  "created": "2026-10-04 (firmware baseline)",
+  "regions": [
+    {
+      "key": "cn",
+      "count": 5520,
+      "addresses": 343006720,
+      "sha256": "8cf99f3fcfb17323c8f8f8dfbbc2098c6a3771d1fbd41fb75ee5a5885b335a30"
+    },
+    {
+      "key": "asia",
+      "count": 27103,
+      "addresses": 562386592,
+      "sha256": "fa7e2bac0956833b92c6d7ec563eb58ae6b6db373576cd4b277776bf10874103"
+    },
+    {
+      "key": "europe",
+      "count": 33563,
+      "addresses": 751766880,
+      "sha256": "16c2efc2477e7430bf8ec0c961fb7c69de8a28db4d51baa2653938c78c406036"
+    },
+    {
+      "key": "americas",
+      "count": 25014,
+      "addresses": 1859734944,
+      "sha256": "911a722af42e5dd701bf09752763583636934f6859ff2567363419b96ba8b7e2"
+    },
+    {
+      "key": "oceania",
+      "count": 7032,
+      "addresses": 53459200,
+      "sha256": "a0a6f70c3a15d8cc9f7ba3d0033c5d9f6ddb92b6df77438715fb08870eab7a7d"
+    },
+    {
+      "key": "africa",
+      "count": 2619,
+      "addresses": 117219584,
+      "sha256": "7778a871612e82ba4df19352deeda79b785a9dcdc4d18e23af1043c8e3ed91df"
+    },
+    {
+      "key": "hk",
+      "count": 3077,
+      "addresses": 16001600,
+      "sha256": "d1d76e8b698e5ec6bb50b7d036c49399448a5200a4a8848d584ce2ec68b8a027"
+    },
+    {
+      "key": "mo",
+      "count": 31,
+      "addresses": 339712,
+      "sha256": "cda20d54e1c62dbe94b882fee5352ed4916e8fda137cb9a4e1e85fc39300cb7d"
+    },
+    {
+      "key": "tw",
+      "count": 729,
+      "addresses": 35739904,
+      "sha256": "9539cf92870bf3fc082c60476711b8f7d31c75be5dd13e229fd63ddc2cb13287"
+    }
+  ]
+}

@@ -1,0 +1,1167 @@
+#!/bin/bash /etc/ikcommon
+
+Include interface.sh, iptables.sh, sys/cgroup_control.sh
+I18nload rc.json
+
+boot_load_sync()
+{
+	if [ "$DEVELOPER" ];then
+		$IK_DIR_SCRIPT/$1 boot $2 >/tmp/iktmp/bootlog/${1//\//.} 2>&1
+	else
+		$IK_DIR_SCRIPT/$1 boot $2 >/dev/null 2>&1
+	fi
+}
+
+boot_load_async()
+{
+	if [ "$DEVELOPER" ];then
+		$IK_DIR_SCRIPT/$1 boot $2 >/tmp/iktmp/bootlog/${1//\//.} 2>&1 &
+	else
+		$IK_DIR_SCRIPT/$1 boot $2 >/dev/null 2>&1 &
+	fi
+}
+
+start_remote_services()
+{
+	[ "$(cat /etc/mnt/ikuai/ctpanel_cloud_remote.conf 2>/dev/null)" != "RCSTATUS=on" ] && return 0
+	mkdir -p /tmp/ik_lua_files
+	ln -sf /etc/http_lua/ik_lua.data /tmp/ik_lua_files
+	ik_rc_client
+	pmd
+	if [ "$OEMNAME" = "zh" ];then
+		ln -sf /usr/ikuai/script/cre_client.sh /usr/bin/cre_client
+		cre_client start >/dev/null 2>&1 &
+	fi
+}
+
+start_ikuai_services()
+{
+    # Embedded credentials must never be readable by unprivileged processes.
+    for key in /etc/remote2/ca-certificates.d/ikuai/client.key /etc/ssl/32015/ca.key /etc/ssl/32016/ca.key /etc/ssl/32017/ca.key /etc/ssl/mtls/client.key /etc/swanctl/ikca/rootCA.key /usr/ikuai/ctrlclient/priv.key /usr/openresty/ssl/server.key; do
+        [ ! -f "$key" ] || chmod 600 "$key"
+    done
+	iktimerd
+	iksyslogd
+	ikstats
+	openresty
+	if ! [ "$(cat /etc/mnt/ikuai/ctpanel_cloud_remote.conf 2>/dev/null)" != "RCSTATUS=on" ]; then
+		cre >/dev/null 2>&1 &
+	fi
+	ik_kernel_event >/dev/null 2>&1 &
+	ik_black >/dev/null 2>&1 &
+	ik_host_ua >/dev/null 2>&1 &
+	ik_stats_collect -ds /proc/ikuai/stats/ik_proto_stats >/dev/null 2>&1 &
+}
+
+lcd_init()
+{
+	if [ "$SUPPORT_LCD" ]; then
+		boot_load_async  lcd.sh
+	fi
+}
+
+c90_modem_init()
+{
+	/usr/ikuai/script/utils/modem_power restart
+}
+
+c90_modem_wait()
+{
+	local count=1
+	while true; do
+		sleep 3
+		if [ -e "/dev/ttyUSB2" -a -e "/sys/class/net/usb0" ]; then
+			break
+		fi
+		count=$((count+1))
+		if [ "$count" -gt "15" ]; then
+			break
+		fi
+	done
+
+}
+
+lte_module_init()
+{
+	[ "$ENTERPRISE" -o "$SUPPORT_LTE" ] || return
+
+	#5G 通信网卡
+	if [ "$MODELTYPE" = "C90" -o "$MODELTYPE" = "C3000" ]; then
+		c90_modem_init
+	fi
+
+	if [ -e "/lib/modules/$LINUX_VERSION/usbserial.ko" ]; then
+		insmod /lib/modules/$LINUX_VERSION/usbserial.ko >/dev/null 2>&1
+		insmod /lib/modules/$LINUX_VERSION/usb_wwan.ko >/dev/null 2>&1
+		insmod /lib/modules/$LINUX_VERSION/option.ko >/dev/null 2>&1
+	fi
+
+	if [ "$MODELTYPE" = "C90" -o "$MODELTYPE" = "C3000" ]; then
+		c90_modem_wait
+		if [ -e "/sys/class/net/modem" ]; then
+			local if_macaddr=$(cat /sys/class/net/modem/address)
+			local if_desc="5G Wireless Cardbus Adapter"
+			local if_driver="lte"
+			local INTERFACE="modem"
+			ip link set $INTERFACE up
+			echo "$INTERFACE $if_macaddr $if_driver $if_desc" >> /tmp/iktmp/cache/ether_info
+		fi
+	fi
+	if [ -e "/dev/ttyUSB2" ]; then
+
+		#c3000 need disable
+		if [ "$MODELTYPE" != "C3000" ]; then
+			#支持4G卡插拔
+			echo -e "at+qsimdet=1,0\r\n" | microcom -s 115200 -t 50 /dev/ttyUSB2
+			echo -e "at+qsimstat=1\r\n" | microcom -s 115200 -t 50 /dev/ttyUSB2
+		fi
+
+		#配置网卡模式 （0 Rmnet、1 ECM、2 MBIM、3 RNIDS
+		echo -e "at+qcfg=\"usbnet\",1\r\n" | microcom -s 115200 -t 300 /dev/ttyUSB2
+		sleep 1	
+		ifconfig usb0 down ;ifconfig usb0 up	
+		ifconfig usb0 down ;ifconfig usb0 up
+
+		if [ "$MODELTYPE" = "C90" ]; then
+			#detect sim
+			echo "in" > /sys/class/gpio/sim_det_pin/direction
+			local is_sim_inserted=`cat /sys/class/gpio/sim_det_pin/value`
+			echo "out" > /sys/class/gpio/sim_det_pin/direction
+			echo "1" > /sys/class/gpio/sim_det_pin/value
+
+			echo -e "AT+CFUN=0\r\n" | microcom -s 115200 -t 50 /dev/ttyUSB2
+
+			# have sim and want use it
+			if [ x"$is_sim_inserted" == x"1" ]; then
+				#use sim
+				echo 1 > /sys/class/gpio/sim_sel_pin/value
+				echo 0 > /sys/class/gpio/sim_det_pin/value
+				sleep 2
+				echo 1 > /sys/class/gpio/sim_det_pin/value
+
+				echo -e "AT+QSIMDET=1,1\r\n" | microcom -s 115200 -t 50 /dev/ttyUSB2
+			else
+				#use esim
+				echo 0 > /sys/class/gpio/sim_sel_pin/value
+				echo 0 > /sys/class/gpio/sim_det_pin/value
+				sleep 2
+				echo 1 > /sys/class/gpio/sim_det_pin/value
+				echo -e "AT+QSIMDET=1,0\r\n" | microcom -s 115200 -t 50 /dev/ttyUSB2
+			fi
+
+			echo -e "AT+CFUN=1,1\r\n" | microcom -s 115200 -t 50 /dev/ttyUSB2
+			c90_modem_wait
+			echo -e "AT+CFUN=1\r\n" | microcom -s 115200 -t 50 /dev/ttyUSB2
+
+			#lock 5g band to 41,78,79
+			echo -e "AT+QNWPREFCFG=\"nr5g_band\",41:78:79\r\n" | microcom -s 115200 -t 300 /dev/ttyUSB2
+			ifconfig modem down ;ifconfig modem up
+		fi
+
+		#disable sim detect for c3000
+		if [ "$MODELTYPE" = "C3000" ]; then
+				#flush output
+				echo -e "ATI\r\n" | microcom -s 115200 -t 300 /dev/ttyUSB2 >/dev/null 2>&1
+				echo -e "ATI\r\n" | microcom -s 115200 -t 300 /dev/ttyUSB2 >/dev/null 2>&1
+
+				local cnt=0
+                while [ $cnt -lt 10 ]; do
+					local res=$(echo -e "AT+QSIMDET?\r\n" | microcom -s 115200 -t 300 /dev/ttyUSB2| awk '/QSIMDET/{if(NR==3)print $2}')
+					if [ -n "$res" ]; then
+						break;
+					fi
+					cnt=`expr $cnt + 1`
+
+					sleep 1
+				done
+
+				if echo $res | grep -q '1,'; then
+					echo -e "AT+CFUN=0\r\n" | microcom -s 115200 -t 50 /dev/ttyUSB2
+					sleep 2
+					echo -e "AT+QSIMDET=0,0\r\n" | microcom -s 115200 -t 50 /dev/ttyUSB2
+					echo -e "AT+CFUN=1,1\r\n" | microcom -s 115200 -t 50 /dev/ttyUSB2
+					c90_modem_wait
+					echo -e "AT+CFUN=1\r\n" | microcom -s 115200 -t 50 /dev/ttyUSB2
+				fi
+		fi
+
+	fi
+}
+
+cpufreq_init()
+{
+	if [ -e "/sys/devices/system/cpu/intel_pstate/no_turbo" ]; then
+		if [ -e "/sys/devices/system/cpu/intel_pstate/status" ]; then
+			echo "passive" > /sys/devices/system/cpu/intel_pstate/status
+		fi
+		local no_turbo=$(cat /sys/devices/system/cpu/intel_pstate/no_turbo)
+		echo "$no_turbo" > /sys/devices/system/cpu/intel_pstate/no_turbo 2>/dev/null
+		## bios 关闭睿频 或者 本身不支持睿频
+		if [ "$?" != "0" ]; then
+			touch /tmp/iktmp/no_turbo
+			if [ -e "/sys/devices/system/cpu/intel_pstate/status" ]; then
+				echo "active" > /sys/devices/system/cpu/intel_pstate/status
+			fi
+		fi
+	fi
+}
+
+clean_temp_webuser()
+{
+	sqlite3 $IK_DB_CONFIG "delete from webuser where id == 0; delete from usergroup where id == 0;"
+}
+
+# Remove rows containing shell IFS expansion markers before any feature script
+# loads configuration from the database.  This is a startup safety net for a
+# tampered database; individual feature scripts must still avoid eval.
+sanitize_config_db_ifs()
+{
+	local config_db="$IK_DB_CONFIG"
+	local wecom_db="${IK_DB_WECOM:-/etc/mnt/ikuai/wecom.db}"
+	local wpa_ppsk_db="${IK_AC_PSK_DB:-/etc/mnt/ikuai/wpa_ppsk.db}"
+	local docker_db="${IK_DB_DOCKER:-/etc/mnt/ikuai/docker.db}"
+	local max_db_size=$((1 * 1024 * 1024))
+	local bad_marker='${IFS}'
+	local log_file="$IK_DIR_TMP/bootlog/db_sanitize.log"
+	local db db_name db_size line table id deleted delete_output
+	local schema_output schema_line cid column rest checked_tables id_tables
+	local insert_re_quoted insert_re_plain
+	local delete_sql matched_rows deleted_rows skipped_lines
+
+	mkdir -p "${log_file%/*}"
+	: > "$log_file"
+
+	insert_re_quoted='^INSERT[[:space:]]+INTO[[:space:]]+"([A-Za-z_][A-Za-z0-9_]*)"[[:space:]]+VALUES\(([0-9]+),'
+	insert_re_plain='^INSERT[[:space:]]+INTO[[:space:]]+([A-Za-z_][A-Za-z0-9_]*)[[:space:]]+VALUES\(([0-9]+),'
+
+	for db in "$config_db" "$wecom_db" "$wpa_ppsk_db" "$docker_db"; do
+		db_name=${db##*/}
+		if [ ! -r "$db" ]; then
+			printf 'database=%s skipped=unreadable\n' "$db_name" >> "$log_file"
+			continue
+		fi
+
+		db_size=$(stat -c %s "$db" 2>/dev/null) || \
+			db_size=$(stat -f %z "$db" 2>/dev/null) || {
+			printf 'database=%s skipped=stat_failed\n' "$db_name" >> "$log_file"
+			continue
+		}
+		if [ "$db_size" -ge "$max_db_size" ]; then
+			printf 'database=%s size=%s skipped=size_limit max_size=%s\n' \
+				"$db_name" "$db_size" "$max_db_size" >> "$log_file"
+			continue
+		fi
+
+		delete_sql="BEGIN IMMEDIATE;"
+		matched_rows=0
+		deleted_rows=0
+		skipped_lines=0
+		checked_tables=""
+		id_tables=""
+		while IFS= read -r line; do
+			if [[ "$line" =~ $insert_re_quoted ]]; then
+				table=${BASH_REMATCH[1]}
+				id=${BASH_REMATCH[2]}
+			elif [[ "$line" =~ $insert_re_plain ]]; then
+				table=${BASH_REMATCH[1]}
+				id=${BASH_REMATCH[2]}
+			else
+				skipped_lines=$((skipped_lines + 1))
+				continue
+			fi
+
+			case "|$checked_tables|" in
+				*"|$table|"*) ;;
+				*)
+					checked_tables="${checked_tables:+$checked_tables|}$table"
+					schema_output=$(sqlite3 -batch "$db" \
+						"PRAGMA table_info(\"$table\");" 2>>"$log_file") || true
+					schema_line=${schema_output%%$'\n'*}
+					IFS='|' read -r cid column rest <<< "$schema_line"
+					[ "$cid" = "0" -a "$column" = "id" ] && \
+						id_tables="${id_tables:+$id_tables|}$table"
+					;;
+			esac
+			case "|$id_tables|" in
+				*"|$table|"*) ;;
+				*)
+					skipped_lines=$((skipped_lines + 1))
+					continue
+					;;
+			esac
+
+			delete_sql+=$'\n'"DELETE FROM \"$table\" WHERE id = $id;"
+			delete_sql+=$'\n'"SELECT '$table|$id|' || changes();"
+			matched_rows=$((matched_rows + 1))
+		done < <(nice -n 19 sqlite3 -batch "$db" ".dump" 2>>"$log_file" | \
+			LC_ALL=C nice -n 19 grep -F "$bad_marker")
+
+		if [ "$matched_rows" -gt 0 ]; then
+			delete_sql+=$'\nCOMMIT;'
+			delete_output=$(sqlite3 -batch -bail -cmd ".timeout 5000" "$db" \
+				<<< "$delete_sql" 2>>"$log_file") || continue
+			while IFS='|' read -r table id deleted; do
+				[[ "$deleted" =~ ^[0-9]+$ ]] || continue
+				deleted_rows=$((deleted_rows + deleted))
+				printf 'database=%s deleted table=%s id=%s rows=%s\n' \
+					"$db_name" "$table" "$id" "$deleted" >> "$log_file"
+			done <<< "$delete_output"
+		fi
+
+		printf 'database=%s size=%s matched_rows=%s deleted_rows=%s skipped_lines=%s marker=%s\n' \
+			"$db_name" "$db_size" "$matched_rows" "$deleted_rows" \
+			"$skipped_lines" "$bad_marker" >> "$log_file"
+	done
+	return 0
+}
+
+boot_for_apmode()
+{
+	if [ ! "$CURRENT_APMODE" ] ;then
+		rm -rf /usr/ikuai/www/ap_mode
+		return
+	fi
+
+	load_sysctl			#sysctl -p
+	create_temp_file		#初始化TMP目录
+
+	mv /usr/ikuai/www/ap_mode /usr/ikuai
+	rm -rf /usr/ikuai/www
+	mv /usr/ikuai/ap_mode /usr/ikuai/www
+	ln -sf $IK_DIR_SCRIPT/utils/led.sh $IK_DIR_SCRIPT/leds
+
+	ikstats
+	lldpd >/dev/null 2>&1
+	$IK_DIR_SCRIPT/wifi.sh apinit
+	$IK_DIR_SCRIPT/utils/rps.sh boot
+	$IK_DIR_SCRIPT/utils/led.sh boot
+	$IK_DIR_SCRIPT/apmode/apsysinfo.sh boot
+	$IK_DIR_SCRIPT/apmode/apmesh.sh boot
+	$IK_DIR_SCRIPT/apmode/wtp.sh init
+	$IK_DIR_SCRIPT/apmode/monitor.sh
+	echo 3 > /proc/sys/vm/drop_caches
+
+	exit 0
+}
+
+boot()
+{
+	boot_for_apmode
+
+	#系统环境初始化
+	load_sysctl			#sysctl -p
+	create_temp_file		#初始化TMP目录
+	lte_module_init                 #初始化4G模块的相关配置
+	restore_factory_default		#出厂配置
+	autoconfig_by_udisk		#检查U盘的自动配置
+	create_ipset_default		#初始化ipset
+	create_iptables_chain		#初始化iptables链
+	$IK_DIR_SCRIPT/strict_policy.sh early_guard >/tmp/iktmp/strict-early.log 2>&1
+	openresty_config_init		#初始化nginx线程数量
+	portal_crt_link_oem		#关联portal证书
+	mips_port_init			#初始化mips架构的port状态
+	cpufreq_init			#初始化4G模块的相关配置
+
+	#PoE chip init 初始化POE供电
+	boot_load_sync   platform_poe.sh
+
+	#ALG modules load
+	boot_load_sync   alg.sh
+
+	# hide apmodel
+	boot_load_sync   utils/hide_apmodel.sh
+
+	# Load crash dump kernel
+	boot_load_sync   utils/crash_dump.sh
+
+	#提前生成vpn接口的cache,否则后续有用到相应的接口取值时会出错
+	interface_get_name_to_cache_lan
+	interface_get_name_to_cache_wan
+	interface_get_name_to_cache_vlan
+	interface_get_name_to_cache_pptp
+	interface_get_name_to_cache_l2tp
+	interface_get_name_to_cache_ovpn
+
+	#mount raid and partition
+	boot_load_sync   plugins.sh
+	boot_load_sync   raid_mgmt.sh
+	boot_load_sync   disk_mgmt.sh
+
+	lcd_init
+	clean_temp_webuser
+	sanitize_config_db_ifs
+	#联网更新前加载与绑定节点匹配的内置服务器地址
+	$IK_DIR_SCRIPT/utils/update_hosts.sh init >/dev/null 2>&1
+	start_ikuai_services
+	start_remote_services
+
+	[ -x /etc/oemrc ] && /etc/oemrc boot_begin >/dev/null 2>&1
+	[ "$DEVELOPER" ] && /etc/mnt/deve.sh boot_begin >/dev/null 2>&1
+
+	#Function
+	boot_load_async  webuser.sh
+	boot_load_sync   utils/led.sh
+	boot_load_sync   utils/rps.sh
+	boot_load_sync   basic.sh
+	boot_load_sync   remote_control.sh
+	boot_load_sync   lan.sh
+	boot_load_sync   wan.sh
+	boot_load_sync   lan.sh check_lan1
+	boot_load_sync   vlan.sh
+	boot_load_sync   iptv.sh
+	boot_load_sync   ipv6.sh
+	boot_load_sync   factory.sh
+
+	boot_load_sync   openvpn-server.sh
+	boot_load_async  register.sh
+	boot_load_sync   notice_temp.sh
+	boot_load_sync   notice_cycle.sh
+	boot_load_sync   notice_remind.sh
+	boot_load_sync   notice_expires.sh
+	boot_load_sync   dprotos.sh
+	boot_load_sync   dprotos_l7.sh
+	boot_load_sync   static_rt.sh
+	boot_load_sync   dhcp_acl_mac.sh
+	boot_load_sync   dhcp6_acl_mac.sh
+	boot_load_async  dhcp_server.sh
+	boot_load_sync   custom_isp.sh
+	boot_load_sync   ipgroup.sh
+	boot_load_sync   ipv6group.sh
+	boot_load_sync   macgroup.sh
+	boot_load_sync   dtgroup.sh
+	boot_load_async  lb_pcc.sh
+	boot_load_sync   alone_limit.sh
+	boot_load_async  stream_ipport.sh
+	boot_load_async  stream_layer7.sh
+	boot_load_async  stream_domain.sh
+	boot_load_async  stream_updown.sh
+	boot_load_async  ik_sysctl.sh
+
+	boot_load_sync   dnat.sh
+	boot_load_sync   nat_rule.sh
+	boot_load_async  ddns.sh
+	boot_load_async  netmap.sh
+	boot_load_async  dns.sh
+	boot_load_async  dns_replace.sh
+
+	boot_load_sync   pppuser.sh
+	boot_load_sync   ppp_passwd.sh
+	boot_load_sync   ppp_paylog.sh
+	boot_load_async  pptp_server.sh
+	boot_load_async  l2tp_server.sh
+	boot_load_async  pppoe_server.sh
+	boot_load_sync   url_redirect.sh
+	boot_load_sync   url_keywords.sh
+	boot_load_sync   url_replace.sh
+	boot_load_sync   mac_comment.sh
+	boot_load_sync   wecom.sh
+	boot_load_sync   dingtalk.sh
+	boot_load_sync   ac_randkey.sh
+	boot_load_async  ac_group.sh
+	if [ "$SUPPORT_APMODE" ];then
+		boot_load_sync  ac_server.sh
+	else
+		boot_load_async  ac_server.sh
+	fi
+	#boot_load_sync   ac_wechat_auth.sh
+
+	#wifi 加载要在 一些关联业务的后面,避免开机重复加载多次wifi
+	#另外GX2600多次启动可能会有一些异常问题
+	boot_load_async  wifi.sh
+
+	boot_load_async  ipsec-vpn.sh
+	boot_load_async  pptp_client.sh
+	boot_load_async  l2tp_client.sh
+	boot_load_async  wireguard.sh
+	#防火墙策略加载
+	boot_load_sync   arp.sh
+	boot_load_sync   acl.sh
+	boot_load_sync   advanced.sh
+	boot_load_sync   conn_limit.sh
+	
+	boot_load_async  upnpd.sh
+	boot_load_async  netsnmp.sh
+	boot_load_async  netsnmpc.sh
+	boot_load_async  smbd.sh
+
+	boot_load_sync  audit.sh
+	boot_load_sync  acl_mac.sh
+	boot_load_sync  url_black.sh
+	boot_load_sync  acl_l7.sh
+	boot_load_sync  mac_app.sh
+	boot_load_sync  acl_l2route.sh
+	boot_load_sync  acl_qq.sh
+	boot_load_sync  domain_blacklist.sh
+	boot_load_sync  audit_white.sh
+	boot_load_sync  port_mirror.sh
+	boot_load_sync  watchdog.sh
+	
+	boot_load_sync  simple_qos.sh
+	boot_load_sync  mac_qos.sh
+	boot_load_sync  ik_http_lua.sh
+	boot_load_sync  webauth.sh
+	if [ "$OEMNAME" = "wuying" ]; then
+		boot_load_async wuying.sh
+	fi
+
+	boot_load_async  iksyscheck.sh
+	boot_load_async  speedtest.sh
+	boot_load_async  cflow.sh
+	boot_load_async  wakeup.sh
+	boot_load_async  reboots.sh
+	boot_load_async  nginx_service.sh
+	boot_load_async  openvpn-client.sh
+	boot_load_async  js_inform3.sh
+	boot_load_async  cloud_bak.sh
+	boot_load_async  ikaudit.sh
+	#boot_load_async  catcherd.sh
+	boot_load_async  qemu.sh
+	boot_load_async  dev_control.sh
+	boot_load_async  key_manager.sh
+	boot_load_async  ftp_server.sh
+	boot_load_async  http_server.sh
+	boot_load_async  igmp_proxy.sh
+	boot_load_async  udp_proxy.sh
+	boot_load_async  monitor_iface.sh
+	boot_load_async  monitor_lanip.sh
+	boot_load_async  iperf.sh
+	boot_load_async  mtk_ax3000_e2p.sh
+
+	boot_load_async  utils/submit.lua
+	boot_load_async  utils/async.lua
+	boot_load_async  utils/appid_load.lua
+	boot_load_async  utils/update_hosts.sh
+	boot_load_async  utils/urlfilter_load.sh
+	boot_load_async  utils/collection.sh
+	boot_load_async  utils/monitor_link.sh
+	boot_load_async  utils/monitor_process.sh
+	if [ -z "$OEMNAME" -o "$OEMNAME" = "oem" ]; then
+		boot_load_async  utils/get_hosts.sh
+	fi
+	boot_load_async  utils/ik_warning.sh
+	boot_load_async  vrrp_config.sh
+	boot_load_async  cloud_switch.sh
+	boot_load_async  irqbalance.sh
+	boot_load_async  utils/ik_warn_rt.sh
+	boot_load_async  stream_control.sh #开机加载流控策略需要靠后点,因为前面有些数据没初始化完,可能加载会失败.
+	boot_load_async  utils/crond.sh    #这个要用于放在最后面
+
+	if [ "$MODELTYPE" = "C3000" ]; then
+		boot_load_async  utils/monitor_sim_link.sh
+	fi
+
+	#=======================================结束IKUAI脚本============================================
+	$IK_DIR_SCRIPT/feature_port.sh boot >/tmp/iktmp/feature_port.log 2>&1 &
+	[ -x /etc/oemrc ] && /etc/oemrc boot_end >/dev/null 2>&1 &
+	[ "$DEVELOPER" ] && /etc/mnt/deve.sh boot_end >/dev/null 2>&1
+	put_ikapps_into_cgroups
+	Syslog $(Iecho i18n_rc_sys_starting)
+
+	# In order to save mem, delete all kernel modules on non-x86
+	delete_kernel_modules
+	drop_caches
+}
+
+stop_ikuai_webradius()
+{
+	if [ ! -e "/tmp/iktmp/ik_web_radius.status" ]; then
+		return
+	fi
+	killall -q ik_web_radius
+	for i in 1 2 3; do
+		sleep 2
+		killall -q ik_web_radius || break
+	done
+}
+
+stop()
+{
+	[ "$CURRENT_APMODE" ] && exit 0
+	[ "$BOOTGUIDE" = "cd" -o "$BOOTGUIDE" = "ucd" ] && exit 0
+	Syslog $(Iecho i18n_rc_sys_shutdown)
+	stop_ikuai_services
+	stop_ikuai_webradius
+	killall -q hotplug2
+	killall -q monitor
+	killall -q openresty
+	killall -q ik_rest
+	killall -q crond
+	killall -q dropbear
+
+	if [ "$ARCH" = "mips" -o "$SUPPORT_RTC" = "0" ];then
+		date +"%F %T" > $IK_DIR_DATA/datetimesync
+	fi
+
+	$IK_DIR_SCRIPT/dhcp_server.sh backup_leases_file
+	$IK_DIR_SCRIPT/webauth.sh backup_webauth
+	$IK_DIR_SCRIPT/qemu.sh shutdown >/dev/null 2>&1
+
+	sync
+	sleep 5
+
+	killall -q iksyslogd
+	return 0
+}
+
+load_sysctl()
+{
+	local total_mem=$(free | awk 'NR==2{printf "%.f",$2/1024.0}')
+
+	if [ "$ARCH" = "x86" -o "$ARCH" = "arm" ];then
+		echo net.ipv4.neigh.default.gc_thresh1=16384 >>/etc/sysctl.conf 
+		echo net.ipv4.neigh.default.gc_thresh2=16384 >>/etc/sysctl.conf 
+		echo net.ipv4.neigh.default.gc_thresh3=32768 >>/etc/sysctl.conf 
+	fi
+
+	if [ "$ARCH" != "x86" ];then
+		if [ "$total_mem" -le 128 ];then
+			nf_conntrack_max=16384
+		elif [ "$total_mem" -le 256 ];then
+			nf_conntrack_max=32768
+		elif [ "$total_mem" -le 512 ];then
+			nf_conntrack_max=65536
+		fi
+
+		if [ "$nf_conntrack_max" ];then
+			sed -i "s/net.netfilter.nf_conntrack_max=.*/net.netfilter.nf_conntrack_max=$nf_conntrack_max/" /etc/sysctl.conf 
+		fi
+	fi
+
+	if [ "$total_mem" -le 100 ];then
+		max_dgram_qlen=64
+	elif [ "$total_mem" -le 200 ];then
+		max_dgram_qlen=128
+	elif [ "$total_mem" -le 400 ];then
+		max_dgram_qlen=256
+	elif [ "$total_mem" -le 800 ];then
+		max_dgram_qlen=512
+	elif [ "$total_mem" -le 1800 ];then
+		max_dgram_qlen=1024
+	else
+		max_dgram_qlen=2048
+	fi
+
+	local nf_conntrack_expect_max=$(cat /proc/sys/net/netfilter/nf_conntrack_expect_max)
+	if [ "$nf_conntrack_expect_max" -lt 1024 ];then
+		echo net.netfilter.nf_conntrack_expect_max=1024 >>/etc/sysctl.conf 
+	fi
+
+	echo net.unix.max_dgram_qlen=$max_dgram_qlen >>/etc/sysctl.conf 
+
+	sysctl -p >/dev/null 2>/dev/null
+# least-privilege kernel controls; root routing operations remain permitted.
+[ ! -w /proc/sys/kernel/unprivileged_bpf_disabled ] || echo 1 > /proc/sys/kernel/unprivileged_bpf_disabled
+[ ! -w /proc/sys/kernel/kptr_restrict ] || echo 1 > /proc/sys/kernel/kptr_restrict
+[ ! -w /proc/sys/kernel/dmesg_restrict ] || echo 1 > /proc/sys/kernel/dmesg_restrict
+
+
+	mkdir -p /tmp/coredump
+	echo /tmp/coredump/%e >/proc/sys/kernel/core_pattern
+
+	local disable_ipv6=$(cat /proc/sys/net/ipv6/conf/all/disable_ipv6)
+	if [ "$disable_ipv6" != "0" ];then
+		sysctl -w -q net.ipv6.conf.all.disable_ipv6=0
+		sysctl -w -q net.ipv6.conf.default.forwarding=1
+		sysctl -w -q net.ipv6.conf.all.forwarding=1
+	fi
+	
+}
+
+autoconfig_by_udisk()
+{
+	local id=$(sqlite3 $IK_DB_CONFIG  "select 1 from webuser where id=1 and username='admin' and passwd='21232f297a57a5a743894a0e4a801fc3'")
+	if [ "$id" = "1" ];then
+		touch /tmp/iktmp/is_default_webuser
+
+		if [ -e $IK_DIR_CONF/reset_default.ip ];then
+			ip addr add 192.168.1.1/32 scope host dev lo
+		fi
+
+		blkid -t TYPE=vfat -s TYPE -o device | \
+		while read dev ;do
+			devname=${dev:5}
+			devparent=${devname:0:3}
+			DEVPATH=$(readlink /sys/block/$devparent)
+
+			if [[ "$DEVPATH" =~ usb ]];then
+				if mount -t vfat $dev /mnt ;then
+					if [ -f "/mnt/AutoConfig.txt" ];then
+						cp /mnt/AutoConfig.txt /tmp/iktmp/AutoConfig.txt
+						/usr/ikuai/script/utils/autoconfig.sh /tmp/iktmp/AutoConfig.txt
+					fi
+
+					umount /mnt
+					[ -f /tmp/iktmp/AutoConfig.txt ]&& break
+				fi
+			fi
+		done
+	fi
+}
+
+restore_factory_default() {
+	if [ -e $IK_DIR_CONF/reset_default.flag ];then
+		rm -f $IK_DIR_CONF/reset_default.flag
+		$IK_DIR_SCRIPT/lan.sh reset_default
+		$IK_DIR_SCRIPT/wan.sh reset_default
+		$IK_DIR_SCRIPT/wifi.sh reset_default
+		$IK_DIR_SCRIPT/dhcp_server.sh reset_default
+	else
+		$IK_DIR_SCRIPT/lan.sh check_config
+		$IK_DIR_SCRIPT/dhcp_server.sh check_config
+	fi
+}
+
+
+create_temp_file() {
+	#创建默认临时文件
+	mkdir -p \
+		/etc/api \
+		/etc/disk \
+		/etc/disk_sys \
+		/etc/disk_user \
+		/etc/disk_notify \
+		/etc/disk_notify/qemu \
+		/var/empty \
+		/var/tmp \
+		/var/run \
+		/var/run/vsftpd \
+		/var/log \
+		/var/lock \
+		/var/state \
+		/var/db \
+		/var/log/nginx \
+		/var/lib/nginx \
+		/var/log/openresty \
+		/var/lib/openresty \
+		/tmp/update \
+		/tmp/monitor \
+		/tmp/apupdate \
+		/tmp/webauth_key \
+		/tmp/iktmp/notice \
+		/tmp/iktmp/authqos \
+		/tmp/iktmp/upgrade \
+		/tmp/iktmp/bootlog \
+		/tmp/iktmp/import \
+		/tmp/iktmp/export \
+		/tmp/iktmp/dhcpc \
+		/tmp/iktmp/dhcp6c \
+		/tmp/iktmp/pppoe \
+		/tmp/iktmp/pppoe6 \
+		/tmp/iktmp/pptp \
+		/tmp/iktmp/l2tp \
+		/tmp/iktmp/ovpn \
+		/tmp/iktmp/submit \
+		/tmp/iktmp/cache/i18n \
+		/tmp/iktmp/cache/ifname \
+		/tmp/iktmp/cache/ifname_comment \
+		/tmp/iktmp/cache/config \
+		/tmp/iktmp/cache/internet \
+		/tmp/iktmp/pppoe-wan-log \
+		/tmp/iktmp/monitor-ikstat \
+		/tmp/iktmp/ipt_rule_id \
+		/tmp/iktmp/qos-status \
+		/tmp/iktmp/url_filter/tmp \
+		/tmp/iktmp/radius-status \
+		/tmp/iktmp/webauth/tmp_auth \
+		/tmp/iktmp/webauth/user_agent  \
+		/tmp/iktmp/webauth/client_type \
+		/tmp/iktmp/webauth/iphone \
+		/tmp/iktmp/webauth/android \
+		/tmp/iktmp/webauth/client_type_total \
+		/tmp/iktmp/webauth/weixin2 \
+		/tmp/iktmp/webauth/repeat_auth \
+		/tmp/iktmp/webauth/check_auth \
+		/tmp/iktmp/bssid \
+		/tmp/iktmp/ssid \
+		/tmp/iktmp/webauth/white \
+		/tmp/iktmp/apupdating \
+		/tmp/iktmp/ddns \
+		/tmp/iktmp/route_rule \
+		/tmp/iktmp/route_rule/route.d \
+		/tmp/iktmp/clt_ap_info \
+		/tmp/iktmp/clt_wifi_info \
+		/tmp/iktmp/active_mac \
+		/tmp/iktmp/leds \
+		/tmp/iktmp/l2tpclient \
+		/tmp/iktmp/collection-stats/im_event \
+                /tmp/iktmp/monitor-alarm/tmp \
+		/tmp/iktmp/monitor-alarm/dispose \
+		/tmp/iktmp/monitor-alarm/iface-result \
+		/tmp/iktmp/monitor-link/.last_status \
+		/tmp/iktmp/webauth_count \
+		/tmp/iktmp/ik_hosts \
+		/etc/log/webauth_count \
+		/tmp/iktmp/cache/dingtalk_ipset \
+		/tmp/iktmp/async/sqlite \
+		/tmp/iktmp/async/ppp-up \
+		/tmp/iktmp/qemu
+
+	touch  \
+		/tmp/ikauthuserd.load \
+		/tmp/sw_iplist \
+		/tmp/auth.txt \
+		/tmp/monitor_process.txt \
+		/var/tmp/cmdmonitor.lock \
+		/tmp/fstab \
+		/var/log/wtmp \
+		/var/log/lastlog \
+		/tmp/iktmp/tc.ppp \
+		/tmp/iktmp/tc.ppp.up \
+		/tmp/iktmp/connmark \
+		/tmp/iktmp/packetmark \
+		/tmp/iktmp/routemark \
+		/tmp/pppoe.up \
+		/tmp/iktmp/active-terminal \
+		/tmp/ping \
+		/tmp/traceroute \
+		/tmp/iktmp/dprotomark \
+		/tmp/iktmp/apmac \
+		/tmp/iktmp/apname \
+		/tmp/iktmp/cache/ipgroup \
+		/tmp/iktmp/cache/macgroup \
+		/tmp/iktmp/cache/default_route \
+		/tmp/iktmp/ppp-secrets \
+		/tmp/proc.net.dev
+
+	#iptables -w 自动生成规则ID缓存文件
+	touch   /tmp/iktmp/ipt_rule_id/stream_ipport_id \
+		/tmp/iktmp/ipt_rule_id/stream_layer7_id \
+		/tmp/iktmp/ipt_rule_id/route_table_id \
+		/tmp/iktmp/ipt_rule_id/stream_ipport_id_rule \
+		/tmp/iktmp/ipt_rule_id/stream_layer7_id_rule \
+		/tmp/iktmp/ipt_rule_id/route_table_id_rule \
+		/tmp/iktmp/ipt_rule_id/lbpcc_id_rule
+	
+	#sdwan init
+	touch /tmp/iktmp/cache/ifname/sdwan \
+		/tmp/iktmp/cache/ifname_comment/sdwan
+	#web plugins directory
+	mkdir -p /usr/ikuai/www/plugins
+}
+
+create_ipset_default()
+{
+	ipset -N Linux_lan_default hash:net			#内网IP组
+	ipset -N Linux_wan_default hash:net			#外网IP组
+	ipset -N Linux_alone_intell hash:ip			#独立限速
+
+	ipset -N Linux_webauth_default hash:net			#WEB认证IP组
+	ipset -N Linux_webauth_white hash:net			#WEB认证白名单目的IP
+	ipset -N Linux_webauth_white_https hash:ip --timeout 7200 #WEB认证,HTTPS重定向白名单
+	ipset -N Linux_webauth_wifi_enc	hash:mac		#通过AP加密免认证连接上来的mac
+	ipset -N Linux_webauth_authed	hash:mac		#已认证的mac列表
+	ipset -N Linux_webauth_white_mac hash:mac		#mac白名单列表
+	ipset -N Linux_webauth_authed_list setlist --size 32 2>/dev/null
+	ipset -! -A Linux_webauth_authed_list Linux_webauth_authed 2>/dev/null
+	ipset -! -A Linux_webauth_authed_list Linux_webauth_wifi_enc 2>/dev/null
+	ipset -! -A Linux_webauth_authed_list Linux_webauth_white_mac 2>/dev/null
+}
+
+create_iptables_chain()
+{
+	ipt_raw_prerouting	#初始化raw prerouting 规则链
+	ipt_mangle_forward	#初始化mangle forward 规则链
+	ipt_mangle_prerouting	#初始化mangle prerouting 规则链
+	ipt_mangle_other
+	ipt_filter_forward	#初始化filter forward 规则链
+	ipt_nat_prerouting	#初始化nat prerouting 规则链
+	ipt_nat_postrouting	#初始化nat postrouting 规则链(自动NAT上网)
+	ipt_drop_wan_port	#阻断一些外网端口访问
+	ipt_filter_other
+}
+
+ipt_drop_wan_port()
+{
+	ipset -N DROP_T_PORTS_WAN_IN bitmap:port range 1-65535
+	ipset -N DROP_U_PORTS_WAN_IN bitmap:port range 1-65535
+	iptables -w -I INPUT -p tcp -m set --match-set DROP_T_PORTS_WAN_IN dst -m ifaces --ifaces wan*,vwan*,adsl* --dir in -j DROP
+	iptables -w -I INPUT -p udp -m set --match-set DROP_U_PORTS_WAN_IN dst -m ifaces --ifaces wan*,vwan*,adsl* --dir in -j DROP
+	ip6tables -w -I INPUT -p tcp -m set --match-set DROP_T_PORTS_WAN_IN dst -m ifaces --ifaces wan*,vwan*,adsl* --dir in -j DROP
+	ip6tables -w -I INPUT -p udp -m set --match-set DROP_U_PORTS_WAN_IN dst -m ifaces --ifaces wan*,vwan*,adsl* --dir in -j DROP
+	while read proto ports ;do
+		local setname=""
+		if [ "$proto" = "tcp" ];then
+			setname="DROP_T_PORTS_WAN_IN"
+		elif [ "$proto" = "udp" ];then
+			setname="DROP_U_PORTS_WAN_IN"
+		fi
+		for port in ${ports//,/ } ;do
+			ipset -A $setname $port
+		done
+	done < /etc/defaults/drop_wan_port
+}
+
+
+ipt_filter_other()
+{
+	iptables -w -N INPUT_ACL
+	ip6tables -w -N INPUT_ACL6
+	iptables -w -N WEBACL
+	iptables -w -N VNCACL
+	iptables -w -N DHCP_ACL
+	ip6tables -w -N DHCP6_ACL
+
+	iptables -w -A INPUT -j INPUT_ACL
+	ip6tables -w -A INPUT -j INPUT_ACL6
+	iptables -w -A INPUT -j WEBACL
+	iptables -w -A INPUT -j VNCACL
+	iptables -w -A INPUT -p udp -m udp  --dport 67 -j DHCP_ACL
+	ip6tables -w -A INPUT -p udp -m udp  --dport 547 -j DHCP6_ACL
+}
+
+ipt_nat_postrouting()
+{
+	iptables -w -t nat -N SRCNAT
+	iptables -w -t nat -N NATRULE_SNAT
+	iptables -w -t nat -N AUTONAT
+	iptables -w -t nat -N MINIUPNPD-POSTROUTING
+	iptables -w -t nat -N POST_FULLCONE
+	iptables -w -t nat -A POSTROUTING ! -d 127.0.0.1 -j SRCNAT      #NAT转发规则
+	iptables -w -t nat -A POSTROUTING ! -d 127.0.0.1 -j NATRULE_SNAT      #NAT规则snat方式
+	iptables -w -t nat -A POSTROUTING ! -d 127.0.0.1 -j MINIUPNPD-POSTROUTING      #MINIUPNP自动转换端口
+	iptables -w -t nat -A POSTROUTING ! -d 127.0.0.1 -j POST_FULLCONE     #full cone NAT
+	iptables -w -t nat -A POSTROUTING ! -d 127.0.0.1 -j AUTONAT     #系统自动NAT
+
+	ip6tables -w -t nat -A POSTROUTING -s fc00::/7 -d 2000::/3 -j MASQUERADE  # IPv6私网地址NAT
+}
+ipt_nat_prerouting()
+{
+	iptables -w -t nat -N DNSIKUAI8
+	iptables -w -t nat -N DNSIKUAI8_NOAUTH
+	iptables -w -t nat -N HTTPPROXY
+	iptables -w -t nat -N HTTPSPROXY
+	iptables -w -t nat -N MINIUPNPD
+	iptables -w -t nat -N DSTNAT
+	iptables -w -t nat -N NATRULE_DNAT
+	iptables -w -t nat -N NETNAT
+	iptables -w -t nat -N NOTICE
+	iptables -w -t nat -N DNSPROXY
+	iptables -w -t nat -N PRE_FULLCONE
+
+	iptables -w -t nat -A PREROUTING -p udp --dport 53 $IPT_CONNTRACK_NEW $IPT_LAN_IFACE_IN -j DNSIKUAI8 
+	iptables -w -t nat -A PREROUTING -p tcp -m multiport --dports 80,443 $IPT_CONNTRACK_NEW $IPT_LAN_IFACE_IN -j HTTPPROXY    #80端口代理
+	iptables -w -t nat -A PREROUTING -p tcp -m multiport --dports 80,443 $IPT_CONNTRACK_NEW $IPT_LAN_IFACE_IN -j NOTICE	#WEB推送通知
+	iptables -w -t nat -A PREROUTING $IPT_CONNTRACK_NEW $IPT_LOCAL_DST -j DSTNAT	    #端口映射
+	iptables -w -t nat -A PREROUTING $IPT_CONNTRACK_NEW -j NATRULE_DNAT	    	#NAT规则dnat方式
+	iptables -w -t nat -A PREROUTING $IPT_CONNTRACK_NEW $IPT_LOCAL_DST -j MINIUPNPD    #UPNPD
+	iptables -w -t nat -A PREROUTING -p udp $IPT_WAN_IFACE_IN -j PRE_FULLCONE
+	iptables -w -t nat -A PREROUTING $IPT_CONNTRACK_NEW $IPT_LOCAL_DST -j NETNAT       #1对1映射
+	iptables -w -t nat -A PREROUTING -p udp --dport 53 $IPT_CONNTRACK_NEW $IPT_LAN_IFACE_IN -j DNSPROXY     #DNS代理
+}
+ipt_filter_forward()
+{
+	iptables -w -N AUTH_EXPIRES
+	iptables -w -N ACL_MAC
+	ip6tables -w -N ACL_MAC6
+	iptables -w -N WECOM_BLOCK_MAC
+	iptables -w -N LAYER7
+	iptables -w -N QOS
+	iptables -w -N SIMPLE
+	iptables -w -N IP_QOS
+	iptables -w -N MAC_QOS
+	ip6tables -w -N MAC_QOS
+	iptables -w -N FIREWALL
+	ip6tables -w -N FIREWALL6
+	iptables -w -N MINIUPNPD
+	iptables -w -N ARP
+	iptables -w -N PPPOE
+	iptables -w -N WEBAUTH_QOS
+	iptables -w -N L2TP_QOS
+	iptables -w -N OVPN_QOS
+	iptables -w -N PPPOE_QOS
+	iptables -w -N PPTP_QOS
+	iptables -w -N IKE_QOS
+	iptables -w -N WEBAUTH
+	iptables -w -N COUPON_QOS
+	iptables -w -N LAN_VISIT
+	iptables -w -N NONAT
+	iptables -w -N PPP
+	iptables -w -N CONNLIMIT
+
+	iptables -w -A FORWARD $IPT_PPP_IFACE_IN -j AUTH_EXPIRES
+	iptables -w -A FORWARD -j ACL_MAC
+	ip6tables -w -A FORWARD -j ACL_MAC6
+	iptables -w -A FORWARD -j WECOM_BLOCK_MAC
+	iptables -w -A FORWARD -j CONNLIMIT
+	iptables -w -A FORWARD -j LAYER7
+	iptables -w -A FORWARD -j QOS
+	iptables -w -A FORWARD -j SIMPLE
+	iptables -w -A FORWARD -j IP_QOS
+	iptables -w -A FORWARD -j MAC_QOS
+	ip6tables -w -A FORWARD -j MAC_QOS
+	iptables -w -A FORWARD -j COUPON_QOS
+	iptables -w -A FORWARD -j WEBAUTH_QOS
+	iptables -w -A FORWARD -j OVPN_QOS
+	iptables -w -A FORWARD -j L2TP_QOS
+	iptables -w -A FORWARD -j PPTP_QOS
+	iptables -w -A FORWARD -j PPPOE_QOS
+	iptables -w -A FORWARD -j IKE_QOS
+	iptables -w -A FORWARD -j FIREWALL
+	ip6tables -w -A FORWARD -j FIREWALL6
+	iptables -w -A FORWARD -j LAN_VISIT
+	iptables -w -A FORWARD -j NONAT
+	iptables -w -A FORWARD $IPT_NOT_PPP_IFACE_IN -j WEBAUTH
+	iptables -w -A FORWARD $IPT_LAN_IFACE_IN -j PPPOE
+	iptables -w -A FORWARD $IPT_PPP_IFACE_IN $IPT_NOT_LAN_IFACE_OUT -j PPP
+	iptables -w -A FORWARD $IPT_LAN_NOT_PPP_IN $IPT_WAN_IFACE_OUT -j ARP
+
+	# ------------------------------------------------
+	# IPv6 security rules
+	#ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+	#ip6tables -A OUTPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+	#ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+	#
+	ip6tables -N WEBACL
+	ip6tables -N input_reject
+	ip6tables -A INPUT -j WEBACL
+	#ip6tables -A input_reject -p udp --dport 546 -j RETURN
+	#ip6tables -A input_reject -p tcp -j REJECT
+	#ip6tables -A input_reject -p udp -j REJECT
+	#
+	#ip6tables -A forword_reject -p tcp -j REJECT
+	#ip6tables -A forword_reject -p udp -j REJECT
+	#
+	#ip6tables -A INPUT -i wan+ -j input_reject
+	#ip6tables -A INPUT -i adsl+ -j input_reject
+	#ip6tables -A FORWARD -i wan+ -j forword_reject
+	ip6tables -N forword_reject
+	ip6tables -A FORWARD $IPT_WAN_IFACE_IN -j forword_reject
+
+	ip6tables -w -N ROUTE_LOOP
+	ip6tables -w -A FORWARD $IPT_WAN_IFACE_IN -j ROUTE_LOOP
+}
+
+ipt_raw_prerouting()
+{
+	iptables -w -t raw -N CONNLIMIT
+	iptables -w -t raw -A PREROUTING -j CONNLIMIT
+}
+
+ipt_mangle_other()
+{
+	iptables -w -t mangle -N WEBCACHE_UP
+	iptables -w -t mangle -N WEBCACHE_DOWN
+	iptables -w -t mangle -N IPSEC_ROUTE
+	iptables -w -t mangle -A OUTPUT -m conntrack --ctstate NEW -j IPSEC_ROUTE
+	iptables -w -t mangle -A OUTPUT -j WEBCACHE_UP
+	iptables -w -t mangle -A INPUT -j  WEBCACHE_DOWN
+}
+
+ipt_mangle_forward()
+{
+	iptables -w -t mangle -N LAYER7_IN
+	iptables -w -t mangle -N LAYER7_OUT
+	iptables -w -t mangle -N FASTOFFLOAD
+
+	iptables -w -t mangle -N PPTPMSS
+	iptables -w -t mangle -A FORWARD -p tcp+udp -j FASTOFFLOAD
+	iptables -w -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j PPTPMSS #PPTP MSS报文长度修改
+
+	# Todo: Need it ? IPv6 MSS fix
+	# ip6tables -w -t mangle -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+}
+
+ipt_mangle_prerouting()
+{
+	iptables -w -t mangle -N STREAM_LAYER7_NEW
+	iptables -w -t mangle -N STREAM_IPPORT_NEW
+	iptables -w -t mangle -N DPROTO
+
+	iptables -w -t mangle -A PREROUTING $IPT_LAN_IFACE_IN -j DPROTO					 #自定义协议 标记appmark, 放在协议分流前面
+	iptables -w -t mangle -A PREROUTING $IPT_LAN_IFACE_IN $IPT_NOT_LAN_DST $IPT_NOT_LOCAL_DST $IPT_LAN_SRC_CAN_ROUTE $IPT_NOT_WAN_DST -j STREAM_LAYER7_NEW	     #协议分流
+	iptables -w -t mangle -A PREROUTING $IPT_CONNTRACK_NEW $IPT_LAN_IFACE_IN $IPT_NOT_LAN_DST $IPT_NOT_LOCAL_DST $IPT_LAN_SRC_CAN_ROUTE $IPT_NOT_WAN_DST -j STREAM_IPPORT_NEW	     #端口分流 标记connmark
+
+	# WG decrypted original-direction connections use the same native port
+	# policy chain; retain destination guards, without the LAN classifiers.
+	iptables -w -t mangle -A PREROUTING -i wg+ -m mark --mark 0 $IPT_CONNTRACK_NEW \
+		-m conntrack --ctdir ORIGINAL $IPT_NOT_LAN_DST $IPT_NOT_LOCAL_DST $IPT_NOT_WAN_DST \
+		-j STREAM_IPPORT_NEW
+
+	ip6tables -w -t mangle -N STREAM_IPV6_NEW
+	ip6tables -w -t mangle -A PREROUTING $IPT_CONNTRACK_NEW $IPT_LAN_IFACE_IN $IPT_NOT_LOCAL_DST -j STREAM_IPV6_NEW
+}
+
+put_ikapps_into_cgroups()
+{
+	[ ! -e /proc/cgroups ]&& return 0
+	ps |awk -v mem_path="/sys/fs/cgroup/memory/ik_apps/tasks" -v cpu_path="/sys/fs/cgroup/cpu/ik_apps/tasks" -v cpu_path_ua="/sys/fs/cgroup/cpu/ik_apps/ik_ua_parser/tasks"\
+	'$5~/^ik_/{
+		if($5=="ik_ua_parser"){
+			cmds=sprintf("echo %s >> %s;%s",$1,cpu_path_ua,cmds)
+			cmds=sprintf("echo %s >> %s;%s",$1,mem_path,cmds)
+		}else{
+			cmds=sprintf("echo %s >> %s;%s",$1,cpu_path,cmds)
+			cmds=sprintf("echo %s >> %s;%s",$1,mem_path,cmds)
+		}
+	} END {
+			system(cmds)
+	}'
+}
+
+delete_kernel_modules()
+{
+	local exclude_ko="nf_conntrack_ftp.ko\nnf_conntrack_h323.ko\nnf_conntrack_sip.ko\nnf_conntrack_tftp.ko\nnf_nat_h323.ko\nnf_nat_ftp.ko\nnf_nat_sip.ko\nnf_nat_tftp.ko\nusbserial.ko\nusb_wwan.ko\noption.ko"
+	if [ ${ARCH} = "mips" ]; then
+		for mod_file in $(ls /lib/modules/$LINUX_VERSION/); do
+			echo -e "$exclude_ko" | grep -q $mod_file || rm -rf /lib/modules/$LINUX_VERSION/$mod_file
+		done		
+	fi
+}
+
+#根据内存大小来设定nginx 工作线程数量
+openresty_config_init()
+{
+	local mem100m=100000
+	local mem200m=200000
+	local mem500m=500000
+	local mem1000m=1000000
+	local mem2000m=2000000
+	local mem3000m=3000000
+	local mem4000m=4000000
+	local mem8000m=8000000
+	local mem16000m=16000000
+
+	local worker_rlimit_nofile worker_connections
+	local total_mem=$(awk '{print $2;exit}' /proc/meminfo)
+
+	if [ "$total_mem" -ge $mem8000m ];then
+		local nginx_worker_num=16
+	elif [ "$total_mem" -ge $mem4000m ];then
+		local nginx_worker_num=8
+	elif [ "$total_mem" -ge $mem2000m ];then
+		local nginx_worker_num=6
+	elif [ "$total_mem" -ge $mem500m ];then
+		local nginx_worker_num=4
+	elif [ "$total_mem" -ge $mem200m ];then
+		local nginx_worker_num=2
+	else
+		local nginx_worker_num=1
+
+		worker_rlimit_nofile="s/worker_rlimit_nofile .*/worker_rlimit_nofile 1024;/;"
+		worker_connections="s/worker_connections .*/worker_connections 1024;/;"
+
+		echo 3 > /proc/sys/vm/drop_caches
+	fi
+
+	sed -i "s/^worker_processes.*/worker_processes $nginx_worker_num;/;$worker_rlimit_nofile $worker_connections" /usr/openresty/nginx.conf
+}
+
+mips_port_init()
+{
+	if [ -x $IK_DIR_SCRIPT/utils/ikswconfig.sh ];then
+		$IK_DIR_SCRIPT/utils/ikswconfig.sh
+	fi
+}
+
+portal_crt_link_oem()
+{
+	if [ "$PORTAL" = "portal.topspeedwifi.com" ];then
+		ln -sf /usr/libproto/crts/portal_oem.crt /usr/openresty/ssl/portal.crt
+		ln -sf /usr/libproto/crts/portal_oem.key /usr/openresty/ssl/portal.key
+	fi
+}
+
+drop_caches()
+{
+	(sleep 30 ;echo 3 > /proc/sys/vm/drop_caches) >/dev/null 2>&1 &
+}

@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+.venv/
+materials/firmware/port-3726/output/
+local-signing-key.pem
+*private-key*
+config.db
+*.pcap
+*.pcapng
+
+inputs/
+*-private-build/
+rebuild-result.json
+*.pcap*
