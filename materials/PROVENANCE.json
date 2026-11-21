@@ -1,0 +1,17 @@
+{
+  "current_release": "1.0",
+  "release_metadata": "../release.json",
+  "official_inputs": {
+    "official-enterprise.bin": {
+      "sha256": "79345ed39e9d12bfa99e3c1fa4d4f671da7efd2914bd328fc74d5b122fe6d2ab",
+      "bytes": 42785554
+    },
+    "efi-boot-template.img.gz": {
+      "sha256": "00dba53173528f00efc3a4858a95225908d65a4807e6376b8884d41416e70cbf",
+      "bytes": 1363045
+    }
+  },
+  "runtime_files": 218,
+  "native_source_correspondence": "native-src/SOURCE_MAP.json",
+  "scope": "Current firmware overlay and pinned build inputs. Proprietary vendor components and preserved ELF are not a full system source rebuild. Current artifacts and digests are defined in release.json."
+}

@@ -1,0 +1,10 @@
+{
+  "chunk": "34.dac8d337305668a45c09.js",
+  "manifest": "manifest.featureport.73b530dd1c4c8552d83c.js",
+  "helper": "wg-import.a39f4ac0f3f6f66ce5eb.js",
+  "planner": "wg-address.64d58b057de6a79e2529.js",
+  "client": "wg-client.46c0234997338376060e.js",
+  "singbox": "wg-singbox.a668ae63923893ecfd48.js",
+  "i18n": "wg-i18n.cb4177807e8270ecbebe.js",
+  "css": "wg-actions.3a364faa513b4ea0e665.css"
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html><html><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="chrome=1,IE=Edge"><meta name=viewport content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,shrink-to-fit=no"><link rel="shortcut icon" href=/favicon64.ico><link rel=bookmark href=/favicon.ico><title></title><script>var qimoClientId = {};</script><link href=/static/css/app.c8488d63fa4cf146d9987fb55d00089c.css?fp=da9c34a948ece112 rel=stylesheet><link href="/static/css/wg-actions.3a364faa513b4ea0e665.css" rel="stylesheet"></head><body><style>.prompt-head-div {
+    display:none;
+}
+
+#scrollWrapper1 {
+	position: absolute;
+	z-index: 1;
+	top: 50px;
+	bottom: 0px;
+	left: 0;
+	width: 100%;
+	overflow-x: hidden;
+}
+
+#scrollWrapper2 {
+	position: absolute;
+	z-index: 1;
+	top: 50px;
+	bottom: 0px;
+	left: 0;
+	width: 100%;
+	overflow-x: hidden;
+}
+.ie-scroll {
+		-ms-scroll-chaining: chained;
+		-ms-overflow-style: none;
+		-ms-content-zooming: zoom;
+		-ms-scroll-rails: none;
+		-ms-content-zoom-limit-min: 100%;
+		-ms-content-zoom-limit-max: 500%;
+		-ms-scroll-snap-type: proximity;
+		-ms-scroll-snap-points-x: snapList(100%, 200%, 300%, 400%, 500%);
+		-ms-overflow-style: none;
+		overflow: auto;
+}</style><!--[if IE]>
+<style>
+    .prompt-head .prompt-head-div {
+        display: block;
+	}
+</style>
+<![endif]--><div id=app><div class=prompt-head><div class="fc tc Y_bg prompt-head-div"><span>当前浏览器版本过低，建议使用Chrome浏览器或火狐浏览器</span></div></div></div><link href=/static/css/oem.css?fp=da9c34a948ece112 rel=stylesheet><script>(function () {
+    try { if (sessionStorage.getItem('wg-ui-version') !== '2.0') { sessionStorage.removeItem('translation'); sessionStorage.setItem('wg-ui-version', '2.0'); } } catch (e) {}
+    var files = ["/static/js/router-time.8a36075a50a206ba7a15.js?v=2.0", "/static/js/wg-i18n.cb4177807e8270ecbebe.js?v=2.0", "/static/js/wg-singbox.a668ae63923893ecfd48.js?v=2.0", "/static/js/wg-client.46c0234997338376060e.js?v=2.0", "/static/js/wg-address.64d58b057de6a79e2529.js?v=2.0", "/static/js/wg-import.a39f4ac0f3f6f66ce5eb.js?v=2.0", "/static/js/manifest.featureport.73b530dd1c4c8552d83c.js?v=2.0", "/static/js/vendor.9963e3172df892e7087c.js?fp=da9c34a948ece112", "/static/js/app.featureport.edc6121bfda86c4acdb4.js?v=2.0&fp=da9c34a948ece112"];
+    var root = document.getElementById('app');
+    var index = 0;
+    function failed(url) {
+        console.error('Management page entry failed: ' + url);
+        root.textContent = '管理页面资源加载失败，请刷新重试。';
+        var button = document.createElement('button');
+        button.textContent = '重新加载';
+        button.onclick = function () { location.reload(); };
+        root.appendChild(button);
+    }
+    function load(attempt) {
+        if (index >= files.length) {
+            root.style.visibility = '';
+            
+            return;
+        }
+        var url = files[index] + '&entry_attempt=' + attempt;
+        var script = document.createElement('script');
+        var settled = false;
+        var timer = setTimeout(function () { done(false); }, 15000);
+        function done(ok) {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            script.onload = script.onerror = null;
+            if (ok) { index++; load(0); }
+            else {
+                script.remove();
+                console.warn('Retry management page entry: ' + url);
+                if (attempt < 2) setTimeout(function () { load(attempt + 1); }, 250 * (attempt + 1));
+                else failed(url);
+            }
+        }
+        script.onload = function () { done(true); };
+        script.onerror = function () { done(false); };
+        script.src = url;
+        document.head.appendChild(script);
+    }
+    if (false) root.style.visibility = 'hidden';
+    else root.textContent = '正在加载管理页面…';
+    load(0);
+})();
+</script></body></html>

@@ -1,0 +1,198 @@
+'use strict';
+const a=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),api=require('../src/wg-client-config.js'),imp=require('../src/wg-paste-import.js');let n=0;
+function test(name,fn){try{fn();n++;}catch(e){e.message=name+': '+e.message;throw e;}}
+async function asyncTest(name,fn){try{await fn();n++;}catch(e){e.message=name+': '+e.message;throw e;}}
+const K=Buffer.alloc(32,1).toString('base64'),P=Buffer.alloc(32,2).toString('base64');
+function view(extra={}){const rows=[{name:'wg1',interface:'wan1',local_address:'10.100.2.1/24',local_listenport:50002,local_publickey:P},{name:'wg2',interface:'wan2',local_address:'10.100.3.1/24',local_listenport:50003,local_publickey:P}];return{tableForm:{interface:'wg1',client_endpoint:'8.8.8.8',allowips:'10.100.2.2/32',peer_privatekey:K,keepalive:0,client_dns:'10.100.2.1',...extra},ifaceRows:rows,getIfaceRow(){return this.ifaceRows.find(r=>r.name===this.tableForm.interface)||{};},tableRowEditing1:true,wanEndpoint:{wan1:'9.9.9.9'},makeQrSvg:()=>'<svg/>',$set:(o,k,v)=>o[k]=v};}
+const encode=x=>x;
+function response(ip='8.8.8.8',source='public',extra={}){return{data:{Result:30000,Data:{client_endpoint:{ip,source,wan:'wan1',message:'',listen_port:50002,...extra}}}};}
+function deferred(){let resolve,reject;const promise=new Promise((yes,no)=>{resolve=yes;reject=no;});return{promise,resolve,reject};}
+function node(tag,data,children){if(Array.isArray(data)){children=data;data={};}return{tag,data:data||{},children:children||[]};}
+function nodes(root,predicate){if(!root||typeof root!=='object')return[];return(predicate(root)?[root]:[]).concat((root.children||[]).flatMap(x=>nodes(x,predicate)));}
+for(const value of ['8.8.8.8','10.2.3.4','100.64.1.2','203.0.113.10'])test('manual IPv4 '+value,()=>a.equal(api.endpoint(value,50002),value+':50002'));
+for(const value of ['', 'vpn.example.com','vpn.example.com:12345','1.2.3.4:12345','https://vpn.example.com','x\nPostUp=command','1.2.3.999','::1',' 1.2.3.4','1.2.3.4\t'])test('reject non-IP '+JSON.stringify(value),()=>a.throws(()=>api.endpoint(value,50002)));
+for(const port of ['',0,65536,1.5,'no'])test('reject bad service port '+port,()=>a.throws(()=>api.endpoint('1.2.3.4',port)));
+for(const value of ['0.0.0.0','0.2.3.4','127.0.0.1','224.1.2.3','240.1.2.3','255.255.255.255','169.254.1.2'])test('reject unusable Endpoint host '+value,()=>a.throws(()=>api.endpoint(value,50002)));
+test('decimal normalization occurs on validation, not while typing',()=>{const v=view();api.manual(v,'010.002.003.004');a.equal(v.tableForm.client_endpoint,'010.002.003.004');api.validate(v);a.equal(v.tableForm.client_endpoint,'10.2.3.4');a.equal(api.endpoint('010.002.003.004',50002),'10.2.3.4:50002');a(api.build(v,false,()=>{},e=>{throw Error(e)}));a.equal(imp.parse(v.tableForm.client_config).peer.endpoint,'10.2.3.4');});
+test('port follows current interface',()=>{const v=view();a.equal(api.resolve(v.tableForm,v.getIfaceRow()).value,'8.8.8.8:50002');v.getIfaceRow().local_listenport=54321;a.equal(api.resolve(v.tableForm,v.getIfaceRow()).value,'8.8.8.8:54321');});
+test('no local WAN cache or browser-host fallback',()=>{const v=view({client_endpoint:''});a.throws(()=>api.resolve(v.tableForm,v.getIfaceRow(),v.wanEndpoint));});
+test('normal phone all routes preserved',()=>{const v=view();a.equal(api.build(v,false,()=>{},e=>{throw Error(e)}),true);a.equal(imp.parse(v.tableForm.client_config).peer.allowips,'0.0.0.0/0');});
+for(const keepalive of [0,11])test('native WG keepalive round trip '+keepalive,()=>{
+ const v=view({native_role:'access',exit_peer:'no',keepalive});
+ a(api.build(v,false,()=>a.fail('unexpected alternate mode'),e=>{throw Error(e);}));
+ a.equal(v.tableForm.client_config.includes('PersistentKeepalive'),keepalive!==0);
+ a.equal(imp.parse(v.tableForm.client_config).peer.keepalive,keepalive);
+});
+test('reverse exit no default route and keepalive',()=>{const v=view({exit_peer:'yes'});a.equal(api.build(v,false,()=>{throw Error('must not prompt')},e=>{throw Error(e)}),true);const p=imp.parse(v.tableForm.client_config);a.equal(p.local.local_address,'10.100.2.2/32');a.equal(p.peer.allowips,'10.100.2.1/32');a.equal(p.peer.keepalive,25);a.equal(p.peer.endpoint,'8.8.8.8');});
+test('blank Endpoint cannot save or export',()=>{const v=view({client_endpoint:'',client_config:'stale',client_qr_svg:'stale'});a.throws(()=>api.validate(v));a.equal(api.build(v,false,()=>{},()=>{}),false);a.equal(v.tableForm.client_config,'');a.equal(v.tableForm.client_qr_svg,'');});
+test('bad endpoint clears old generated secrets',()=>{const v=view({client_endpoint:'bad\nvalue',client_config:'stale',client_qr_svg:'stale'});a.equal(api.build(v,false,()=>{},()=>{}),false);a.equal(v.tableForm.client_config,'');a.equal(v.tableForm.client_qr_svg,'');});
+test('exit cannot export default route as address',()=>a.throws(()=>api.validate(view({exit_peer:'yes',allowips:'0.0.0.0/0'}))));
+test('normal router prompt route retained',()=>{const v=view();a(api.build(v,true,()=> '192.168.8.0/24',e=>{throw Error(e)}));a.equal(imp.parse(v.tableForm.client_config).peer.allowips,'192.168.8.0/24');});
+test('imported remote endpoint and port remain separate',()=>{const v=view({endpoint:'remote.example.com',endpoint_port:12345});api.validate(v);a(api.build(v,false,()=>{},e=>{throw Error(e)}));a.equal(v.tableForm.endpoint,'remote.example.com');a.equal(v.tableForm.endpoint_port,12345);a.equal(imp.parse(v.tableForm.client_config).peer.endpoint_port,50002);});
+test('retry uses native non-submit button and live status',()=>{const v=view();let called=0;v.refreshClientEndpoint=()=>called++;const tree=api.render(v,node),button=nodes(tree,x=>x.tag==='button')[0];a.match(button.data.staticClass,/\bbtn\b/);a.equal(button.data.attrs.type,'button');button.data.on.click();a.equal(called,1);a(nodes(tree,x=>x.data.attrs&&x.data.attrs.role==='status').length);a.equal(nodes(tree,x=>x.tag==='input'&&/port/.test(x.data.attrs.name||'')).length,0);a(!JSON.stringify(tree).includes('域名[:端口]'));});
+test('input handler marks manual and invalidates generated config',()=>{const v=view({client_config:'old',client_qr_svg:'old'});const input=nodes(api.render(v,node),x=>x.tag==='input'&&x.data.attrs.name==='client_endpoint')[0];input.data.on.input({target:{value:'10.1.2.3'}});a.equal(v.tableForm.client_endpoint,'10.1.2.3');a.equal(v.wgEndpointManual,true);a.equal(v.tableForm.client_config,'');});
+(async()=>{
+ await asyncTest('blank form queries exact endpoint RPC and fills public IP',async()=>{const v=view({client_endpoint:''});await api.open(v,async q=>{a.deepEqual(q,{func_name:'wireguard',action:'show',param:{TYPE:'client_endpoint',interface:'wg1'}});return response();},encode);a.equal(v.tableForm.client_endpoint,'8.8.8.8');a.match(v.wgEndpointNote,/公网 IP/);a.equal(v.wgEndpointBusy,false);});
+ await asyncTest('private and CGN WAN fallback fills same field',async()=>{for(const ip of ['10.1.2.3','100.64.4.5']){const v=view({client_endpoint:''});await api.open(v,async()=>response(ip,'wan'),encode);a.equal(v.tableForm.client_endpoint,ip);a.match(v.wgEndpointNote,/本机 IP/);api.validate(v);}});
+ await asyncTest('backend listen port updates only matching service interface',async()=>{const v=view({client_endpoint:''});await api.open(v,async()=>response('8.8.8.8','public',{listen_port:55000}),encode);a.equal(v.ifaceRows[0].local_listenport,55000);a.equal(v.ifaceRows[1].local_listenport,50003);a.equal(api.resolve(v.tableForm,v.getIfaceRow()).value,'8.8.8.8:55000');});
+ await asyncTest('unavailable IP still updates current listening port for later manual input',async()=>{const v=view({client_endpoint:''});await api.open(v,async()=>response('','unavailable',{listen_port:55555,message:'WAN 无可用地址'}),encode);a.equal(v.getIfaceRow().local_listenport,55555);api.manual(v,'10.1.2.3');a.equal(api.resolve(v.tableForm,v.getIfaceRow()).value,'10.1.2.3:55555');});
+ await asyncTest('stored IPv4 remains without auto request',async()=>{const v=view();await api.open(v,()=>{throw Error('must not query')},encode);a.equal(v.tableForm.client_endpoint,'8.8.8.8');});
+ await asyncTest('stored IP:port strips port and uses current listener',async()=>{const v=view({client_endpoint:'1.2.3.4:12345'});await api.open(v,()=>{throw Error('must not query')},encode);a.equal(v.tableForm.client_endpoint,'1.2.3.4');a.equal(api.resolve(v.tableForm,v.getIfaceRow()).value,'1.2.3.4:50002');});
+ await asyncTest('legacy DDNS is explicit migration without silent replacement',async()=>{const v=view({client_endpoint:'vpn.example.com:12345'});await api.open(v,()=>{throw Error('must not query')},encode);a.equal(v.tableForm.client_endpoint,'vpn.example.com:12345');a.match(v.wgEndpointNote,/原有 Endpoint/);a.throws(()=>api.validate(v));a.equal(api.build(v,false,()=>{},()=>{}),false);await api.request(v,async()=>response(),encode);a.equal(v.tableForm.client_endpoint,'8.8.8.8');});
+ await asyncTest('typing during lookup wins including intentional blank',async()=>{for(const ip of ['1.1.1.1','']){const v=view({client_endpoint:''}),d=deferred(),p=api.open(v,()=>d.promise,encode);await Promise.resolve();api.manual(v,ip);d.resolve(response());await p;a.equal(v.tableForm.client_endpoint,ip);a.equal(v.wgEndpointBusy,false);}});
+ await asyncTest('manual typing invalidates a pending retry',async()=>{const v=view(),d=deferred();await api.open(v,()=>{},encode);const p=api.request(v,()=>d.promise,encode);await Promise.resolve();api.manual(v,'9.9.9.9');d.resolve(response('1.1.1.1'));await p;a.equal(v.tableForm.client_endpoint,'9.9.9.9');});
+ await asyncTest('automatic endpoint changes with interface',async()=>{const v=view({client_endpoint:''});await api.open(v,async()=>response(),encode);v.tableForm.interface='wg2';const d=deferred(),p=api.changed(v,()=>d.promise,encode);a.equal(v.tableForm.client_endpoint,'');a.throws(()=>api.validate(v));d.resolve(response('1.1.1.1','public',{listen_port:50003}));await p;a.equal(v.tableForm.client_endpoint,'1.1.1.1');});
+ await asyncTest('manual endpoint survives interface change',async()=>{const v=view();await api.open(v,()=>{},encode);v.tableForm.interface='wg2';await api.changed(v,()=>{throw Error('must not query')},encode);a.equal(v.tableForm.client_endpoint,'8.8.8.8');a.equal(api.resolve(v.tableForm,v.getIfaceRow()).value,'8.8.8.8:50003');});
+ await asyncTest('out of order interface results cannot overwrite current IP or port',async()=>{const v=view({client_endpoint:''}),d=deferred(),p=api.open(v,()=>d.promise,encode);await Promise.resolve();v.tableForm.interface='wg2';await api.changed(v,async()=>response('1.1.1.1','public',{listen_port:50003}),encode);d.resolve(response('9.9.9.9','public',{listen_port:55555}));await p;a.equal(v.tableForm.client_endpoint,'1.1.1.1');a.equal(v.ifaceRows[0].local_listenport,50002);a.equal(v.wgEndpointBusy,false);});
+ await asyncTest('A to B to A interface round trip cannot reuse the first request',async()=>{const v=view({client_endpoint:''}),old=deferred(),p=api.open(v,()=>old.promise,encode);await Promise.resolve();v.tableForm.interface='wg2';await api.changed(v,async()=>response('1.1.1.1'),encode);v.tableForm.interface='wg1';await api.changed(v,async()=>response('2.2.2.2'),encode);old.resolve(response('9.9.9.9'));await p;a.equal(v.tableForm.client_endpoint,'2.2.2.2');});
+ await asyncTest('stale failure cannot clear a newer request busy state',async()=>{const v=view({client_endpoint:''}),old=deferred(),fresh=deferred(),p=api.open(v,()=>old.promise,encode);await Promise.resolve();const q=api.request(v,()=>fresh.promise,encode,true);await Promise.resolve();old.reject(Error('old failure'));await p;a.equal(v.wgEndpointBusy,true);a.equal(v.wgEndpointError,'');fresh.resolve(response());await q;a.equal(v.wgEndpointBusy,false);});
+ await asyncTest('typing the old value still cancels a pending replacement',async()=>{const v=view(),d=deferred(),p=api.request(v,()=>d.promise,encode,true);await Promise.resolve();api.manual(v,'8.8.8.8');d.resolve(response('1.1.1.1'));await p;a.equal(v.tableForm.client_endpoint,'8.8.8.8');});
+ await asyncTest('closed form does not receive response',async()=>{const v=view({client_endpoint:''}),d=deferred(),p=api.open(v,()=>d.promise,encode);await Promise.resolve();v.tableRowEditing1=false;api.cancel(v);d.resolve(response());await p;a.equal(v.tableForm.client_endpoint,'');a.equal(v.wgEndpointBusy,false);});
+ await asyncTest('different form same interface cannot receive old response',async()=>{const v=view({client_endpoint:''}),d=deferred(),p=api.open(v,()=>d.promise,encode);await Promise.resolve();const old=v.tableForm;v.tableForm={...old};await api.open(v,async()=>response('1.1.1.1'),encode);d.resolve(response('9.9.9.9'));await p;a.equal(v.tableForm.client_endpoint,'1.1.1.1');a.equal(old.client_endpoint,'');});
+ await asyncTest('same interface reopened token ignores old failure',async()=>{const v=view({client_endpoint:''}),d=deferred(),p=api.open(v,()=>d.promise,encode);await Promise.resolve();await api.open(v,async()=>response(),encode);d.reject(Error('offline'));await p;a.equal(v.wgEndpointError,'');a.equal(v.tableForm.client_endpoint,'8.8.8.8');});
+ await asyncTest('unavailable API message is text and transport details stay private',async()=>{const v=view({client_endpoint:''}),message='所选 WAN 暂无地址 <img src=x onerror=alert(1)>';await api.open(v,async()=>response('','unavailable',{message}),encode);a.equal(v.wgEndpointError,message);const status=nodes(api.render(v,node),x=>x.data.attrs&&x.data.attrs.role==='status')[0];a.equal(status.children[0],message);a.equal(status.data.domProps,undefined);await api.request(v,async()=>{throw Error('transport-secret-sentinel')},encode);a(!v.wgEndpointError.includes('transport-secret-sentinel'));});
+ await asyncTest('automatic response rejects unusable hosts and normalizes decimal octets',async()=>{const v=view({client_endpoint:''});await api.open(v,async()=>response('127.0.0.1','wan'),encode);a.equal(v.tableForm.client_endpoint,'');await api.request(v,async()=>response('010.002.003.004','wan'),encode);a.equal(v.tableForm.client_endpoint,'10.2.3.4');});
+ await asyncTest('explicit retry sends force while automatic interface lookup does not',async()=>{const v=view({client_endpoint:''});await api.open(v,async q=>{a.equal(q.param.force,undefined);return response();},encode);await api.request(v,async q=>{a.equal(q.param.force,'1');return response();},encode,true);v.tableForm.interface='wg2';await api.changed(v,async q=>{a.equal(q.param.force,undefined);return response('1.1.1.1');},encode);});
+ await asyncTest('unavailable, malformed and transport failures never generate empty Endpoint',async()=>{for(const post of [async()=>response('','unavailable'),async()=>response('bad','public'),async()=>({data:{Result:10000}}),async()=>{throw Error('Network Error')},()=>{throw Error('sync error')}]){const v=view({client_endpoint:''});a.equal(await api.open(v,post,encode),false);a.equal(v.tableForm.client_endpoint,'');a(v.wgEndpointError);a.equal(v.wgEndpointBusy,false);a.equal(api.build(v,false,()=>{},()=>{}),false);}});
+ await asyncTest('failed retry preserves existing manual value',async()=>{const v=view();await api.open(v,()=>{},encode);await api.request(v,async()=>{throw Error('offline')},encode);a.equal(v.tableForm.client_endpoint,'8.8.8.8');api.validate(v);});
+ await asyncTest('pending lookup blocks save and export and disables retry',async()=>{const v=view({client_config:'old'}),d=deferred(),p=api.request(v,()=>d.promise,encode);a.throws(()=>api.validate(v),/正在获取/);a.equal(api.build(v,false,()=>{},()=>{}),false);a.equal(v.tableForm.client_config,'');a.equal(nodes(api.render(v,node),x=>x.tag==='button')[0].data.attrs.disabled,true);d.resolve(response());await p;});
+ await asyncTest('changing auto interface then failing leaves no old target',async()=>{const v=view({client_endpoint:''});await api.open(v,async()=>response(),encode);v.tableForm.interface='wg2';await api.changed(v,async()=>response('','unavailable'),encode);a.equal(v.tableForm.client_endpoint,'');a.throws(()=>api.validate(v));});
+ test('native device roles export matching WireGuard routes and DNS',()=>{
+  for(const mode of ['access','both','lend']){
+   const v=view({native_role:mode,exit_peer:mode==='access'?'no':'yes',keepalive:mode==='lend'?25:0});
+   a(api.build(v,false,()=>{},e=>{throw Error(e);}));
+   a(v.tableForm.client_config.includes('AllowedIPs = '+(mode==='lend'?'10.100.2.1/32':'0.0.0.0/0')));
+   a.equal(v.tableForm.client_config.includes('DNS = '),mode!=='lend');
+   a.equal(v.tableForm.client_config.includes('PersistentKeepalive'),mode==='lend');
+  }
+ });
+ test('export text must contain exactly the current Endpoint',()=>{const v=view();a(api.build(v,true,()=> '192.168.8.0/24',e=>{throw Error(e)}));const text=v.tableForm.client_config;api.validateExport(v);for(const changed of [text.replace(/^Endpoint.*(?:\n|$)/m,''),text.replace(':50002',':12345'),text+'\nEndpoint = 8.8.8.8:50002']){v.tableForm.client_config=changed;a.throws(()=>api.validateExport(v),/Endpoint/);}v.tableForm.client_config=text;v.getIfaceRow().local_listenport=55555;a.throws(()=>api.validateExport(v),/Endpoint/);});
+ // Load the actual compiled page component without invoking its framework or network.
+ let modules;const errors=[],successes=[];const context={webpackJsonp(ids,m){modules=m;},window:{WGClientConfig:api,WGAddressPlan:require('../src/wg-address-plan.js'),WGPasteImport:imp},copyObj:(mode,x)=>x,copyAry:(mode,x)=>x,customError:e=>errors.push(e),customSuccess:m=>successes.push(m),Promise};vm.runInNewContext(fs.readFileSync(require.resolve('../src/wg-page.js'),'utf8'),context);
+ const req=id=>({10360:Set,11526:x=>Array.from(x),80:JSON.stringify,11525:Object.assign,78:{a:{apiUrl:'/api'}},79:{},11053:{}})[id];req.n=x=>{const f=()=>x;f.a=x;return f;};const out={};modules[11749]({},out,req);const component=out.default;
+ function page(extra){const v=view(extra);v.interfaces1=['wg1','wg2'];v.getPeerKey=()=>{};v.$refs={dtable1:{reload(){}},dtable:{reload(){}}};v.$validator={validateAll:async()=>true};Object.assign(v,component.methods);v.getPeerKey=()=>{};v.makeQrSvg=()=>'<svg/>';v.$t=x=>x;return v;}
+ vm.runInNewContext(fs.readFileSync(require.resolve('../src/wg-identity-table.js'),'utf8'),context.window);
+ vm.runInNewContext(fs.readFileSync(require.resolve('../src/wg-i18n.js'),'utf8'),context);
+ function ifacePage(write,read){
+  const v=page(),calls=[],form={name:'wg3',interface:'wan1',local_address:'10.120.3.1/24',local_listenport:'50003',
+   local_publickey:P,local_privatekey:K,enabled:'yes',mtu:'1420'};
+  v.tableRowEditing=true;v.tableRowEditing1=false;v.tableForm={...form};v.tableOptions={requests:{url:'/api'}};
+  v.$http={post:async(url,q)=>{calls.push(q.action);return q.action==='show'?read(form):write(q);}};
+  const before=successes.length;
+  return {v,calls,form,successCount:()=>successes.length-before};
+ }
+ function inventory(rows){
+  return {data:{Result:30000,Data:{iface_data:rows,wg_iface:rows.map(r=>r.name),interface:['wan1']}}};
+ }
+ await asyncTest('interface save locks before validation and refreshes the peer interface selector',async()=>{
+  const {v,calls,form,successCount}=ifacePage(()=>({data:{Result:30000}}),f=>inventory([f]));
+  const validation=deferred();v.$validator.validateAll=()=>validation.promise;
+  const one=v.saveForm(),two=v.saveForm();validation.resolve(true);await Promise.all([one,two]);
+  a.deepEqual(calls,['iface_add','show']);a.equal(successCount(),1);a.equal(v.tableRowEditing,false);a.deepEqual(v.interfaces1,[form.name]);
+ });
+ await asyncTest('late interface validation cannot write a replacement or closed form',async()=>{
+  for(const close of [false,true]){
+   const {v,calls}=ifacePage(()=>a.fail(),()=>a.fail()),validation=deferred();
+   v.$validator.validateAll=()=>validation.promise;const one=v.saveForm();
+   if(close)v.tableRowEditing=false;else v.tableForm={...v.tableForm,name:'wg4'};
+   validation.resolve(true);await one;a.deepEqual(calls,[]);
+  }
+ });
+ await asyncTest('interface reply failure checks saved settings and cannot report a running interface',async()=>{
+  const reject={Result:30002,ErrMsg:K};
+  for(const write of [()=>({data:reject}),()=>Promise.reject(reject),()=>Promise.reject(Error(K))]){
+   const {v,calls,form,successCount}=ifacePage(write,f=>inventory([{...f,mtu:1420,local_listenport:50003}]));
+   await v.saveForm();a.equal(v.tableRowEditing,false);await v.saveForm();a.deepEqual(calls,['iface_add','show']);
+   a.equal(successCount(),0);a.deepEqual(v.interfaces1,[form.name]);a.match(v.wgIfaceNotice,/已保存.*运行状态/);
+   a(!v.wgIfaceNotice.includes(K));
+  }
+ });
+ await asyncTest('timeout without a matching row returns to the list without enabling another submit',async()=>{
+  for(const read of [()=>inventory([]),()=>Promise.reject(Error(K)),f=>inventory([{...f,local_publickey:K}]),
+      f=>inventory([{...f,interface:'auto'}]),f=>inventory([{...f,mtu:1280}])]){
+   const {v,calls,successCount}=ifacePage(()=>Promise.reject(Error(K)),read);
+   await v.saveForm();await v.saveForm();a.deepEqual(calls,['iface_add','show']);a.equal(successCount(),0);
+   a.equal(v.tableRowEditing,false);a.match(v.wgIfaceNotice,/尚未确认/);a(!v.wgIfaceNotice.includes(K));
+  }
+ });
+ await asyncTest('confirmed rejection plus an empty list allows correction without leaking server text',async()=>{
+  const {v,calls}=ifacePage(()=>Promise.reject({Result:30002,ErrMsg:K}),()=>inventory([]));
+  await v.saveForm();a.deepEqual(calls,['iface_add','show']);a(v.tableRowEditing);a(!v.wgIfaceNotice.includes(K));
+ });
+ const rollback='已撤销本次新增；wg3 运行配置应用失败（创建运行目录）';
+ const savedPolicy='新接口已保存，联动策略未完全应用，请刷新后检查现有接口';
+ await asyncTest('trusted rollback preserves the form and its safe stage when readback fails',async()=>{
+  for(const code of [30001,30002]){
+   const {v,calls,successCount}=ifacePage(()=>Promise.reject({Result:code,ErrMsg:rollback}),()=>Promise.reject(Error(K)));
+   const original=v.tableForm;await v.saveForm();a.deepEqual(calls,['iface_add','show']);
+   a.equal(v.tableRowEditing,true);a.equal(v.tableForm,original);a.equal(successCount(),0);
+   a.match(v.wgIfaceNotice,/已撤销本次新增.*创建运行目录/);a(!v.wgIfaceNotice.includes(K));
+  }
+ });
+ await asyncTest('saved policy receipt survives an unavailable inventory without another add',async()=>{
+  const {v,calls,successCount}=ifacePage(()=>({data:{Result:30002,ErrMsg:savedPolicy}}),()=>Promise.reject(Error(K)));
+  await v.saveForm();await v.saveForm();a.deepEqual(calls,['iface_add','show']);a.equal(v.tableRowEditing,false);
+  a.equal(successCount(),0);a.match(v.wgIfaceNotice,/已保存.*联动策略未完全应用/);
+ });
+ await asyncTest('foreign, partial and contradictory rollback receipts cannot unlock the editor',async()=>{
+  for(const [code,msg,read] of [[30001,rollback+' '+K,()=>null],[30002,rollback.replace('wg3','wg7'),()=>null],
+      [30002,rollback.replace('创建运行目录','已复制'),()=>null],[30006,rollback,()=>null],['30002',rollback,()=>null],
+      [30002,rollback,f=>inventory([f])],[30002,savedPolicy,()=>inventory([])]]){
+   const {v,calls,successCount}=ifacePage(()=>Promise.reject({Result:code,ErrMsg:msg}),read);
+   await v.saveForm();await v.saveForm();a.deepEqual(calls,['iface_add','show']);a.equal(v.tableRowEditing,false);
+   a.equal(successCount(),0);a.match(v.wgIfaceNotice,/结果尚未确认/);a(!v.wgIfaceNotice.includes(K));
+  }
+ });
+ await asyncTest('interface edit carries the identity from opening even after an intentional rename and rekey',async()=>{
+  let sent;const {v,form,calls}=ifacePage(q=>{sent=q;return {data:{Result:30000}};},()=>inventory([]));
+  v.editTableRow({...form,id:7});v.tableForm.name='wg4';v.tableForm.local_publickey=K;
+  await v.saveForm();a.deepEqual(calls,['iface_edit','show']);
+  a.deepEqual(JSON.parse(Buffer.from(sent.param.expected_rows,'hex').toString()),[{id:'7',interface:form.name,public_key:P}]);
+ });
+ await asyncTest('page new peer starts address and endpoint requests independently',async()=>{const v=page(),seen=[];v.$http={post:async(url,q)=>{seen.push(q.param.TYPE);return q.param.TYPE==='client_endpoint'?response():{data:{Result:30000,Data:{peer_defaults:{interface:'wg1',allowips:'10.100.2.2/32',client_dns:'10.100.2.1'}}}};}};await v.newTableRow1();a.deepEqual(seen.sort(),['client_endpoint','defaults']);a.equal(v.tableForm.client_endpoint,'8.8.8.8');});
+ await asyncTest('page retry explicitly bypasses cached lookup',async()=>{const v=page();v.$http={post:async(url,q)=>{a.equal(q.param.force,'1');return response();}};await v.refreshClientEndpoint();});
+ await asyncTest('page edit normalizes stored port without requesting public discovery',async()=>{const v=page();v.$http={post:()=>{throw Error('must not query')}};v.editTableRow1({interface:'wg1',allowips:'10.100.2.2/32',client_endpoint:'1.1.1.1:12345'});a.equal(v.tableForm.client_endpoint,'1.1.1.1');});
+ await asyncTest('page async validator cannot bypass later empty endpoint',async()=>{const v=page(),d=deferred();let posts=0;v.$validator={validateAll:()=>d.promise};v.$http={post:async()=>{posts++;return{}}};v.saveForm1();api.manual(v,'');d.resolve(true);await Promise.resolve();await Promise.resolve();a.equal(posts,0);});
+ await asyncTest('page closed or replaced form cannot submit after validation',async()=>{for(const replace of [false,true]){const v=page(),d=deferred();let posts=0;v.$validator={validateAll:()=>d.promise};v.$http={post:async()=>{posts++;return{}}};v.saveForm1();if(replace)v.tableForm={...v.tableForm};else v.tableRowEditing1=false;d.resolve(true);await Promise.resolve();await Promise.resolve();a.equal(posts,0);}});
+ await asyncTest('save completion cannot close a subsequently opened form',async()=>{const v=page(),d=deferred();let posts=0;v.$http={post:()=>{posts++;return d.promise;}};v.saveForm1();await Promise.resolve();a.equal(posts,1);v.tableForm={...v.tableForm};v.tableRowEditing1=true;d.resolve({data:{Result:30000}});await Promise.resolve();a.equal(v.tableRowEditing1,true);});
+ await asyncTest('save completion closes its own current form and invalidates work',async()=>{const v=page(),d=deferred();v.$http={post:()=>d.promise};v.saveForm1();await Promise.resolve();d.resolve({data:{Result:30000}});await Promise.resolve();a.equal(v.tableRowEditing1,false);a.equal(v.wgEndpointBusy,false);});
+ await asyncTest('native tunnel save commits the role in the same add and stays open for export',async()=>{
+  const v=page(),calls=[];v.shouHint=false;
+  const panel={member:{peer_id:'15'},parameters(){return {wg_transport:'pure_hy2',wg_role:'access',hyr_public_ip:'203.0.113.1',hyr_port_mode:'wg',exit_peer:'no'};},
+   closeQr(){},saved:async()=>{v.$set(v.tableForm,'id','15');v.shouHint=true;return true;},$nextTick(){}};
+  v.$refs.hyrTunnel=panel;v.$http={post:async(url,q,options)=>{calls.push({q,options});return{data:{Result:30000}};}};
+  v.saveForm1();await new Promise(resolve=>setImmediate(resolve));
+  a.equal(calls.length,1);a.equal(calls[0].q.action,'add');a.equal(calls[0].q.param.wg_role,'access');
+  a.equal(calls[0].options.timeout,300000);a.equal(calls[0].q.param.hyr_public_ip,'203.0.113.1');
+  a.equal(v.tableForm.id,'15');a.equal(v.tableRowEditing1,true);a.equal(v.shouHint,true);a.equal(panel.saving,false);
+ });
+ await asyncTest('rejected native edit keeps the open form and skips export',async()=>{
+  const v=page();v.shouHint=true;
+  const panel={parameters:()=>({wg_transport:'pure_hy2',wg_role:'access',hyr_id:'old-id'}),closeQr(){},saved:()=>{throw Error('unexpected export');}};
+  v.$refs.hyrTunnel=panel;v.$http={post:async(url,q)=>{a.equal(q.action,'edit');a.equal(q.param.hyr_id,'old-id');return{data:{Result:30001,ErrMsg:'secret'} };}};
+  v.saveForm1();await new Promise(resolve=>setImmediate(resolve));
+  a.equal(v.tableRowEditing1,true);a.equal(panel.saving,false);a.match(panel.error,/隧道保存失败/);a(!panel.error.includes('secret'));
+ });
+ test('copy and QR refuse stale ports without changing router routing text',()=>{const v=page();a(api.build(v,true,()=> '192.168.8.0/24',e=>{throw Error(e)}));const text=v.tableForm.client_config;let copied='';context.navigator={clipboard:{writeText:t=>{copied=t;}}};v.copyClientConfig();a.equal(copied,text);v.getIfaceRow().local_listenport=55555;copied='';v.copyClientConfig();a.equal(copied,'');a.equal(v.tableForm.client_config,'');a.equal(api.exportMatches(v),false);a.equal(v.tableForm.client_qr_svg,'');v.refreshClientQr();a.equal(v.tableForm.client_qr_svg,'');a.match(errors.pop(),/Endpoint/);});
+ await asyncTest('page import success initializes only export metadata',async()=>{const v=page();const original=imp.submit;let called=0;imp.submit=async()=>true;v.openClientEndpoint=()=>{called++;};try{a.equal(await v.submitWgImport(),true);a.equal(called,1);}finally{imp.submit=original;}});
+ test('page close and destroy invalidate pending endpoint work',()=>{const src=fs.readFileSync(require.resolve('../src/wg-page.js'),'utf8');a.equal((src.match(/e.tableRowEditing1=!1,window.WGClientConfig.cancel\(e\)/g)||[]).length,2);a(src.includes('e.tableForm.client_qr_svg&&window.WGClientConfig.exportMatches(e)?'));const v=page();v.wgEndpointBusy=true;component.beforeDestroy.call(v);a.equal(v.wgEndpointBusy,false);});
+ await asyncTest('manual PSK removal and zero keepalive invalidate the old text, QR and clipboard fallback',async()=>{
+  const v=page({presharedkey:K,keepalive:25});
+  for(const field of ['presharedkey','keepalive']){
+   const old=v.tableForm[field];a(v.buildClientConfig());a(api.exportMatches(v));
+   v.tableForm[field]=field==='keepalive'?0:'';
+   a.equal(api.exportMatches(v),false);
+   component.watch.wgConfInputs.call(v);a.equal(v.tableForm.client_config,'');a.equal(v.tableForm.client_qr_svg,'');
+   v.tableForm[field]=old;
+  }
+  v.tableForm.presharedkey='';v.tableForm.keepalive=0;
+  const notices=[],manual=[];
+  const denied={writeText:()=>Promise.reject(Error('not allowed'))};
+  a.equal(await api.copy(v,denied,(label,text)=>manual.push(text),x=>notices.push(x),e=>{throw Error(e)}),false);
+  a.equal(notices.length,0);a.equal(manual.length,1);
+  a(!manual[0].includes('PresharedKey'));a(!manual[0].includes('PersistentKeepalive'));
+  await api.copy(v,{writeText:()=>Promise.resolve()},()=>a.fail(),x=>notices.push(x),e=>{throw Error(e)});
+  a.deepEqual(notices,['已复制']);
+ });
+ console.log('PASS',n,'client Endpoint IP / reverse exit / form integration cases');
+})().catch(e=>{console.error(e);process.exitCode=1;});

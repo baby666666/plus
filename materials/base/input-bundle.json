@@ -1,0 +1,15 @@
+{
+  "name": "NativeRouting-2.0-build-inputs.tar.gz",
+  "sha256": "e8f6ba0ab4d34aeef44c0a115ac55bce2146a0a36dafe935810bee0b732c0853",
+  "bytes": 43894405,
+  "files": {
+    "official-enterprise.bin": {
+      "sha256": "79345ed39e9d12bfa99e3c1fa4d4f671da7efd2914bd328fc74d5b122fe6d2ab",
+      "bytes": 42785554
+    },
+    "efi-boot-template.img.gz": {
+      "sha256": "00dba53173528f00efc3a4858a95225908d65a4807e6376b8884d41416e70cbf",
+      "bytes": 1363045
+    }
+  }
+}
