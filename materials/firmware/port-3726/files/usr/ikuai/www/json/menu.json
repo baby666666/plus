@@ -1,0 +1,1007 @@
+[
+  {
+    "label": "system-overview",
+    "func_name": "sysstat",
+    "linkTo": "system-overview",
+    "icon": "nav1_ico1"
+  },
+  {
+    "label": "system-setting.system-status.system-status",
+    "icon": "nav1_ico17",
+    "children": [
+      {
+        "label": "system-setting.system-status.interface-monitoring",
+        "func_name": "monitor_iface",
+        "linkTo": "system-setting-interface-monitoring"
+      },
+      {
+        "label": "system-setting.system-status.inner-monitoring",
+        "children": [
+          {
+            "label": "system-setting.system-status.inner-monitoring-ipv4",
+            "func_name": "monitor_lanip",
+            "linkTo": "system-setting-inner-monitoring"
+          },
+          {
+            "label": "system-setting.system-status.inner-monitoring-ipv6",
+            "func_name": "monitor_lanipv6",
+            "linkTo": "system-setting-inner-monitoring-ipv6"
+          }
+        ]
+      },
+      {
+        "label": "system-setting.system-status.protocol-monitoring",
+        "func_name": "monitor_app_flow",
+        "linkTo": "system-setting-protocol-monitoring"
+      },
+      {
+        "label": "system-setting.system-status.strategy-monitoring",
+        "func_name": "monitor_l7qos",
+        "linkTo": "system-setting-strategy-monitoring"
+      },
+      {
+        "label": "system-setting.system-status.system-monitoring",
+        "func_name": "monitor_system",
+        "linkTo": "system-setting-system-monitoring"
+      },
+      {
+        "label": "system-setting.system-status.flow-monitoring",
+        "func_name": "cflow",
+        "linkTo": "system-setting-flow-monitoring"
+      },
+      {
+        "label": "system-setting.system-status.camera-monitoring",
+        "func_name": "camera",
+        "linkTo": "system-setting-camera-monitoring"
+      },
+      {
+        "label": "system-setting.system-status.Switch-monitoring",
+        "func_name": "cloud_switch",
+        "linkTo": "system-setting-Switch-monitoring"
+      },
+      {
+        "label": "tools.instrumented",
+        "func_name": "dev_control",
+        "linkTo": "tools-instrumented"
+      }
+    ]
+  },
+  {
+    "label": "system-setting.system-setting",
+    "icon": "nav1_ico2",
+    "children": [
+      {
+        "label": "system-setting.basic-setting",
+        "func_name": "basic",
+        "linkTo": "system-setting-basic"
+      },
+      {
+        "label": "system-setting.hot-standby",
+        "func_name": "vrrp_config",
+        "linkTo": "system-setting-hot"
+      },
+      {
+        "label": "system-setting.disk_management",
+        "children": [
+          {
+            "label": "system-setting.disk_partition",
+            "func_name": "disk_mgmt",
+            "linkTo": "system-setting-diskpartition"
+          },
+          {
+            "label": "system-setting.file_management",
+            "func_name": "file_mgmt",
+            "linkTo": "system-setting-filemanagement"
+          },
+          {
+            "label": "system-setting.raid",
+            "func_name": "raid_mgmt",
+            "linkTo": "system-setting-raid"
+          }
+        ]
+      },
+      {
+        "label": "system-setting.applicationbinding",
+        "func_name": "dingtalk",
+        "linkTo": "system-setting-appbinding"
+      },
+      {
+        "label": "system-setting.service-account",
+        "func_name": "register",
+        "linkTo": "system-setting-service-account"
+      },
+      {
+        "label": "system-setting.advanced-settings.advanced-settings",
+        "children": [
+          {
+            "label": "network-setting.alg",
+            "func_name": "alg",
+            "linkTo": "network-setting-alg"
+          },
+          {
+            "label": "system-setting.load_monitoring",
+            "func_name": "irqbalance",
+            "linkTo": "system-setting-Load"
+          },
+          {
+            "label": "system-setting.sysctl",
+            "func_name": "ik_sysctl",
+            "linkTo": "system-setting-sysctl"
+          }
+        ]
+      },
+      {
+        "label": "system-setting.security-config.security-config",
+        "children": [
+          {
+            "label": "system-setting.security-config.web-account-management",
+            "func_name": "webuser",
+            "linkTo": "system-setting-web-account"
+          },
+          {
+            "label": "system-setting.security-config.remote-control",
+            "func_name": "remote_control",
+            "linkTo": "system-setting-security"
+          }
+        ]
+      },
+      {
+        "label": "system-setting.upgrade-backup.upgrade-backup",
+        "children": [
+          {
+            "label": "system-setting.upgrade-backup.upgrade",
+            "func_name": "upgrade",
+            "linkTo": "system-setting-upgrade"
+          },
+          {
+            "label": "system-setting.upgrade-backup.backup",
+            "func_name": "backup",
+            "linkTo": "system-setting-backup"
+          }
+        ]
+      },
+      {
+        "label": "system-setting.hardware",
+        "func_name": "hardwareinfo",
+        "linkTo": "system-setting-hardware"
+      },
+      {
+        "label": "system-setting.authorization-management",
+        "func_name": "auth_code",
+        "linkTo": "system-setting-authorization-management"
+      },
+      {
+        "label": "system-setting.reboot",
+        "func_name": "reboots",
+        "linkTo": "system-setting-reboot"
+      }
+    ]
+  },
+  {
+    "label": "network-setting.network-setting",
+    "icon": "nav1_ico3",
+    "children": [
+      {
+        "label": "network-setting.lan-wan-set",
+        "func_name": "lan",
+        "linkTo": "network-setting-lan-wan-set"
+      },
+      {
+        "label": "service.wifiSettings",
+        "children": [
+          {
+            "label": "service.wifiNameSettings",
+            "func_name": "wifi",
+            "linkTo": "service-wifiSettings"
+          },
+          {
+            "label": "service.wifiAdvancedSettings",
+            "func_name": "wifi",
+            "linkTo": "service-wifiAdvancedSettings"
+          },
+          {
+            "label": "service.ChannelScanning",
+            "func_name": "wifi",
+            "linkTo": "service-ChannelScanning"
+          }
+        ]
+      },
+      {
+        "label": "service.Mesh",
+        "func_name": "wifi",
+        "linkTo": "service-mesh-connect"
+      },
+      {
+        "label": "network-setting.dhcp-setting.dhcp-setting",
+        "children": [
+          {
+            "label": "network-setting.dhcp-setting.dhcp-server",
+            "func_name": "dhcp_server",
+            "linkTo": "network-setting-dhcp-server"
+          },
+          {
+            "label": "network-setting.dhcp-setting.dhcp-static",
+            "func_name": "dhcp_static",
+            "linkTo": "network-setting-dhcp-static"
+          },
+          {
+            "label": "network-setting.dhcp-setting.client-list",
+            "func_name": "dhcp_lease",
+            "linkTo": "network-setting-static-list"
+          },
+          {
+            "label": "network-setting.dhcp-setting.Black-white-list",
+            "func_name": "dhcp_acl_mac",
+            "linkTo": "network-setting-Black-white-list"
+          }
+        ]
+      },
+      {
+        "label": "network-setting.dns-setting.dns-setting",
+        "children": [
+          {
+            "label": "network-setting.dns-setting.dns-setting",
+            "func_name": "dns",
+            "linkTo": "network-setting-dns"
+          },
+          {
+            "label": "network-setting.dns-setting.multi-dns",
+            "func_name": "dns_replace",
+            "linkTo": "network-setting-multi-dns"
+          }
+        ]
+      },
+      {
+        "label": "network-setting.client_group",
+        "func_name": "vlan",
+        "children": [
+          {
+            "label": "behavior.behavior-setting.ip-group",
+            "func_name": "ipgroup",
+            "linkTo": "behavior-ip-group"
+          },
+          {
+            "label": "behavior.behavior-setting.ipv6-group",
+            "func_name": "ipv6group",
+            "linkTo": "behavior-ipv6-group"
+          },
+          {
+            "label": "behavior.behavior-setting.mac-group",
+            "func_name": "macgroup",
+            "linkTo": "behavior-mac-group"
+          },
+          {
+            "label": "behavior.behavior-setting.dt-group",
+            "func_name": "dtgroup",
+            "linkTo": "behavior-dt-group"
+          }
+        ]
+      },
+      {
+        "label": "network-setting.static-route.static-route",
+        "children": [
+          {
+            "label": "network-setting.static-route.static-route",
+            "func_name": "static_rt",
+            "linkTo": "network-setting-static-route"
+          },
+          {
+            "label": "network-setting.static-route.current-route",
+            "func_name": "static_rt_table",
+            "linkTo": "network-setting-current-route"
+          }
+        ]
+      },
+      {
+        "label": "network-setting.setting-vlan",
+        "func_name": "vlan",
+        "linkTo": "network-setting-vlan-setting"
+      },
+      {
+        "label": "vpn-setting.vpn-client.vpn-client",
+        "children": [
+          {
+            "label": "vpn-setting.vpn-client.pptp-client",
+            "func_name": "pptp_client",
+            "linkTo": "vpn-pptp-client"
+          },
+          {
+            "label": "vpn-setting.vpn-client.l2tp-client",
+            "func_name": "l2tp_client",
+            "linkTo": "vpn-l2tp-client"
+          },
+          {
+            "label": "vpn-setting.vpn-client.openvpn-client",
+            "func_name": "openvpn-client",
+            "linkTo": "vpn-openvpn-client"
+          },
+          {
+            "label": "vpn-setting.vpn-client.ipsecvpn-client",
+            "func_name": "ipsec-vpn",
+            "linkTo": "vpn-ipsecvpn-client"
+          },
+          {
+            "label": "vpn-setting.vpn-client.wireguard-client",
+            "func_name": "wireguard",
+            "linkTo": "vpn-wireguard-client"
+          },
+          {
+            "label": "vpn-setting.vpn-client.ipsec-ikev2-client",
+            "func_name": "ike_client",
+            "linkTo": "vpn-ipsec-ikev2-client"
+          },
+          {
+            "label": "service.sdwan",
+            "func_name": "ik_web_sdwan",
+            "linkTo": "service-sdwan"
+          },
+          {
+            "label": "service.wuying",
+            "func_name": "wuying",
+            "linkTo": "service-wuying",
+            "hide": true
+          }
+        ]
+      },
+      {
+        "label": "service.upnp.upnp",
+        "children": [
+          {
+            "label": "service.upnp.upnp-setting",
+            "func_name": "upnpd_leases",
+            "linkTo": "service-upnp-set"
+          },
+          {
+            "label": "service.upnp.upnp-status",
+            "func_name": "upnpd",
+            "linkTo": "service-upnp-state"
+          }
+        ]
+      },
+      {
+        "label": "service.nat",
+        "func_name": "nat_rule",
+        "linkTo": "service-forward"
+      },
+      {
+        "label": "service.port-mapping.port-mapping",
+        "children": [
+          {
+            "label": "service.port-mapping.port-mapping",
+            "func_name": "dnat",
+            "linkTo": "service-port-mapping"
+          },
+          {
+            "label": "service.port-mapping.dmz-setting",
+            "func_name": "netmap",
+            "linkTo": "service-dmz-set"
+          }
+        ]
+      },
+      {
+        "label": "network-setting.ipv6",
+        "children": [
+          {
+            "label": "network-setting.ipv6-set",
+            "func_name": "ipv6",
+            "linkTo": "network-setting-ipv6"
+          },
+          {
+            "label": "network-setting.ipv6-stream",
+            "func_name": "ipv6_stream",
+            "linkTo": "network-setting-ipv6-stream"
+          },
+          {
+            "label": "network-setting.dhcpv6-terminal",
+            "func_name": "dhcp6_lease",
+            "linkTo": "network-setting-dhcpv6"
+          },
+          {
+            "label": "network-setting.dhcpv6-static",
+            "func_name": "ipv6_static",
+            "linkTo": "network-setting-dhcpv6-static"
+          },
+          {
+            "label": "network-setting.dhcpv6-black-white",
+            "func_name": "dhcp6_acl_mac",
+            "linkTo": "network-setting-dhcpv6-black-white"
+          },
+          {
+            "label": "network-setting.neighbor-list",
+            "func_name": "ipv6_neighbor",
+            "linkTo": "network-setting-neighbor"
+          }
+        ]
+      },
+      {
+        "label": "network-setting.igmp",
+        "func_name": "igmp_proxy",
+        "linkTo": "network-setting-igmp"
+      },
+      {
+        "label": "network-setting.iptv",
+        "func_name": "iptv",
+        "linkTo": "network-setting-iptv"
+      }
+    ]
+  },
+  {
+    "label": "speed-limit.speed-limit.speed-limit",
+    "icon": "nav1_ico5",
+    "children": [
+      {
+        "label": "network-setting.flow-setting.flow-setting",
+        "children": [
+          {
+            "label": "network-setting.multi-line-load",
+            "func_name": "lb_pcc",
+            "linkTo": "network-setting-multi-line-load"
+          },
+          {
+            "label": "network-setting.flow-setting.protocol-diversion",
+            "func_name": "stream_layer7",
+            "linkTo": "network-setting-protocol-diversion"
+          },
+          {
+            "label": "network-setting.flow-setting.port-flow",
+            "func_name": "stream_ipport",
+            "linkTo": "network-setting-port-flow"
+          },
+          {
+            "label": "network-setting.flow-setting.domain-flow",
+            "func_name": "stream_domain",
+            "linkTo": "network-setting-domain-flow"
+          },
+          {
+            "label": "network-setting.flow-setting.flow-up-down",
+            "func_name": "stream_updown",
+            "linkTo": "network-setting-flow-up-down"
+          }
+        ]
+      },
+      {
+        "label": "speed-limit.speed-limit.smart-control",
+        "func_name": "stream_control",
+        "linkTo": "flow-smart-control"
+      },
+      {
+        "label": "speed-limit.ip-mac-speed-limit.ip-mac-speed-limit",
+        "children": [
+          {
+            "label": "speed-limit.ip-mac-speed-limit.ip-speed-limit",
+            "func_name": "simple_qos",
+            "linkTo": "flow-ip-speed-limit"
+          },
+          {
+            "label": "speed-limit.ip-mac-speed-limit.mac-speed-limit",
+            "func_name": "mac_qos",
+            "linkTo": "flow-mac-speed-limit"
+          }
+        ]
+      },
+      {
+        "label": "speed-limit.protocol-library.protocol-library",
+        "children": [
+          {
+            "label": "speed-limit.protocol-library.custom-protocol",
+            "func_name": "dprotos",
+            "linkTo": "flow-custom-protocol"
+          },
+          {
+            "label": "speed-limit.protocol-library.advanced-custom-protocol",
+            "func_name": "dprotos_l7",
+            "linkTo": "flow-advanced-custom-protocol"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "ac-setting.ac-setting",
+    "icon": "nav1_ico4",
+    "children": [
+      {
+        "label": "ac-setting.ac-ap-static",
+        "func_name": "ac_status",
+        "linkTo": "ac-ap-static"
+      },
+      {
+        "label": "ac-setting.ac-ap-config",
+        "func_name": "ac_server",
+        "linkTo": "ac-ap-config"
+      },
+      {
+        "label": "ac-setting.ac-ap-group",
+        "func_name": "ac_group",
+        "linkTo": "ac-ap-group"
+      },
+      {
+        "label": "ac-setting.ac-ap-upgrade",
+        "func_name": "ac_upgrade",
+        "linkTo": "ac-ap-upgrade"
+      },
+      {
+        "label": "ac-setting.ac-wireless-list",
+        "func_name": "wls_black",
+        "linkTo": "ac-wireless-list"
+      },
+      {
+        "label": "ac-setting.ac-wireless-terminal-vlan",
+        "func_name": "wls_mvlan",
+        "linkTo": "ac-wireless-terminal-vlan"
+      },
+      {
+        "label": "ac-setting.ac-online-user",
+        "func_name": "ac_online_clt",
+        "linkTo": "ac-online-user"
+      },
+      {
+        "label": "ac-setting.ac-wireless-optimization",
+        "func_name": "ac_net_optimize",
+        "linkTo": "ac-wireless-optimization"
+      }
+    ]
+  },
+  {
+    "label": "auth.auth-charging",
+    "icon": "nav1_ico6",
+    "children": [
+      {
+        "label": "auth.auth-user.account-online-user",
+        "func_name": "ppp_online",
+        "linkTo": "auth-account-online-user"
+      },
+      {
+        "label": "auth.auth-service.web-server",
+        "func_name": "webauth",
+        "linkTo": "auth-web-server"
+      },
+      {
+        "label": "auth.auth-service.auth-service",
+        "children": [
+          {
+            "label": "vpn-setting.vpn-server.pppoe-server",
+            "func_name": "pppoe_server",
+            "linkTo": "vpn-pppoe-server"
+          },
+          {
+            "label": "vpn-setting.vpn-server.pptp-server",
+            "func_name": "pptp_server",
+            "linkTo": "vpn-pptp-server"
+          },
+          {
+            "label": "vpn-setting.vpn-server.l2tp-server",
+            "func_name": "l2tp_server",
+            "linkTo": "vpn-l2tp-server"
+          },
+          {
+            "label": "vpn-setting.vpn-server.openvpn-server",
+            "func_name": "openvpn-server",
+            "linkTo": "vpn-openvpn-server"
+          },
+          {
+            "label": "vpn-setting.vpn-server.ipsec-ikev2-server",
+            "func_name": "ike_server",
+            "linkTo": "vpn-ipsec-ikev2-server"
+          }
+        ]
+      },
+      {
+        "label": "auth.auth-account.auth-account",
+        "children": [
+          {
+            "label": "auth.auth-account.combo-management",
+            "func_name": "ppp_package",
+            "linkTo": "auth-combo-management"
+          },
+          {
+            "label": "auth.auth-account.account-management",
+            "func_name": "pppuser",
+            "linkTo": "auth-account-management"
+          },
+          {
+            "label": "auth.auth-account.self-password",
+            "func_name": "ppp_passwd",
+            "linkTo": "auth-self-password"
+          },
+          {
+            "label": "auth.auth-account.report-management",
+            "func_name": "ppp_paylog",
+            "linkTo": "auth-report-management"
+          },
+          {
+            "label": "auth.auth-account.coupon-management",
+            "func_name": "coupon",
+            "linkTo": "auth-coupon-management"
+          }
+        ]
+      },
+      {
+        "label": "auth.agent-service.agent-service",
+        "children": [
+          {
+            "label": "auth.agent-service.agent-account",
+            "func_name": "pppoe_proxy",
+            "linkTo": "auth-agent-account-management"
+          },
+          {
+            "label": "auth.agent-service.online-account",
+            "func_name": "pppoe_proxy",
+            "linkTo": "auth-online-account-list"
+          }
+        ]
+      },
+      {
+        "label": "notice.notice",
+        "children": [
+          {
+            "label": "notice.realtime-notice",
+            "func_name": "notice_temp",
+            "linkTo": "auth-realtime-notice"
+          },
+          {
+            "label": "notice.cycle-notice",
+            "func_name": "notice_cycle",
+            "linkTo": "auth-cycle-notice"
+          },
+          {
+            "label": "notice.expire-notice",
+            "func_name": "notice_remind",
+            "linkTo": "auth-expire-notice"
+          },
+          {
+            "label": "notice.pppoe-expire-notice",
+            "func_name": "notice_expires",
+            "linkTo": "auth-pppoe-expire-notice"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "behavior.behavior",
+    "icon": "nav1_ico10",
+    "children": [
+      {
+        "label": "behavior.behavior-setting.behavior-setting",
+        "children": [
+          {
+            "label": "behavior.behavior-setting.record-setting",
+            "func_name": "audit",
+            "linkTo": "behavior-record-setting"
+          },
+          {
+            "label": "behavior.behavior-setting.record-free-setting",
+            "func_name": "record_free_setting",
+            "linkTo": "behavior-record-free-setting"
+          },
+          {
+            "label": "behavior.behavior-log.web-log",
+            "func_name": "audit_url_log",
+            "linkTo": "behavior-web-log"
+          },
+          {
+            "label": "behavior.behavior-log.im-log",
+            "func_name": "audit_im_log",
+            "linkTo": "behavior-im-log"
+          },
+          {
+            "label": "behavior.behavior-log.client-log",
+            "func_name": "audit_terminal_log",
+            "linkTo": "behavior-client-log"
+          },
+          {
+            "label": "behavior.behavior-log.flow-statistics",
+            "func_name": "audit_terminal_stat",
+            "linkTo": "behavior-flow-statistics"
+          }
+        ]
+      },
+      {
+        "label": "behavior.behavior-setting.terminal-info",
+        "func_name": "mac_comment",
+        "linkTo": "behavior-terminal-info"
+      },
+      {
+        "label": "behavior.mac-control",
+        "func_name": "acl_mac",
+        "linkTo": "behavior-mac-control"
+      },
+      {
+        "label": "behavior.website-control.website-control",
+        "children": [
+          {
+            "label": "behavior.website-control.black-list",
+            "func_name": "url_black",
+            "linkTo": "behavior-black-list"
+          },
+          {
+            "label": "behavior.website-control.banned-site",
+            "func_name": "domain_blacklist",
+            "linkTo": "behavior-banned-site"
+          },
+          {
+            "label": "behavior.website-control.url-library",
+            "func_name": "domain_group",
+            "linkTo": "behavior-url-library"
+          }
+        ]
+      },
+      {
+        "label": "service.url-control.url-control",
+        "children": [
+          {
+            "label": "service.url-control.url-jump",
+            "func_name": "url_redirect",
+            "linkTo": "service-url-jump"
+          },
+          {
+            "label": "service.url-control.keyword",
+            "func_name": "url_keywords",
+            "linkTo": "service-keywords-replace"
+          },
+          {
+            "label": "service.url-control.parameter",
+            "func_name": "url_replace",
+            "linkTo": "service-param-replace"
+          }
+        ]
+      },
+      {
+        "label": "behavior.pro-control",
+        "func_name": "acl_l7",
+        "linkTo": "behavior-pro-control"
+      },
+      {
+        "label": "behavior.secondary-route",
+        "func_name": "acl_l2route",
+        "linkTo": "behavior-secondary-route"
+      },
+      {
+        "label": "behavior.qq-control",
+        "func_name": "acl_qq",
+        "linkTo": "behavior-qq-control"
+      }
+    ]
+  },
+  {
+    "label": "firewall.firewall",
+    "icon": "nav1_ico9",
+    "children": [
+      {
+        "label": "firewall.acl",
+        "func_name": "acl",
+        "linkTo": "firewall-acl"
+      },
+      {
+        "label": "firewall.arp-bind",
+        "func_name": "arp",
+        "linkTo": "firewall-arp-bind"
+      },
+      {
+        "label": "firewall.connection-limit",
+        "func_name": "conn_limit",
+        "linkTo": "firewall-connection-limit"
+      },
+      {
+        "label": "firewall.advanced-config",
+        "func_name": "advanced",
+        "linkTo": "firewall-advanced-config"
+      },
+      {
+        "label": "firewall.firewall-plugin",
+        "func_name": "firewall",
+        "linkTo": "firewall-firewall-plugin"
+      }
+    ]
+  },
+  {
+    "label": "advanced.advanced",
+    "icon": "nav1_ico18",
+    "children": [
+      {
+        "label": "service.service-cache",
+        "children": [
+          {
+            "label": "service.cache-service",
+            "func_name": "ik_web_cache",
+            "linkTo": "service-cache-service"
+          },
+          {
+            "label": "service.cache-status",
+            "func_name": "ik_web_cache",
+            "linkTo": "service-cache-status"
+          }
+        ]
+      },
+      {
+        "label": "service.dynamic-domain",
+        "func_name": "ddns",
+        "linkTo": "service-ddns"
+      },
+      {
+        "label": "service.intranet-transmission",
+        "func_name": "nat_ddns",
+        "linkTo": "service-nat-ddns"
+      },
+      {
+        "label": "service.snmp",
+        "func_name": "netsnmp",
+        "linkTo": "service-snmp"
+      },
+      {
+        "label": "service.snmpClient2",
+        "func_name": "netsnmpc",
+        "linkTo": "service-snmp-client2"
+      },
+      {
+        "label": "service.port-mirror",
+        "func_name": "port_mirror",
+        "linkTo": "service-port-mirror"
+      },
+      {
+        "label": "service.virtual-machine",
+        "func_name": "qemu",
+        "linkTo": "service-virtual-machine"
+      },
+      {
+        "label": "tools.wakeup",
+        "func_name": "wakeup",
+        "linkTo": "tools-wakeup"
+      },
+      {
+        "label": "service.ftp-server",
+        "func_name": "ftp_server",
+        "linkTo": "service-ftp-server"
+      },
+      {
+        "label": "service.samba-server",
+        "func_name": "smbd",
+        "linkTo": "service-samba-server"
+      },
+      {
+        "label": "service.http-server",
+        "func_name": "http_server",
+        "linkTo": "service-http-server"
+      },
+      {
+        "label": "service.Iptv-set",
+        "func_name": "udp_proxy",
+        "linkTo": "service-Iptv-set"
+      },
+      {
+        "label": "service.serialCommunication",
+        "func_name": "rs485",
+        "linkTo": "service-serialCommunication"
+      }
+    ]
+  },
+  {
+    "label": "system-setting.plugin-management",
+    "icon": "nav1_ico7",
+    "func_name": "plugins",
+    "linkTo": "system-setting-plugin-management"
+  },
+  {
+    "label": "service.service",
+    "icon": "nav1_ico8",
+    "children": [
+      {
+        "label": "tools.ping-test",
+        "func_name": "Ping",
+        "linkTo": "tools-ping-test"
+      },
+      {
+        "label": "tools.capture-packet",
+        "func_name": "tcpdump",
+        "linkTo": "tools-capture-packet"
+      },
+      {
+        "label": "tools.route-trace",
+        "func_name": "Traceroute",
+        "linkTo": "tools-route-trace"
+      },
+      {
+        "label": "tools.throughput-test",
+        "func_name": "iperf",
+        "linkTo": "tools-throughput-test"
+      },
+      {
+        "label": "tools.subnet",
+        "func_name": "subnet",
+        "linkTo": "tools-subnet"
+      },
+      {
+        "label": "tools.speed-test",
+        "func_name": "speedtest",
+        "linkTo": "tools-speed-test"
+      },
+      {
+        "label": "tools.route-test",
+        "func_name": "iksyscheck",
+        "linkTo": "tools-route-test"
+      },
+      {
+        "label": "service.watchdog",
+        "func_name": "watchdog",
+        "linkTo": "service-watchdog"
+      }
+    ]
+  },
+  {
+    "label": "log.log",
+    "icon": "nav1_ico11",
+    "children": [
+      {
+        "label": "log.user-log.user-log",
+        "children": [
+          {
+            "label": "log.user-log.web-auth-log",
+            "func_name": "syslog-pppauth",
+            "linkTo": "web-auth-log"
+          },
+          {
+            "label": "log.user-log.arp-log",
+            "func_name": "syslog-arp",
+            "linkTo": "arp-log"
+          },
+          {
+            "label": "log.user-log.terminal-log",
+            "func_name": "syslog-apaction",
+            "linkTo": "terminal-log"
+          }
+        ]
+      },
+      {
+        "label": "log.function-log.function-log",
+        "children": [
+          {
+            "label": "log.function-log.dhcp-server-log",
+            "func_name": "syslog-dhcpd",
+            "linkTo": "log-center-dhcp-server-log"
+          },
+          {
+            "label": "log.function-log.ddns-log",
+            "func_name": "syslog-ddns",
+            "linkTo": "ddns-log"
+          },
+          {
+            "label": "log.function-log.wan-pppoe-log",
+            "func_name": "syslog-wanpppoe",
+            "linkTo": "wan-pppoe-log"
+          },
+          {
+            "label": "log.function-log.notice-log",
+            "func_name": "syslog-notice",
+            "linkTo": "notice-log"
+          }
+        ]
+      },
+      {
+        "label": "log.system-log.system-log",
+        "children": [
+          {
+            "label": "log.system-log.system-log",
+            "func_name": "syslog-sysevent",
+            "linkTo": "log-center-system-log"
+          },
+          {
+            "label": "log.system-log.operation-log",
+            "func_name": "syslog-webadmin",
+            "linkTo": "log-center-operation-log"
+          },
+          {
+            "label": "log.system-log.notification",
+            "func_name": "ikmessages",
+            "linkTo": "log-center-notification"
+          },
+          {
+            "label": "log.system-log.perceivable-log",
+            "func_name": "rt_collect",
+            "linkTo": "log-center-perceivable-log"
+          }
+        ]
+      }
+    ]
+  }
+]

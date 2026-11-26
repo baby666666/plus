@@ -1,0 +1,113 @@
+/* WG auxiliary actions use the native .btn component and form grid. */
+.wg-page .input_group.wg-client-actions {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+.wg-page .wg-client-actions > .btn {
+    margin: 0;
+    white-space: nowrap;
+}
+.wg-page .wg-import-content {
+    display: block;
+    max-width: 760px;
+}
+.wg-page .wg-import-actions {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+.wg-page .wg-import-actions > .btn { margin: 0; }
+
+.wg-singbox-qr svg{display:block;max-width:100%;height:auto;padding:16px;box-sizing:border-box;background:#fff}
+
+.wg-page .wg-tunnel-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 9px 0; }
+.wg-page .wg-tunnel-controls .btn { margin: 0; }
+.wg-page .wg-tunnel-fields { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; margin: 8px 0; }
+.wg-page .wg-tunnel-field { display: flex; flex-direction: column; gap: 5px; }
+.wg-page .wg-tunnel-field .inptText { width: 180px; }
+.wg-page .wg-tunnel-qr { margin: 12px 0; }
+.wg-page .wg-tunnel-qr-image { width: 520px; max-width: 100%; margin-top: 8px; }
+.wg-page .wg-tunnel-qr-image svg { display: block; width: 100%; height: auto; background: #fff; shape-rendering: crispEdges; }
+.wg-page .wg-hyr-options { margin: 10px 0; }
+.wg-page .wg-hyr-options summary { cursor: pointer; }
+.wg-page .wg-hyr-editor { max-width: 760px; }
+.wg-page .wg-phone-copy textarea {
+    display: block;
+    width: 100%;
+    max-width: 38rem;
+    box-sizing: border-box;
+    font-size: 16px;
+    -webkit-user-select: text;
+    user-select: text;
+}
+.wg-page .wg-hyr-editor label { cursor: pointer; }
+.wg-page .wg-hyr-editor input[type="radio"], .wg-page .wg-hyr-editor input[type="checkbox"] { margin-right: 7px; }
+.wg-page .wg-hyr-roles { border: 0; padding: 0; margin: 12px 0 6px; }
+.wg-page .wg-hyr-roles legend { margin-bottom: 5px; font-weight: bold; }
+.wg-page .wg-hyr-roles label { display: block; line-height: 26px; }
+
+.wg-site-summary { display: grid; grid-template-columns: max-content 1fr; gap: 8px 14px; margin: 8px 0; }
+.wg-site-summary dd { margin: 0; overflow-wrap: anywhere; }
+.wg-managed-site { padding: 16px; }
+.wg-managed-site .btn { margin-top: 12px; }
+
+@media (max-width: 769px) {
+    .wg-page .wg-hyr-tunnel {
+        padding-left: 0;
+    }
+    .wg-page .wg-hyr-tunnel > .input_tit {
+        position: static;
+        width: 100%;
+        padding: 0;
+    }
+    .wg-page .input_group.wg-hyr-editor {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
+    }
+    .wg-page .wg-hyr-roles {
+        min-width: 0;
+    }
+    .wg-page .wg-tunnel-controls {
+        display: grid;
+        grid-template-columns: repeat(2, max-content);
+        align-items: center;
+        justify-content: start;
+        gap: 5px;
+    }
+    .wg-page .wg-tunnel-controls > label,
+    .wg-page .wg-tunnel-controls > strong,
+    .wg-page .wg-tunnel-controls > span {
+        grid-column: 1 / -1;
+        min-width: 0;
+    }
+    .wg-page .wg-tunnel-controls > label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .wg-page .wg-tunnel-controls > .btn {
+        justify-self: start;
+        max-width: 100%;
+    }
+    .wg-page .wg-hyr-editor .inptText,
+    .wg-page .wg-tunnel-field {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 374px) {
+    .wg-page .wg-tunnel-controls {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

@@ -1,0 +1,2636 @@
+[
+  {
+    "key": "me346a55e46",
+    "zh-CN": "密钥生成失败，请点击生成密钥重试",
+    "en-US": "Key generation failed. Click Generate key to retry.",
+    "zh-TW": "密鑰生成失敗，請點擊生成密鑰重試"
+  },
+  {
+    "key": "m4299f03b55",
+    "zh-CN": "中心分流配置已保存",
+    "en-US": "Central routing settings saved",
+    "zh-TW": "中心分流配置已保存"
+  },
+  {
+    "key": "mde3a94beae",
+    "zh-CN": "已开始更新IP库并应用",
+    "en-US": "IP library update and apply started",
+    "zh-TW": "已開始更新IP庫並應用"
+  },
+  {
+    "key": "m8f6f8d979c",
+    "zh-CN": "已复制",
+    "en-US": "Copied",
+    "zh-TW": "已複製"
+  },
+  {
+    "key": "m6bf7933df3",
+    "zh-CN": "复制配置",
+    "en-US": "Copy configuration",
+    "zh-TW": "複製配置"
+  },
+  {
+    "key": "m1896675031",
+    "zh-CN": "正在分配地址，请稍候",
+    "en-US": "Assigning an address, please wait",
+    "zh-TW": "正在分配地址，請稍候"
+  },
+  {
+    "key": "mc947766410",
+    "zh-CN": "重新分配地址",
+    "en-US": "Assign another address",
+    "zh-TW": "重新分配地址"
+  },
+  {
+    "key": "mdbff056b5a",
+    "zh-CN": "生成对端密钥",
+    "en-US": "Generate peer keys",
+    "zh-TW": "生成對端密鑰"
+  },
+  {
+    "key": "m5715693536",
+    "zh-CN": "对端私钥：",
+    "en-US": "Peer private key:",
+    "zh-TW": "對端私鑰："
+  },
+  {
+    "key": "ma709b2553d",
+    "zh-CN": "自动生成，用于客户端配置/二维码",
+    "en-US": "Generated automatically for the client configuration and QR code",
+    "zh-TW": "自動生成，用於客戶端配置/二維碼"
+  },
+  {
+    "key": "m45b2b7e248",
+    "zh-CN": "客户端DNS：",
+    "en-US": "Client DNS:",
+    "zh-TW": "客戶端DNS："
+  },
+  {
+    "key": "mcb00f5ac48",
+    "zh-CN": "例如 223.5.5.5,8.8.8.8",
+    "en-US": "For example, 223.5.5.5,8.8.8.8",
+    "zh-TW": "例如 223.5.5.5,8.8.8.8"
+  },
+  {
+    "key": "m3177bd8ac9",
+    "zh-CN": "客户端配置：",
+    "en-US": "Client configuration:",
+    "zh-TW": "客戶端配置："
+  },
+  {
+    "key": "me304ca8fc7",
+    "zh-CN": "生成配置/二维码",
+    "en-US": "Generate configuration / QR code",
+    "zh-TW": "生成配置/二維碼"
+  },
+  {
+    "key": "m02db06d84c",
+    "zh-CN": "生成iKuai组网配置",
+    "en-US": "Generate iKuai site configuration",
+    "zh-TW": "生成iKuai組網配置"
+  },
+  {
+    "key": "m889476d726",
+    "zh-CN": "粘贴导入配置",
+    "en-US": "Paste configuration",
+    "zh-TW": "貼上導入配置"
+  },
+  {
+    "key": "m93b03686b4",
+    "zh-CN": "导入结果：",
+    "en-US": "Import result:",
+    "zh-TW": "導入結果："
+  },
+  {
+    "key": "m264bf8d4bb",
+    "zh-CN": "配置内容：",
+    "en-US": "Configuration:",
+    "zh-TW": "配置內容："
+  },
+  {
+    "key": "m723af3cb7e",
+    "zh-CN": "二维码：",
+    "en-US": "QR code:",
+    "zh-TW": "二維碼："
+  },
+  {
+    "key": "m59d070af82",
+    "zh-CN": "地址规划读取失败，请重试",
+    "en-US": "Could not read the address plan. Please retry.",
+    "zh-TW": "地址規劃讀取失敗，請重試"
+  },
+  {
+    "key": "mcbc1196812",
+    "zh-CN": "没有可用的默认地址，请手动规划",
+    "en-US": "No default address is available. Enter an address manually.",
+    "zh-TW": "沒有可用的默認地址，請手動規劃"
+  },
+  {
+    "key": "m7db8f14789",
+    "zh-CN": "接口已变化，请重新分配地址",
+    "en-US": "The interface has changed. Assign an address again.",
+    "zh-TW": "接口已變化，請重新分配地址"
+  },
+  {
+    "key": "m3cbea6c0cd",
+    "zh-CN": "地址规划请求未完成，请点击重新分配或手动填写",
+    "en-US": "Address assignment did not finish. Retry or enter an address manually.",
+    "zh-TW": "地址規劃請求未完成，請點擊重新分配或手動填寫"
+  },
+  {
+    "key": "mbcbf733924",
+    "zh-CN": "地址规划失败，请重试",
+    "en-US": "Address assignment failed. Please retry.",
+    "zh-TW": "地址規劃失敗，請重試"
+  },
+  {
+    "key": "mc5787e80b6",
+    "zh-CN": "请先创建 WG 服务接口",
+    "en-US": "Create a WG service interface first",
+    "zh-TW": "請先創建 WG 服務接口"
+  },
+  {
+    "key": "mdec1e934cc",
+    "zh-CN": "地址规划：",
+    "en-US": "Address assignment:",
+    "zh-TW": "地址規劃："
+  },
+  {
+    "key": "m44d20dbb88",
+    "zh-CN": "正在查找未使用地址…",
+    "en-US": "Looking for an unused address…",
+    "zh-TW": "正在查找未使用地址…"
+  },
+  {
+    "key": "mc7f88eee2a",
+    "zh-CN": "本接口源网段：",
+    "en-US": "Interface subnet:",
+    "zh-TW": "本接口源網段："
+  },
+  {
+    "key": "m6c73a6b0d0",
+    "zh-CN": "；客户端使用独立 /32 地址。",
+    "en-US": "; each client uses a separate /32 address.",
+    "zh-TW": "；客戶端使用獨立 /32 地址。"
+  },
+  {
+    "key": "md75c83ac35",
+    "zh-CN": "新增客户端按所选接口分配 /32 地址；手动输入和已有地址保留。",
+    "en-US": "New clients receive a /32 from the selected interface. Manual and existing addresses are preserved.",
+    "zh-TW": "新增客戶端按所選接口分配 /32 地址；手動輸入和已有地址保留。"
+  },
+  {
+    "key": "m208067ce94",
+    "zh-CN": "分配可用地址",
+    "en-US": "Assign an available address",
+    "zh-TW": "分配可用地址"
+  },
+  {
+    "key": "mbc7a1c1880",
+    "zh-CN": "请填写客户端 Endpoint IP，或点击重新获取",
+    "en-US": "Enter the client Endpoint IP or click Fetch again",
+    "zh-TW": "請填寫客戶端 Endpoint IP，或點擊重新獲取"
+  },
+  {
+    "key": "m99f08af6c2",
+    "zh-CN": "客户端 Endpoint IP 只支持 IPv4，不要填写域名、网址或端口",
+    "en-US": "Client Endpoint IP requires IPv4. Do not enter a hostname, URL or port.",
+    "zh-TW": "客戶端 Endpoint IP 只支持 IPv4，不要填寫域名、網址或端口"
+  },
+  {
+    "key": "m8a590c8bbe",
+    "zh-CN": "客户端 Endpoint IP 不能使用未指定、回环、链路本地或组播等保留地址",
+    "en-US": "Client Endpoint IP cannot be unspecified, loopback, link-local, multicast or another reserved address",
+    "zh-TW": "客戶端 Endpoint IP 不能使用未指定、回環、鏈路本地或組播等保留地址"
+  },
+  {
+    "key": "m0dc0eadfe1",
+    "zh-CN": "服务接口监听端口无效，请先保存服务接口",
+    "en-US": "Invalid service listen port. Save the service interface first.",
+    "zh-TW": "服務接口監聽端口無效，請先保存服務接口"
+  },
+  {
+    "key": "mfb14529a9e",
+    "zh-CN": "端口使用服务接口当前监听值：",
+    "en-US": "Current service listen port:",
+    "zh-TW": "端口使用服務接口當前監聽值："
+  },
+  {
+    "key": "m4ce3824b94",
+    "zh-CN": "手动输入 IPv4，端口使用服务接口监听值。",
+    "en-US": "Enter an IPv4 address. The port comes from the service interface.",
+    "zh-TW": "手動輸入 IPv4，端口使用服務接口監聽值。"
+  },
+  {
+    "key": "m57f3b64d13",
+    "zh-CN": "正在获取所选服务接口 WAN 的公网 IP…",
+    "en-US": "Fetching the public IP of the selected service interface WAN…",
+    "zh-TW": "正在獲取所選服務接口 WAN 的公網 IP…"
+  },
+  {
+    "key": "m3f65e6b9ca",
+    "zh-CN": "请先选择服务接口",
+    "en-US": "Select a service interface first",
+    "zh-TW": "請先選擇服務接口"
+  },
+  {
+    "key": "m71a6e8bdbc",
+    "zh-CN": "Endpoint IP 获取失败，请重试或手动填写 IPv4",
+    "en-US": "Could not fetch the Endpoint IP. Retry or enter IPv4 manually",
+    "zh-TW": "Endpoint IP 獲取失敗，請重試或手動填寫 IPv4"
+  },
+  {
+    "key": "m1c687dd536",
+    "zh-CN": "已获取 ",
+    "en-US": "Retrieved ",
+    "zh-TW": "已獲取 "
+  },
+  {
+    "key": "m837663285b",
+    "zh-CN": "所选 WAN",
+    "en-US": "selected WAN",
+    "zh-TW": "所選 WAN"
+  },
+  {
+    "key": "mc6b1fe049b",
+    "zh-CN": " 公网 IP：",
+    "en-US": " public IP:",
+    "zh-TW": " 公網 IP："
+  },
+  {
+    "key": "m55303a6202",
+    "zh-CN": "公网 IP 探测未成功，已回填 ",
+    "en-US": "Public IP detection failed. Using ",
+    "zh-TW": "公網 IP 探測未成功，已回填 "
+  },
+  {
+    "key": "m58b7a71e5d",
+    "zh-CN": " 本机 IP：",
+    "en-US": " local IP:",
+    "zh-TW": " 本機 IP："
+  },
+  {
+    "key": "md0fb36eaea",
+    "zh-CN": "Endpoint IP 获取失败，请重试或手动填写 IPv4。",
+    "en-US": "Could not fetch the Endpoint IP. Retry or enter IPv4 manually.",
+    "zh-TW": "Endpoint IP 獲取失敗，請重試或手動填寫 IPv4。"
+  },
+  {
+    "key": "m78900be99e",
+    "zh-CN": " 已保留原有填写值。",
+    "en-US": " The existing value has been preserved.",
+    "zh-TW": " 已保留原有填寫值。"
+  },
+  {
+    "key": "m61e198b5c5",
+    "zh-CN": "已保留原有填写值。",
+    "en-US": "The existing value has been preserved.",
+    "zh-TW": "已保留原有填寫值。"
+  },
+  {
+    "key": "m47acfef197",
+    "zh-CN": "已保留原有 Endpoint IP；端口使用服务接口当前监听值。",
+    "en-US": "The existing Endpoint IP is preserved. The port comes from the service interface.",
+    "zh-TW": "已保留原有 Endpoint IP；端口使用服務接口當前監聽值。"
+  },
+  {
+    "key": "m54fe4c2376",
+    "zh-CN": "原有 Endpoint 使用域名或旧格式。请手动改为 IPv4，或点击重新获取后再保存、生成配置。",
+    "en-US": "The existing Endpoint uses a hostname or legacy format. Enter IPv4 or click Fetch again before saving or generating a configuration.",
+    "zh-TW": "原有 Endpoint 使用域名或舊格式。請手動改為 IPv4，或點擊重新獲取後再保存、生成配置。"
+  },
+  {
+    "key": "m944859f55f",
+    "zh-CN": "已保留手动 Endpoint；请确认它适用于当前服务接口，或点击重新获取。",
+    "en-US": "The manual Endpoint is preserved. Verify it matches the current service interface or click Fetch again.",
+    "zh-TW": "已保留手動 Endpoint；請確認它適用於當前服務接口，或點擊重新獲取。"
+  },
+  {
+    "key": "ma75b99eb55",
+    "zh-CN": "互访网段格式无效",
+    "en-US": "Invalid site subnet format",
+    "zh-TW": "互訪網段格式無效"
+  },
+  {
+    "key": "m39b9adde0f",
+    "zh-CN": "每端最多填写 8 个互访网段",
+    "en-US": "Each side supports up to 8 site subnets",
+    "zh-TW": "每端最多填寫 8 個互訪網段"
+  },
+  {
+    "key": "me703fcde47",
+    "zh-CN": "互访网段须为有效 IPv4 网段",
+    "en-US": "Site subnets must be valid IPv4 networks",
+    "zh-TW": "互訪網段須為有效 IPv4 網段"
+  },
+  {
+    "key": "m3f976ec88f",
+    "zh-CN": "互访网段只支持私有 IPv4 和 100.64.0.0/10",
+    "en-US": "Site subnets support only private IPv4 networks and 100.64.0.0/10",
+    "zh-TW": "互訪網段只支持私有 IPv4 和 100.64.0.0/10"
+  },
+  {
+    "key": "m48bfedc6a1",
+    "zh-CN": "同侧互访网段不能重叠",
+    "en-US": "Subnets on the same side must not overlap",
+    "zh-TW": "同側互訪網段不能重疊"
+  },
+  {
+    "key": "ma1a0a21b33",
+    "zh-CN": "请同时填写本端和对端互访网段；不需要互访时两项留空",
+    "en-US": "Enter both local and remote site subnets, or leave both empty if site access is not needed",
+    "zh-TW": "請同時填寫本端和對端互訪網段；不需要互訪時兩項留空"
+  },
+  {
+    "key": "m1d5a5bd107",
+    "zh-CN": "两端互访网段不能重叠",
+    "en-US": "Local and remote subnets must not overlap",
+    "zh-TW": "兩端互訪網段不能重疊"
+  },
+  {
+    "key": "m241cd41d65",
+    "zh-CN": "正在获取 Endpoint IP，请稍候或手动填写 IPv4",
+    "en-US": "Fetching Endpoint IP. Please wait or enter IPv4 manually",
+    "zh-TW": "正在獲取 Endpoint IP，請稍候或手動填寫 IPv4"
+  },
+  {
+    "key": "m6bc5c199f8",
+    "zh-CN": "分流出口隧道须使用独立的 /32 对端地址",
+    "en-US": "A routing exit peer requires its own /32 address",
+    "zh-TW": "分流出口隧道須使用獨立的 /32 對端地址"
+  },
+  {
+    "key": "m58e619055a",
+    "zh-CN": "配置中的 Endpoint 与当前 IP／监听端口不一致，请重新生成配置",
+    "en-US": "The configuration Endpoint differs from the current IP or listen port. Generate it again.",
+    "zh-TW": "配置中的 Endpoint 與當前 IP／監聽端口不一致，請重新生成配置"
+  },
+  {
+    "key": "mb4c1a47062",
+    "zh-CN": "缺少对端私钥，请先生成对端密钥或手动填写对端私钥",
+    "en-US": "Missing peer private key. Generate peer keys or enter the private key.",
+    "zh-TW": "缺少對端私鑰，請先生成對端密鑰或手動填寫對端私鑰"
+  },
+  {
+    "key": "mafcdc4d372",
+    "zh-CN": "找不到服务接口参数，请先保存服务接口",
+    "en-US": "Service interface settings not found. Save the service interface first.",
+    "zh-TW": "找不到服務接口參數，請先保存服務接口"
+  },
+  {
+    "key": "m6f601fb748",
+    "zh-CN": "请填写对端 WireGuard 地址，不能把默认路由作为客户端地址",
+    "en-US": "Enter the peer WireGuard address. A default route cannot be used as a client address.",
+    "zh-TW": "請填寫對端 WireGuard 地址，不能把默認路由作為客戶端地址"
+  },
+  {
+    "key": "m6c8b0465ae",
+    "zh-CN": "服务接口地址无效",
+    "en-US": "Invalid service interface address",
+    "zh-TW": "服務接口地址無效"
+  },
+  {
+    "key": "mf2266d5115",
+    "zh-CN": "填写对端导入后允许访问的本端网段，多个用逗号分隔",
+    "en-US": "Enter the local networks this peer may access after import, separated by commas",
+    "zh-TW": "填寫對端導入後允許訪問的本端網段，多個用逗號分隔"
+  },
+  {
+    "key": "m2e9cc3c3f9",
+    "zh-CN": "允许地址必须是 IPv4 地址或网段",
+    "en-US": "Allowed addresses must be IPv4 addresses or networks",
+    "zh-TW": "允許地址必須是 IPv4 地址或網段"
+  },
+  {
+    "key": "m26b6f9ad10",
+    "zh-CN": "心跳间隔无效",
+    "en-US": "Invalid keepalive interval",
+    "zh-TW": "心跳間隔無效"
+  },
+  {
+    "key": "mbaad326d22",
+    "zh-CN": "DNS 地址格式无效",
+    "en-US": "Invalid DNS address format",
+    "zh-TW": "DNS 地址格式無效"
+  },
+  {
+    "key": "m6d091ca19e",
+    "zh-CN": "生成配置失败",
+    "en-US": "Could not generate the configuration",
+    "zh-TW": "生成配置失敗"
+  },
+  {
+    "key": "m367b7a3c52",
+    "zh-CN": "请填写 IPv4，或点击重新获取。",
+    "en-US": "Enter IPv4 or click Fetch again.",
+    "zh-TW": "請填寫 IPv4，或點擊重新獲取。"
+  },
+  {
+    "key": "m57d279e2d4",
+    "zh-CN": "本端互访网段：",
+    "en-US": "Local site subnets:",
+    "zh-TW": "本端互訪網段："
+  },
+  {
+    "key": "m4832bd39e6",
+    "zh-CN": "例如 192.168.10.0/24",
+    "en-US": "For example, 192.168.10.0/24",
+    "zh-TW": "例如 192.168.10.0/24"
+  },
+  {
+    "key": "mb76fcfdbd4",
+    "zh-CN": "对端互访网段：",
+    "en-US": "Remote site subnets:",
+    "zh-TW": "對端互訪網段："
+  },
+  {
+    "key": "mc24d29cbd3",
+    "zh-CN": "例如 192.168.20.0/24",
+    "en-US": "For example, 192.168.20.0/24",
+    "zh-TW": "例如 192.168.20.0/24"
+  },
+  {
+    "key": "m0c51f83b47",
+    "zh-CN": "选填，每行一个网段。两项同时填写，指定内网之间保留源 IP，直接经 WG 互访；其他流量仍按分流规则处理。",
+    "en-US": "Optional, one network per line. Fill in both sides to route directly over WG between these networks while preserving source IPs. Other traffic follows routing rules.",
+    "zh-TW": "選填，每行一個網段。兩項同時填寫，指定內網之間保留源 IP，直接經 WG 互訪；其他流量仍按分流規則處理。"
+  },
+  {
+    "key": "mb01d3815b7",
+    "zh-CN": "两端网段不能重叠。生成的组网配置会自动带上双方网段；也可同时勾选“用作分流出口”。",
+    "en-US": "The two sides must not overlap. Generated site configurations include both sides. Use as routing exit may also be enabled.",
+    "zh-TW": "兩端網段不能重疊。生成的組網配置會自動帶上雙方網段；也可同時勾選“用作分流出口”。"
+  },
+  {
+    "key": "m1aff0ec93b",
+    "zh-CN": "客户端 Endpoint IP：",
+    "en-US": "Client Endpoint IP:",
+    "zh-TW": "客戶端 Endpoint IP："
+  },
+  {
+    "key": "mec2c009828",
+    "zh-CN": "IPv4，例如 203.0.113.10",
+    "en-US": "IPv4, for example 203.0.113.10",
+    "zh-TW": "IPv4，例如 203.0.113.10"
+  },
+  {
+    "key": "m146da2e2a9",
+    "zh-CN": "获取中…",
+    "en-US": "Fetching…",
+    "zh-TW": "獲取中…"
+  },
+  {
+    "key": "m1d2a90550a",
+    "zh-CN": "重新获取",
+    "en-US": "Fetch again",
+    "zh-TW": "重新獲取"
+  },
+  {
+    "key": "m9f09fde4cd",
+    "zh-CN": "Endpoint 端口：",
+    "en-US": "Endpoint port:",
+    "zh-TW": "Endpoint 端口："
+  },
+  {
+    "key": "m2f5f1d6fbf",
+    "zh-CN": "未设置",
+    "en-US": "Not set",
+    "zh-TW": "未設置"
+  },
+  {
+    "key": "m0a15cd82f5",
+    "zh-CN": "（取服务接口监听端口）",
+    "en-US": "(service interface listen port)",
+    "zh-TW": "（取服務接口監聽端口）"
+  },
+  {
+    "key": "mc993235f67",
+    "zh-CN": "分流出口：",
+    "en-US": "Routing exit:",
+    "zh-TW": "分流出口："
+  },
+  {
+    "key": "m3b28c6e2a3",
+    "zh-CN": " 用作分流出口",
+    "en-US": " Use as routing exit",
+    "zh-TW": " 用作分流出口"
+  },
+  {
+    "key": "m75c984b325",
+    "zh-CN": "对端路由器须独占本服务接口。开启后，本机可按分流规则经它上网；对端保持自己的 WAN 默认出口。",
+    "en-US": "The peer router must be the only peer on this service interface. This router can then access the Internet through it according to routing rules; the peer keeps its own default WAN route.",
+    "zh-TW": "對端路由器須獨佔本服務接口。開啟後，本機可按分流規則經它上網；對端保持自己的 WAN 默認出口。"
+  },
+  {
+    "key": "m0c5a007324",
+    "zh-CN": "生成的配置供出口路由器导入，保留其 WAN 默认路由并启用心跳。对端 IP／域名可留空，由对端主动连接。",
+    "en-US": "Import this configuration on the exit router. It preserves that router's default WAN route and enables keepalive. The peer IP or hostname may be empty so the peer initiates the connection.",
+    "zh-TW": "生成的配置供出口路由器導入，保留其 WAN 默認路由並啟用心跳。對端 IP／域名可留空，由對端主動連接。"
+  },
+  {
+    "key": "m805248ecae",
+    "zh-CN": " 格式不正确，请粘贴完整配置。",
+    "en-US": " has an invalid format. Paste the complete configuration.",
+    "zh-TW": " 格式不正確，請貼上完整配置。"
+  },
+  {
+    "key": "m022ad9d446",
+    "zh-CN": " 超出有效范围。",
+    "en-US": " is outside the valid range.",
+    "zh-TW": " 超出有效範圍。"
+  },
+  {
+    "key": "ma1ea3c88bb",
+    "zh-CN": "请粘贴 WireGuard 配置。",
+    "en-US": "Paste a WireGuard configuration.",
+    "zh-TW": "請貼上 WireGuard 配置。"
+  },
+  {
+    "key": "m942988ea4b",
+    "zh-CN": "配置过长，请每次导入一份接口及一个隧道。",
+    "en-US": "Configuration too long. Import one interface and one peer at a time.",
+    "zh-TW": "配置過長，請每次導入一份接口及一個隧道。"
+  },
+  {
+    "key": "m3464d8d92e",
+    "zh-CN": "互访网段标记重复",
+    "en-US": "Duplicate site subnet marker",
+    "zh-TW": "互訪網段標記重複"
+  },
+  {
+    "key": "m8a7a2f7b29",
+    "zh-CN": "每次只支持一个 [Interface] 和一个 [Peer]，请拆分后导入。",
+    "en-US": "Only one [Interface] and one [Peer] are supported per import. Split the configuration first.",
+    "zh-TW": "每次只支持一個 [Interface] 和一個 [Peer]，請拆分後導入。"
+  },
+  {
+    "key": "m9552fe3bd3",
+    "zh-CN": "第 ",
+    "en-US": "Line ",
+    "zh-TW": "第 "
+  },
+  {
+    "key": "me8b7a96e63",
+    "zh-CN": " 行格式不正确，请保留配置换行。",
+    "en-US": " has an invalid format. Preserve the configuration line breaks.",
+    "zh-TW": " 行格式不正確，請保留配置換行。"
+  },
+  {
+    "key": "m9d6903a029",
+    "zh-CN": " 行字段重复，请检查配置。",
+    "en-US": " contains a duplicate field. Check the configuration.",
+    "zh-TW": " 行字段重複，請檢查配置。"
+  },
+  {
+    "key": "m7a29c577d8",
+    "zh-CN": "页面组件尚未就绪，请刷新后重试",
+    "en-US": "The page is not ready. Refresh and retry.",
+    "zh-TW": "頁面組件尚未就緒，請刷新後重試"
+  },
+  {
+    "key": "m5b2c3c1b2c",
+    "zh-CN": "缺少 [Peer] 段，未创建接口。",
+    "en-US": "Missing [Peer] section. No interface was created.",
+    "zh-TW": "缺少 [Peer] 段，未創建接口。"
+  },
+  {
+    "key": "m4470215cdd",
+    "zh-CN": "对端 PublicKey",
+    "en-US": "Peer PublicKey",
+    "zh-TW": "對端 PublicKey"
+  },
+  {
+    "key": "m1af3e1151a",
+    "zh-CN": "缺少 AllowedIPs，未创建接口。",
+    "en-US": "Missing AllowedIPs. No interface was created.",
+    "zh-TW": "缺少 AllowedIPs，未創建接口。"
+  },
+  {
+    "key": "m5857e05399",
+    "zh-CN": " 必须包含有效的 IPv4 地址或网段。",
+    "en-US": " must contain a valid IPv4 address or network.",
+    "zh-TW": " 必須包含有效的 IPv4 地址或網段。"
+  },
+  {
+    "key": "m369cfbe4b2",
+    "zh-CN": " 未包含 IPv4；当前版本不支持导入纯 IPv6 隧道。",
+    "en-US": " has no IPv4 entry. IPv6-only tunnel imports are not supported.",
+    "zh-TW": " 未包含 IPv4；當前版本不支持導入純 IPv6 隧道。"
+  },
+  {
+    "key": "mbf5a1b476c",
+    "zh-CN": " 中的 IPv6 项不会导入，当前版本仅配置 IPv4。",
+    "en-US": " IPv6 entries will be skipped. This version configures IPv4 only.",
+    "zh-TW": " 中的 IPv6 項不會導入，當前版本僅配置 IPv4。"
+  },
+  {
+    "key": "m685ee29910",
+    "zh-CN": "Endpoint 请使用 IPv4 或域名:端口，当前不支持 IPv6 端点。",
+    "en-US": "Endpoint must be IPv4 or hostname:port. IPv6 endpoints are not supported.",
+    "zh-TW": "Endpoint 請使用 IPv4 或域名:端口，當前不支持 IPv6 端點。"
+  },
+  {
+    "key": "m7bcb41f6f2",
+    "zh-CN": "Endpoint 端口",
+    "en-US": "Endpoint port",
+    "zh-TW": "Endpoint 端口"
+  },
+  {
+    "key": "mafd614cb90",
+    "zh-CN": "[Interface] 缺少 PrivateKey 或 Address，未创建接口。",
+    "en-US": "[Interface] is missing PrivateKey or Address. No interface was created.",
+    "zh-TW": "[Interface] 缺少 PrivateKey 或 Address，未創建接口。"
+  },
+  {
+    "key": "mdf48e9d958",
+    "zh-CN": "当前接口只支持一个 IPv4 本地地址，请调整 Address。",
+    "en-US": "Only one local IPv4 address is supported per interface. Adjust Address.",
+    "zh-TW": "當前接口只支持一個 IPv4 本地地址，請調整 Address。"
+  },
+  {
+    "key": "m838fbe5ae9",
+    "zh-CN": "接口脚本、Table 和 SaveConfig 不会执行；路由仍由爱快分流设置管理。",
+    "en-US": "Interface scripts, Table and SaveConfig will not run. Routing remains controlled by iKuai routing settings.",
+    "zh-TW": "接口腳本、Table 和 SaveConfig 不會執行；路由仍由愛快分流設置管理。"
+  },
+  {
+    "key": "m86e575e94d",
+    "zh-CN": "路由器未确认操作成功，请刷新接口列表后重试。",
+    "en-US": "The router did not confirm success. Refresh the interface list before retrying.",
+    "zh-TW": "路由器未確認操作成功，請刷新接口列表後重試。"
+  },
+  {
+    "key": "m002202adcd",
+    "zh-CN": "已新建服务接口 ",
+    "en-US": "Created service interface ",
+    "zh-TW": "已新建服務接口 "
+  },
+  {
+    "key": "maea8cde7f6",
+    "zh-CN": "已填入隧道配置，使用现有接口 ",
+    "en-US": "Tunnel settings filled using existing interface ",
+    "zh-TW": "已填入隧道配置，使用現有接口 "
+  },
+  {
+    "key": "m4fdec2ce77",
+    "zh-CN": "请点击页面底部“保存”启用隧道。",
+    "en-US": "Click Save at the bottom of the page to enable the tunnel.",
+    "zh-TW": "請點擊頁面底部“保存”啟用隧道。"
+  },
+  {
+    "key": "m1472c1a1ba",
+    "zh-CN": "，请保存隧道",
+    "en-US": ". Save the tunnel to finish",
+    "zh-TW": "，請保存隧道"
+  },
+  {
+    "key": "ma2f2e4bebd",
+    "zh-CN": "已填入隧道配置，请保存",
+    "en-US": "Tunnel settings filled. Save to finish",
+    "zh-TW": "已填入隧道配置，請保存"
+  },
+  {
+    "key": "m1ae79499b3",
+    "zh-CN": "仅有 [Peer] 配置：请在已有接口的隧道编辑页导入，或提供完整 [Interface] 配置。",
+    "en-US": "[Peer]-only configuration: import from a tunnel editor with an existing interface, or provide a complete [Interface] section.",
+    "zh-TW": "僅有 [Peer] 配置：請在已有接口的隧道編輯頁導入，或提供完整 [Interface] 配置。"
+  },
+  {
+    "key": "m4349f66945",
+    "zh-CN": "PrivateKey 无法生成公钥，未创建接口。",
+    "en-US": "Could not derive the public key from PrivateKey. No interface was created.",
+    "zh-TW": "PrivateKey 無法生成公鑰，未創建接口。"
+  },
+  {
+    "key": "md1c826377c",
+    "zh-CN": "上次接口创建结果待确认，请刷新页面检查接口列表，避免覆盖已有接口。",
+    "en-US": "The previous interface creation is unconfirmed. Refresh the interface list to avoid overwriting an existing interface.",
+    "zh-TW": "上次接口創建結果待確認，請刷新頁面檢查接口列表，避免覆蓋已有接口。"
+  },
+  {
+    "key": "m1d79777520",
+    "zh-CN": "ListenPort 已被其他 WG 接口使用，请调整后再导入。",
+    "en-US": "ListenPort is already used by another WG interface. Change it before importing.",
+    "zh-TW": "ListenPort 已被其他 WG 接口使用，請調整後再導入。"
+  },
+  {
+    "key": "m27bb8b2823",
+    "zh-CN": "没有可用的 WG 监听端口。",
+    "en-US": "No WG listen port is available.",
+    "zh-TW": "沒有可用的 WG 監聽端口。"
+  },
+  {
+    "key": "mc4cfef721d",
+    "zh-CN": "接口创建结果尚未确认，请重试或刷新接口列表检查。",
+    "en-US": "Interface creation is unconfirmed. Retry or refresh the interface list to check.",
+    "zh-TW": "接口創建結果尚未確認，請重試或刷新接口列表檢查。"
+  },
+  {
+    "key": "m64bdcf25d5",
+    "zh-CN": "请求失败，请检查连接并刷新接口列表确认结果后重试。",
+    "en-US": "Request failed. Check your connection and refresh the interface list before retrying.",
+    "zh-TW": "請求失敗，請檢查連接並刷新接口列表確認結果後重試。"
+  },
+  {
+    "key": "m49a20b8ed3",
+    "zh-CN": "导入 WireGuard 配置",
+    "en-US": "Import WireGuard configuration",
+    "zh-TW": "導入 WireGuard 配置"
+  },
+  {
+    "key": "mc0d276f9bf",
+    "zh-CN": "WireGuard 配置内容",
+    "en-US": "WireGuard configuration text",
+    "zh-TW": "WireGuard 配置內容"
+  },
+  {
+    "key": "me369032c99",
+    "zh-CN": "粘贴完整的 [Interface] 和 [Peer] 配置。完整配置会新建服务接口，现有接口不会修改；隧道需确认后保存。",
+    "en-US": "Paste complete [Interface] and [Peer] sections. A new service interface will be created; existing interfaces remain unchanged. Review and save the tunnel to enable it.",
+    "zh-TW": "貼上完整的 [Interface] 和 [Peer] 配置。完整配置會新建服務接口，現有接口不會修改；隧道需確認後保存。"
+  },
+  {
+    "key": "mf6dc1b1641",
+    "zh-CN": "正在导入…",
+    "en-US": "Importing…",
+    "zh-TW": "正在導入…"
+  },
+  {
+    "key": "m576d81bb06",
+    "zh-CN": "导入",
+    "en-US": "Import",
+    "zh-TW": "導入"
+  },
+  {
+    "key": "m2cd0f3be87",
+    "zh-CN": "取消",
+    "en-US": "Cancel",
+    "zh-TW": "取消"
+  },
+  {
+    "key": "mce6a744cbf",
+    "zh-CN": "请先勾选“用作分流出口”，并让此手机独占一个 WG 服务接口",
+    "en-US": "Enable Use as routing exit first, and dedicate one WG service interface to this phone",
+    "zh-TW": "請先勾選“用作分流出口”，並讓此手機獨佔一個 WG 服務接口"
+  },
+  {
+    "key": "m4a48420622",
+    "zh-CN": "对端私钥或服务接口公钥无效，请先生成并保存匹配的密钥",
+    "en-US": "Invalid peer private key or service public key; generate and save a matching key pair first",
+    "zh-TW": "對端私鑰或服務接口公鑰無效，請先生成並保存匹配的密鑰"
+  },
+  {
+    "key": "mb21407bd6b",
+    "zh-CN": "预共享密钥格式无效",
+    "en-US": "Invalid pre-shared key format",
+    "zh-TW": "預共享密鑰格式無效"
+  },
+  {
+    "key": "m279fac468a",
+    "zh-CN": "手机出口配置不支持两端内网互访，请使用单独的出口隧道并清空互访网段",
+    "en-US": "The phone exit profile does not support site-to-site LAN access; use a dedicated exit tunnel and clear the site subnets",
+    "zh-TW": "手機出口配置不支持兩端內網互訪，請使用單獨的出口隧道並清空互訪網段"
+  },
+  {
+    "key": "m3b2184fd2b",
+    "zh-CN": "配置超过单张二维码容量，请下载 JSON 文件导入",
+    "en-US": "The profile exceeds single-QR capacity; download the JSON file to import it",
+    "zh-TW": "配置超過單張二維碼容量，請下載 JSON 文件導入"
+  },
+  {
+    "key": "m304dd4b4c4",
+    "zh-CN": "二维码生成失败，请重新生成",
+    "en-US": "QR generation failed; generate the profile again",
+    "zh-TW": "二維碼生成失敗，請重新生成"
+  },
+  {
+    "key": "m6e401af085",
+    "zh-CN": "隧道参数已变化，请重新生成 sing-box 配置",
+    "en-US": "Tunnel settings changed; generate the sing-box profile again",
+    "zh-TW": "隧道參數已變化，請重新生成 sing-box 配置"
+  },
+  {
+    "key": "m7943f92702",
+    "zh-CN": "iPhone 上网出口：",
+    "en-US": "iPhone Internet exit:",
+    "zh-TW": "iPhone 上網出口："
+  },
+  {
+    "key": "m8021548cd0",
+    "zh-CN": "生成 sing-box JSON／二维码",
+    "en-US": "Generate sing-box JSON / QR",
+    "zh-TW": "生成 sing-box JSON／二維碼"
+  },
+  {
+    "key": "mf33560f1f7",
+    "zh-CN": "下载 JSON",
+    "en-US": "Download JSON",
+    "zh-TW": "下載 JSON"
+  },
+  {
+    "key": "mbbdaba3307",
+    "zh-CN": "适用于 sing-box MT 1.14.8。手机主动连接此路由器；异地设备经分流规则选择该 WG 出口，从手机当前的蜂窝网络或 Wi-Fi 上网。",
+    "en-US": "For sing-box MT 1.14.8. The phone connects to this router. Routing rules send remote devices through this WG exit and then through the phone's current cellular or Wi-Fi connection.",
+    "zh-TW": "適用於 sing-box MT 1.14.8。手機主動連接此路由器；異地設備經分流規則選擇該 WG 出口，從手機當前的蜂窩網絡或 Wi-Fi 上網。"
+  },
+  {
+    "key": "mec2ff66b51",
+    "zh-CN": "请先保存出口隧道，再在分流设置中选择其 WG 接口。手机须独占本服务接口；其他接入设备使用另一个服务接口。",
+    "en-US": "Save the exit tunnel first, then select its WG interface in routing settings. Dedicate this service interface to the phone; use another service interface for incoming clients.",
+    "zh-TW": "請先保存出口隧道，再在分流設置中選擇其 WG 接口。手機須獨佔本服務接口；其他接入設備使用另一個服務接口。"
+  },
+  {
+    "key": "m84da6f7310",
+    "zh-CN": "此配置会占用 iPhone 的 VPN 连接，不能与另一 VPN 同时运行；手机断网或 App 停止时出口不可用。当前转发范围为 IPv4 TCP／UDP。",
+    "en-US": "This profile uses the iPhone VPN connection and cannot run alongside another VPN. The exit becomes unavailable if the phone loses connectivity or the app stops. Forwarding currently covers IPv4 TCP / UDP.",
+    "zh-TW": "此配置會佔用 iPhone 的 VPN 連接，不能與另一 VPN 同時運行；手機斷網或 App 停止時出口不可用。當前轉發範圍為 IPv4 TCP／UDP。"
+  },
+  {
+    "key": "m7327d65e76",
+    "zh-CN": "sing-box 离线二维码：",
+    "en-US": "sing-box offline QR:",
+    "zh-TW": "sing-box 離線二維碼："
+  },
+  {
+    "key": "mbad08cf3d7",
+    "zh-CN": "在 sing-box App 内使用“扫描二维码”导入。不要用系统相机或其他扫码网站；二维码和 JSON 含私钥，请妥善保管。也可下载 JSON 后从文件导入。",
+    "en-US": "Use Scan QR Code inside the sing-box app. Do not use the system camera or a QR website. The QR and JSON contain a private key; keep them private. You can also download the JSON and import it from a file.",
+    "zh-TW": "在 sing-box App 內使用“掃描二維碼”導入。不要用系統相機或其他掃碼網站；二維碼和 JSON 含私鑰，請妥善保管。也可下載 JSON 後從文件導入。"
+  },
+  {
+    "key": "ma23521d74e",
+    "zh-CN": "正在生成密钥，请稍候",
+    "en-US": "Generating keys, please wait",
+    "zh-TW": "正在生成密鑰，請稍候"
+  },
+  {
+    "key": "md1e8fd9c67",
+    "zh-CN": "请先保存隧道，再重新打开编辑页生成 sing-box 配置",
+    "en-US": "Save the tunnel first, then reopen its editor to generate the sing-box configuration.",
+    "zh-TW": "請先儲存隧道，再重新開啟編輯頁生成 sing-box 設定"
+  },
+  {
+    "key": "me6ea329867",
+    "zh-CN": "请先启用隧道和服务接口，再生成 sing-box 配置",
+    "en-US": "Enable the tunnel and its service interface before generating the sing-box configuration.",
+    "zh-TW": "請先啟用隧道和服務介面，再生成 sing-box 設定"
+  },
+  {
+    "key": "m140b1b7cbb",
+    "zh-CN": "无法核对已保存配置，请确认隧道和服务接口已启用、密钥匹配，再保存并刷新后重试",
+    "en-US": "Could not verify the saved configuration. Check that the tunnel and service interface are enabled and their keys match, then save, refresh and retry.",
+    "zh-TW": "無法核對已儲存設定，請確認隧道和服務介面已啟用、密鑰相符，再儲存並重新整理後重試"
+  },
+  {
+    "key": "m7018e67842",
+    "zh-CN": "对端私钥与已保存的公钥不匹配，请重新生成并保存密钥",
+    "en-US": "The peer private key does not match the saved public key. Generate and save a matching key pair.",
+    "zh-TW": "對端私鑰與已儲存的公鑰不相符，請重新生成並儲存密鑰"
+  },
+  {
+    "key": "m4cebe84f43",
+    "zh-CN": "隧道存在未保存的更改，请先保存，再重新打开编辑页生成配置",
+    "en-US": "The tunnel has unsaved changes. Save it, then reopen its editor to generate the configuration.",
+    "zh-TW": "隧道存在未儲存的變更，請先儲存，再重新開啟編輯頁生成設定"
+  },
+  {
+    "key": "m5bbc26ec63",
+    "zh-CN": "服务接口设置已变化，请刷新页面后重新生成配置",
+    "en-US": "The service interface settings have changed. Refresh the page and generate the configuration again.",
+    "zh-TW": "服務介面設定已變更，請重新整理頁面後重新生成設定"
+  },
+  {
+    "key": "mbd865b73fa",
+    "zh-CN": "正在核对已保存配置…",
+    "en-US": "Verifying the saved configuration…",
+    "zh-TW": "正在核對已儲存設定…"
+  },
+  {
+    "key": "m3cc9131b1b",
+    "zh-CN": "请先保存出口隧道并重新打开编辑页，再生成配置；在分流设置中选择其 WG 接口。手机须独占本服务接口，其他接入设备使用另一个服务接口。",
+    "en-US": "Save the exit tunnel and reopen its editor before generating the configuration. Select its WG interface in the routing rules. The phone must be the only peer on this service interface; other clients use a separate service interface.",
+    "zh-TW": "請先儲存出口隧道並重新開啟編輯頁，再生成設定；在分流設定中選擇其 WG 介面。手機須獨佔本服務介面，其他接入裝置使用另一個服務介面。"
+  },
+  {
+    "key": "m650221015b",
+    "zh-CN": "iPhone 锁屏或切换 Wi-Fi／蜂窝网络后，请检查异地设备能否继续上网；若中断，请先在手机上重新连接。此配置不能保证后台持续转发。",
+    "en-US": "After locking the iPhone or switching between Wi-Fi and cellular, check that remote devices still have Internet access. If access stops, reconnect on the phone first. This configuration does not guarantee continuous background forwarding.",
+    "zh-TW": "iPhone 鎖定螢幕或切換 Wi-Fi／行動網路後，請檢查異地裝置能否繼續上網；若中斷，請先在手機上重新連線。此設定不能保證背景持續轉發。"
+  },
+  {
+    "key": "m4f80ec5385",
+    "zh-CN": "请填写有效的 IPv4 地址",
+    "en-US": "Enter a valid IPv4 address",
+    "zh-TW": "請填寫有效的 IPv4 位址"
+  },
+  {
+    "key": "mfd82934f1a",
+    "zh-CN": "端口范围为 1 至 65535",
+    "en-US": "Ports must be between 1 and 65535",
+    "zh-TW": "連接埠範圍為 1 至 65535"
+  },
+  {
+    "key": "m802a407c77",
+    "zh-CN": "刷新状态",
+    "en-US": "Refresh status",
+    "zh-TW": "重新整理狀態"
+  },
+  {
+    "key": "m8822c356df",
+    "zh-CN": "安装核心",
+    "en-US": "Install core",
+    "zh-TW": "安裝核心"
+  },
+  {
+    "key": "mb7657ef613",
+    "zh-CN": "公网入口 IPv4",
+    "en-US": "Public IPv4 address",
+    "zh-TW": "公網入口 IPv4"
+  },
+  {
+    "key": "m55038c99f5",
+    "zh-CN": "WG 对端",
+    "en-US": "WG peer",
+    "zh-TW": "WG 對端"
+  },
+  {
+    "key": "m05b36669c4",
+    "zh-CN": "用途",
+    "en-US": "Role",
+    "zh-TW": "用途"
+  },
+  {
+    "key": "med31fbb483",
+    "zh-CN": "操作",
+    "en-US": "Actions",
+    "zh-TW": "操作"
+  },
+  {
+    "key": "md3d21191f3",
+    "zh-CN": "处理中…",
+    "en-US": "Working…",
+    "zh-TW": "處理中…"
+  },
+  {
+    "key": "m4b51c2cd73",
+    "zh-CN": "爱快对端或接口缺少有效密钥",
+    "en-US": "The saved peer or interface is missing a valid key",
+    "zh-TW": "愛快對端或介面缺少有效金鑰"
+  },
+  {
+    "key": "m5d7325c6e6",
+    "zh-CN": "已保存的 WG 公私钥不匹配",
+    "en-US": "The saved WireGuard key pair does not match",
+    "zh-TW": "已儲存的 WG 公私鑰不相符"
+  },
+  {
+    "key": "md4357b0d7e",
+    "zh-CN": "请选择已保存并启用的有效手机对端",
+    "en-US": "Select a valid, saved and enabled phone peer",
+    "zh-TW": "請選擇已儲存並啟用的有效手機對端"
+  },
+  {
+    "key": "mb05953d053",
+    "zh-CN": "预共享密钥无效",
+    "en-US": "Invalid preshared key",
+    "zh-TW": "預先共用金鑰無效"
+  },
+  {
+    "key": "m0d4ae54746",
+    "zh-CN": "请为此对端设置可通过 WG 访问的 IPv4 DNS",
+    "en-US": "Set an IPv4 DNS server reachable over WireGuard for this peer",
+    "zh-TW": "請為此對端設定可透過 WG 存取的 IPv4 DNS"
+  },
+  {
+    "key": "ma730a76e2b",
+    "zh-CN": "已保存的心跳间隔无效",
+    "en-US": "The saved keepalive interval is invalid",
+    "zh-TW": "已儲存的存活間隔無效"
+  },
+  {
+    "key": "md1f688aa5f",
+    "zh-CN": "WG 地址或密钥已登记",
+    "en-US": "This WireGuard address or key is already enrolled",
+    "zh-TW": "WG 位址或金鑰已登記"
+  },
+  {
+    "key": "mb2f2b79bf6",
+    "zh-CN": "对端编号无效",
+    "en-US": "Invalid peer ID",
+    "zh-TW": "對端編號無效"
+  },
+  {
+    "key": "m5ab1304bd3",
+    "zh-CN": "另一项 WG 配置正在保存，请稍后重试",
+    "en-US": "Another WireGuard change is being saved. Try again shortly.",
+    "zh-TW": "另一項 WG 設定正在儲存，請稍後重試"
+  },
+  {
+    "key": "m511ac2aa12",
+    "zh-CN": "扫码导入",
+    "en-US": "Scan to import",
+    "zh-TW": "掃碼匯入"
+  },
+  {
+    "key": "m4434475514",
+    "zh-CN": "关闭二维码",
+    "en-US": "Close QR code",
+    "zh-TW": "關閉 QR 碼"
+  },
+  {
+    "key": "mcf4bb2c111",
+    "zh-CN": "持续对准屏幕，直到所有帧读完。",
+    "en-US": "Keep the scanner on the screen until all frames are read.",
+    "zh-TW": "持續對準螢幕，直到所有影格讀取完畢。"
+  },
+  {
+    "key": "m121c8ec3b1",
+    "zh-CN": "暂停轮播",
+    "en-US": "Pause",
+    "zh-TW": "暫停輪播"
+  },
+  {
+    "key": "m6f216ac32a",
+    "zh-CN": "继续轮播",
+    "en-US": "Resume",
+    "zh-TW": "繼續輪播"
+  },
+  {
+    "key": "m5ba3d6b091",
+    "zh-CN": "下一帧",
+    "en-US": "Next frame",
+    "zh-TW": "下一個影格"
+  },
+  {
+    "key": "ma332f4a533",
+    "zh-CN": "公网 UDP 端口",
+    "en-US": "Public UDP port",
+    "zh-TW": "公網 UDP 連接埠"
+  },
+  {
+    "key": "me8dbd3609d",
+    "zh-CN": "请填写可达的入口 IPv4",
+    "en-US": "Enter a reachable IPv4 address for the endpoint.",
+    "zh-TW": "請填寫可連線的入口 IPv4"
+  },
+  {
+    "key": "ma803b4a405",
+    "zh-CN": "UDP 端口范围为 1 至 65535",
+    "en-US": "The UDP port must be between 1 and 65535.",
+    "zh-TW": "UDP 連接埠範圍為 1 至 65535"
+  },
+  {
+    "key": "m4fa269d91f",
+    "zh-CN": "Hysteria 2 停止失败",
+    "en-US": "Could not stop Hysteria 2.",
+    "zh-TW": "無法停止 Hysteria 2"
+  },
+  {
+    "key": "mdf7ce8a962",
+    "zh-CN": "Hysteria 2 运行目录权限异常",
+    "en-US": "Hysteria 2 runtime directory permissions are invalid.",
+    "zh-TW": "Hysteria 2 執行目錄權限異常"
+  },
+  {
+    "key": "m7c9c1d3701",
+    "zh-CN": "Hysteria 2 存储权限异常",
+    "en-US": "Hysteria 2 storage permissions are invalid.",
+    "zh-TW": "Hysteria 2 儲存權限異常"
+  },
+  {
+    "key": "mde6e2f70c6",
+    "zh-CN": "Hysteria 2 证书创建失败",
+    "en-US": "Could not create the Hysteria 2 certificate.",
+    "zh-TW": "無法建立 Hysteria 2 憑證"
+  },
+  {
+    "key": "mcba352fbe1",
+    "zh-CN": "Hysteria 2 证书不可用",
+    "en-US": "The Hysteria 2 certificate is unavailable.",
+    "zh-TW": "Hysteria 2 憑證無法使用"
+  },
+  {
+    "key": "mfbf641d2aa",
+    "zh-CN": "保存 Hysteria 2 设置失败",
+    "en-US": "Could not save Hysteria 2 settings.",
+    "zh-TW": "無法儲存 Hysteria 2 設定"
+  },
+  {
+    "key": "mf597c5ecfe",
+    "zh-CN": "Hysteria 2 启动失败，请检查核心、证书和 UDP 端口占用",
+    "en-US": "Could not start Hysteria 2. Check the core, certificate, and UDP port availability.",
+    "zh-TW": "Hysteria 2 啟動失敗，請檢查核心、憑證與 UDP 連接埠占用情形"
+  },
+  {
+    "key": "m779b34d058",
+    "zh-CN": "读取 Hysteria 2 信息失败",
+    "en-US": "Could not read Hysteria 2 information.",
+    "zh-TW": "無法讀取 Hysteria 2 資訊"
+  },
+  {
+    "key": "me1cf1d2143",
+    "zh-CN": "此 WG 对端已登记",
+    "en-US": "This WG peer is already registered.",
+    "zh-TW": "此 WG 對端已登記"
+  },
+  {
+    "key": "m36ee46da74",
+    "zh-CN": "UDP 入口不能与 WG 监听端口相同",
+    "en-US": "Choose a public UDP port different from the WG listening port.",
+    "zh-TW": "UDP 入口不能與 WG 監聽連接埠相同"
+  },
+  {
+    "key": "m218e9f9359",
+    "zh-CN": "读取或生成 Hysteria 2 双向配置失败",
+    "en-US": "Could not read or generate the bidirectional Hysteria 2 profile.",
+    "zh-TW": "讀取或產生 Hysteria 2 雙向設定失敗"
+  },
+  {
+    "key": "m3079f27289",
+    "zh-CN": "设备配置二维码",
+    "en-US": "Device profile QR code",
+    "zh-TW": "裝置設定 QR 碼"
+  },
+  {
+    "key": "m1a9f4e1117",
+    "zh-CN": "下载设备 JSON",
+    "en-US": "Download device JSON",
+    "zh-TW": "下載裝置 JSON"
+  },
+  {
+    "key": "m22c1427929",
+    "zh-CN": "二维码生成失败，可重试或下载设备 JSON。",
+    "en-US": "QR generation failed. Try again or download the device JSON.",
+    "zh-TW": "QR 碼產生失敗，可重試或下載裝置 JSON。"
+  },
+  {
+    "key": "ma07cb8eddd",
+    "zh-CN": "WG 监听端口与反向 Hysteria 2 入口冲突",
+    "en-US": "The WG listening port conflicts with the bidirectional Hysteria 2 listener.",
+    "zh-TW": "WG 監聽連接埠與反向 Hysteria 2 入口衝突"
+  },
+  {
+    "key": "m391ad5dd00",
+    "zh-CN": "原生 WG 配置已处理，但反向 Hysteria 2 同步失败，请检查接口和端口",
+    "en-US": "The native WG settings were processed. Check the interface and port to sync bidirectional Hysteria 2 access.",
+    "zh-TW": "原生 WG 設定已處理，但反向 Hysteria 2 同步失敗，請檢查介面和連接埠"
+  },
+  {
+    "key": "m01892001ab",
+    "zh-CN": "让路由器借用这台设备的网络",
+    "en-US": "Let the router use this device’s internet connection",
+    "zh-TW": "讓路由器借用這部裝置的網路"
+  },
+  {
+    "key": "m4bd8611e89",
+    "zh-CN": "让这台设备连接路由器上网",
+    "en-US": "Let this device access the internet through the router",
+    "zh-TW": "讓這部裝置連線路由器上網"
+  },
+  {
+    "key": "m5e34f22e70",
+    "zh-CN": "双向使用",
+    "en-US": "Use both directions",
+    "zh-TW": "雙向使用"
+  },
+  {
+    "key": "m064e7b9450",
+    "zh-CN": "设备用途",
+    "en-US": "Device role",
+    "zh-TW": "裝置用途"
+  },
+  {
+    "key": "mcae5c32a84",
+    "zh-CN": "请等待隧道状态读取或保存完成",
+    "en-US": "Wait for the tunnel settings to finish loading or saving.",
+    "zh-TW": "請等待隧道狀態讀取或儲存完成"
+  },
+  {
+    "key": "mda5a22823f",
+    "zh-CN": "借用设备网络需要非零 WG 心跳，可设置为 25 秒",
+    "en-US": "Lending the device connection requires WG keepalive above zero. You can use 25 seconds.",
+    "zh-TW": "借用裝置網路需要非零 WG 心跳，可設為 25 秒"
+  },
+  {
+    "key": "m13f3f85c80",
+    "zh-CN": "请为此对端分配独立 WG 接口和监听端口",
+    "en-US": "Give this peer a dedicated WG interface and listening port.",
+    "zh-TW": "請為此對端分配獨立 WG 介面和監聽連接埠"
+  },
+  {
+    "key": "m02daf953d0",
+    "zh-CN": "借用设备网络需要启用 WG 出口对端",
+    "en-US": "Enable the WG exit peer to lend the device’s internet connection.",
+    "zh-TW": "借用裝置網路需要啟用 WG 出口對端"
+  },
+  {
+    "key": "m35dc04cc2b",
+    "zh-CN": "Hysteria 2 隧道用途无效",
+    "en-US": "Invalid Hysteria 2 tunnel role.",
+    "zh-TW": "Hysteria 2 隧道用途無效"
+  },
+  {
+    "key": "m7e4db4ddc7",
+    "zh-CN": "设备通过爱快需要使用普通 WG 对端",
+    "en-US": "Use a regular WG peer for a device connecting through iKuai.",
+    "zh-TW": "裝置透過愛快需要使用一般 WG 對端"
+  },
+  {
+    "key": "mf16bd8d545",
+    "zh-CN": "无法冻结 WG 隧道方向",
+    "en-US": "Could not lock the WG tunnel direction for this change.",
+    "zh-TW": "無法鎖定 WG 隧道方向"
+  },
+  {
+    "key": "m0b029fd18e",
+    "zh-CN": "无法核对已保存的 WG 隧道",
+    "en-US": "Could not verify the saved WG tunnel.",
+    "zh-TW": "無法核對已儲存的 WG 隧道"
+  },
+  {
+    "key": "me11ae9edee",
+    "zh-CN": "请选择已保存的 WG 接口",
+    "en-US": "Select a saved WG interface.",
+    "zh-TW": "請選擇已儲存的 WG 介面"
+  },
+  {
+    "key": "m29155ea421",
+    "zh-CN": "WG 隧道设置正在恢复，请刷新后重试",
+    "en-US": "WG tunnel settings are being restored. Refresh and try again.",
+    "zh-TW": "WG 隧道設定正在復原，請重新整理後再試"
+  },
+  {
+    "key": "mb824edc300",
+    "zh-CN": "WG 隧道方向规则应用失败",
+    "en-US": "Could not apply the WG tunnel direction rules.",
+    "zh-TW": "WG 隧道方向規則套用失敗"
+  },
+  {
+    "key": "m9602da64ac",
+    "zh-CN": "WG 隧道编号已变化，请刷新后重试",
+    "en-US": "The WG tunnel ID has changed. Refresh and try again.",
+    "zh-TW": "WG 隧道編號已變更，請重新整理後再試"
+  },
+  {
+    "key": "m2bbf42b9d5",
+    "zh-CN": "原 WG 对端已变化，请刷新后重试",
+    "en-US": "The original WG peer has changed. Refresh and try again.",
+    "zh-TW": "原 WG 對端已變更，請重新整理後再試"
+  },
+  {
+    "key": "meafd6868e9",
+    "zh-CN": "隧道已保存。请点击“刷新状态”读取此设备的配置。",
+    "en-US": "The tunnel is saved. Select Refresh status to load this device’s profile.",
+    "zh-TW": "隧道已儲存。請點選「重新整理狀態」讀取此裝置的設定。"
+  },
+  {
+    "key": "mb6b15fa72d",
+    "zh-CN": "原生 WireGuard（UDP）",
+    "en-US": "Native WireGuard (UDP)",
+    "zh-TW": "原生 WireGuard（UDP）"
+  },
+  {
+    "key": "m999365fe74",
+    "zh-CN": "连接方式",
+    "en-US": "Connection method",
+    "zh-TW": "連線方式"
+  },
+  {
+    "key": "m6ddddcdd5b",
+    "zh-CN": "设备隧道",
+    "en-US": "Device tunnel",
+    "zh-TW": "裝置隧道"
+  },
+  {
+    "key": "md2ee50bae8",
+    "zh-CN": "无法读取隧道连接方式，请刷新状态。",
+    "en-US": "Could not read the tunnel connection method. Refresh the status.",
+    "zh-TW": "無法讀取隧道連線方式，請重新整理狀態。"
+  },
+  {
+    "key": "mbec109a87f",
+    "zh-CN": "隧道用途与传输方式不匹配",
+    "en-US": "The tunnel role does not match its connection method.",
+    "zh-TW": "隧道用途與傳輸方式不符"
+  },
+  {
+    "key": "me58522970c",
+    "zh-CN": "隧道传输方式无效",
+    "en-US": "Invalid tunnel connection method.",
+    "zh-TW": "隧道傳輸方式無效"
+  },
+  {
+    "key": "m84c5861feb",
+    "zh-CN": "保存连接方式后可使用原生 WG 配置。",
+    "en-US": "Save the connection method to use the native WG profile.",
+    "zh-TW": "儲存連線方式後即可使用原生 WG 設定。"
+  },
+  {
+    "key": "m4094de2e55",
+    "zh-CN": "旧隧道沿用原配置。选择用途并保存后，才会应用新的设备用途。",
+    "en-US": "This tunnel uses its existing settings. Select and save a purpose to apply it.",
+    "zh-TW": "舊隧道沿用原設定。選擇用途並儲存後，才會套用新的裝置用途。"
+  },
+  {
+    "key": "mb87b531085",
+    "zh-CN": "手机借线请用 sing-box 扫出口配置；使用原生 WireGuard 配置的对端路由器需开启转发和出口 NAT。",
+    "en-US": "For a phone exit, scan its exit profile in sing-box. A router using a native WireGuard profile must enable forwarding and outbound NAT.",
+    "zh-TW": "手機借線請用 sing-box 掃描出口設定；使用原生 WireGuard 設定的對端路由器須啟用轉送及出口 NAT。"
+  },
+  {
+    "key": "m6e50d9d41e",
+    "zh-CN": "与本设备的 WG 接口相同",
+    "en-US": "Use this device’s WG interface port",
+    "zh-TW": "與本裝置的 WG 介面相同"
+  },
+  {
+    "key": "m1e88c962a8",
+    "zh-CN": "使用共享 UDP 端口",
+    "en-US": "Use the shared UDP port",
+    "zh-TW": "使用共用 UDP 連接埠"
+  },
+  {
+    "key": "m6ef6b73a5c",
+    "zh-CN": "Hysteria 2 公网端口",
+    "en-US": "Hysteria 2 public port",
+    "zh-TW": "Hysteria 2 公網連接埠"
+  },
+  {
+    "key": "m8186798fa7",
+    "zh-CN": "请先选择借线或双向用途，并让此设备独占一个 WG 服务接口。",
+    "en-US": "Select the exit or bidirectional purpose and dedicate one WG interface to this device.",
+    "zh-TW": "請先選擇借線或雙向用途，並讓此裝置獨占一個 WG 服務介面。"
+  },
+  {
+    "key": "m8ffa208cad",
+    "zh-CN": "sing-box 设备配置：",
+    "en-US": "sing-box device profile:",
+    "zh-TW": "sing-box 裝置設定："
+  },
+  {
+    "key": "m25f87f17af",
+    "zh-CN": "用 sing-box 扫码或导入 JSON。只借线时设备通过本地网络上网；连接爱快或双向使用时，设备通过爱快访问互联网。",
+    "en-US": "Scan with sing-box or import the JSON. Exit-only devices use their local network. Access and bidirectional devices use iKuai for Internet traffic.",
+    "zh-TW": "用 sing-box 掃描或匯入 JSON。僅借線時裝置透過本地網路上網；連接愛快或雙向使用時，裝置透過愛快存取網際網路。"
+  },
+  {
+    "key": "mfdabc356e2",
+    "zh-CN": "保存隧道并重新打开编辑页即可生成配置。需要借线时，请在分流规则中选择该设备独占的 WG 接口。",
+    "en-US": "Save the tunnel and reopen the editor to generate the profile. To use this device as an exit, select its dedicated WG interface in a routing rule.",
+    "zh-TW": "儲存隧道並重新開啟編輯頁即可產生設定。需要借線時，請在分流規則中選擇該裝置獨占的 WG 介面。"
+  },
+  {
+    "key": "m7021a8085e",
+    "zh-CN": "站点互访沿用 WG 的原生路由设置。",
+    "en-US": "Site-to-site peers use native WireGuard routing.",
+    "zh-TW": "站點互訪沿用 WG 的原生路由設定。"
+  },
+  {
+    "key": "m009a71e288",
+    "zh-CN": "隧道或 Endpoint 已变化，请重新生成配置",
+    "en-US": "Tunnel or Endpoint settings changed. Generate the profile again.",
+    "zh-TW": "隧道或 Endpoint 已變更，請重新產生設定"
+  },
+  {
+    "key": "m9943cd73a5",
+    "zh-CN": "自动获取本设备 WAN 的地址",
+    "en-US": "Detect this device’s WAN address",
+    "zh-TW": "自動取得此裝置 WAN 的位址"
+  },
+  {
+    "key": "m6e382d9250",
+    "zh-CN": "手动填写",
+    "en-US": "Enter manually",
+    "zh-TW": "手動填寫"
+  },
+  {
+    "key": "me186f3506d",
+    "zh-CN": "沿用共享地址",
+    "en-US": "Use the shared address",
+    "zh-TW": "沿用共用位址"
+  },
+  {
+    "key": "ma860ed503e",
+    "zh-CN": "本设备公网 IPv4",
+    "en-US": "Public IPv4 for this device",
+    "zh-TW": "本裝置公網 IPv4"
+  },
+  {
+    "key": "m7d60e93daa",
+    "zh-CN": "未取得公网 IPv4，请重新获取或选择手动填写。",
+    "en-US": "No public IPv4 was found. Retry or enter it manually.",
+    "zh-TW": "未取得公網 IPv4，請重新取得或選擇手動填寫。"
+  },
+  {
+    "key": "mbd6920698d",
+    "zh-CN": "请刷新隧道后再保存备注",
+    "en-US": "Refresh this tunnel before saving its comment.",
+    "zh-TW": "請重新整理隧道後再儲存備註"
+  },
+  {
+    "key": "m73a7c61a18",
+    "zh-CN": "Hysteria 2 公网地址方式无效",
+    "en-US": "Invalid Hysteria 2 public address mode",
+    "zh-TW": "Hysteria 2 公網位址方式無效"
+  },
+  {
+    "key": "mdd5749f53a",
+    "zh-CN": "设备用途已改变，请刷新后再保存",
+    "en-US": "The device purpose has changed. Refresh before saving.",
+    "zh-TW": "裝置用途已變更，請重新整理後再儲存"
+  },
+  {
+    "key": "m8d07216266",
+    "zh-CN": "连接设置",
+    "en-US": "Connection settings",
+    "zh-TW": "連線設定"
+  },
+  {
+    "key": "m1ee3c5680d",
+    "zh-CN": "启用此设备",
+    "en-US": "Enable this device",
+    "zh-TW": "啟用此裝置"
+  },
+  {
+    "key": "mc1fe0ad64c",
+    "zh-CN": "保存后可扫码导入此设备。",
+    "en-US": "Save to import the profile on this device by QR code.",
+    "zh-TW": "儲存後可掃碼匯入此裝置。"
+  },
+  {
+    "key": "mc0d7bf8fec",
+    "zh-CN": "用此设备的 sing-box 扫码。二维码含设备私钥。",
+    "en-US": "Scan with sing-box on this device. The QR code contains its private key.",
+    "zh-TW": "使用此裝置的 sing-box 掃碼。QR 碼含裝置私鑰。"
+  },
+  {
+    "key": "mc587751efd",
+    "zh-CN": "隧道保存失败，请检查设备和连接设置。",
+    "en-US": "Could not save the tunnel. Check the device and connection settings.",
+    "zh-TW": "隧道儲存失敗，請檢查裝置與連線設定。"
+  },
+  {
+    "key": "ma518f3e036",
+    "zh-CN": "设备隧道已变化，请刷新后重试",
+    "en-US": "The device tunnel has changed. Refresh and try again.",
+    "zh-TW": "裝置隧道已變更，請重新整理後再試"
+  },
+  {
+    "key": "m18b2a91575",
+    "zh-CN": "最多支持 256 台 Hysteria 2 设备",
+    "en-US": "Up to 256 Hysteria 2 devices are supported.",
+    "zh-TW": "最多支援 256 台 Hysteria 2 裝置"
+  },
+  {
+    "key": "m87e9632cd7",
+    "zh-CN": "Hysteria 2 公网端口方式无效",
+    "en-US": "Invalid Hysteria 2 public port mode.",
+    "zh-TW": "Hysteria 2 公網連接埠模式無效"
+  },
+  {
+    "key": "m6d0ab63ce9",
+    "zh-CN": "公网地址方式无效",
+    "en-US": "Invalid public address mode.",
+    "zh-TW": "公網位址模式無效"
+  },
+  {
+    "key": "m7f458cb0b2",
+    "zh-CN": "内部 WG 端口已被服务接口占用",
+    "en-US": "A service interface is using the internal WG port.",
+    "zh-TW": "內部 WG 連接埠已由服務介面使用"
+  },
+  {
+    "key": "ma7b319f1ea",
+    "zh-CN": "找不到可用的本机 UDP 端口",
+    "en-US": "No free local UDP port was found.",
+    "zh-TW": "找不到可用的本機 UDP 連接埠"
+  },
+  {
+    "key": "md615fb13c1",
+    "zh-CN": "Hysteria 2 安装空间不足，请在爱快挂载至少有 40 MiB 可用空间的 ext 数据盘",
+    "en-US": "To install Hysteria 2, mount an ext data disk with at least 40 MiB free on the router.",
+    "zh-TW": "安裝 Hysteria 2 需要在愛快掛載至少有 40 MiB 可用空間的 ext 資料碟"
+  },
+  {
+    "key": "m434e5c8fe4",
+    "zh-CN": "下载或写入 Hysteria 2 安装包失败，请检查磁盘、DNS、系统时间及 HTTPS 出站",
+    "en-US": "Could not download or write the Hysteria 2 package. Check the disk, DNS, system time and outbound HTTPS.",
+    "zh-TW": "無法下載或寫入 Hysteria 2 安裝包，請檢查磁碟、DNS、系統時間及對外 HTTPS 連線"
+  },
+  {
+    "key": "m943fe23bc3",
+    "zh-CN": "Hysteria 2 安装包 SHA256 校验失败",
+    "en-US": "The Hysteria 2 package failed SHA256 verification.",
+    "zh-TW": "Hysteria 2 安裝包 SHA256 驗證失敗"
+  },
+  {
+    "key": "m9a20dd2112",
+    "zh-CN": "Hysteria 2 缓存目标必须是普通文件",
+    "en-US": "The Hysteria 2 cache destination must be a regular file.",
+    "zh-TW": "Hysteria 2 快取目標必須是普通檔案"
+  },
+  {
+    "key": "mb4f82ab6f9",
+    "zh-CN": "Hysteria 2 安装失败，请检查可用数据磁盘、空间及官方资源连接",
+    "en-US": "Hysteria 2 installation failed. Check the data disk, free space and access to the official download.",
+    "zh-TW": "Hysteria 2 安裝失敗，請檢查可用資料碟、空間及官方下載連線"
+  },
+  {
+    "key": "m71b8bdda8d",
+    "zh-CN": "部分 Hysteria 2 端口启动失败，请检查 UDP 端口占用",
+    "en-US": "Some Hysteria 2 listeners failed to start. Check for UDP port conflicts.",
+    "zh-TW": "部分 Hysteria 2 連接埠未能啟動，請檢查 UDP 連接埠是否已被使用"
+  },
+  {
+    "key": "m325de2104a",
+    "zh-CN": "部分 Hysteria 2 设备等待对应 WG 接口、UDP 端口或本机 IPv6 就绪",
+    "en-US": "Some Hysteria 2 devices are waiting for their WG interface, UDP port or local IPv6.",
+    "zh-TW": "部分 Hysteria 2 裝置正等候對應 WG 介面、UDP 連接埠或本機 IPv6 就緒"
+  },
+  {
+    "key": "mc47a6f8f35",
+    "zh-CN": "无法应用 Hysteria 2 同号端口及内部 WG 保护",
+    "en-US": "Could not apply the Hysteria 2 same-port mapping and internal WG protection.",
+    "zh-TW": "無法套用 Hysteria 2 同號連接埠和內部 WG 保護"
+  },
+  {
+    "key": "m1d5a6fe091",
+    "zh-CN": "Hysteria 2 内部 WG 端口保护未就绪",
+    "en-US": "Hysteria 2 internal WG port protection is unavailable.",
+    "zh-TW": "Hysteria 2 內部 WG 連接埠保護尚未就緒"
+  },
+  {
+    "key": "mdd46c8d030",
+    "zh-CN": "共享 UDP 端口已变化，请刷新后重试",
+    "en-US": "The shared UDP port has changed. Refresh and try again.",
+    "zh-TW": "共用 UDP 連接埠已變更，請重新整理後再試"
+  },
+  {
+    "key": "m7f32d27843",
+    "zh-CN": "此 UDP 端口已被占用，请选择其他端口",
+    "en-US": "This UDP port is already in use. Choose another port.",
+    "zh-TW": "此 UDP 連接埠已被使用，請選擇其他連接埠"
+  },
+  {
+    "key": "m6dd5d2de10",
+    "zh-CN": "设备已被删除或更改，请返回列表并重新打开。",
+    "en-US": "This device was removed or changed. Return to the list and open it again.",
+    "zh-TW": "裝置已被刪除或變更，請返回清單並重新開啟。"
+  },
+  {
+    "key": "m8572a71f2e",
+    "zh-CN": "返回并刷新列表",
+    "en-US": "Return to list and refresh",
+    "zh-TW": "返回並重新整理清單"
+  },
+  {
+    "key": "m093be5cf07",
+    "zh-CN": "下载组网 JSON",
+    "en-US": "Download site JSON",
+    "zh-TW": "下載組網 JSON"
+  },
+  {
+    "key": "m527397e4c1",
+    "zh-CN": "保存后复制组网配置，在对端 NativeRouting 路由器的 WG 页面粘贴导入。",
+    "en-US": "Save, then copy the site configuration and paste it on the other NativeRouting router’s WG page.",
+    "zh-TW": "儲存後複製組網設定，在對端 NativeRouting 路由器的 WG 頁面貼上匯入。"
+  },
+  {
+    "key": "md54940e144",
+    "zh-CN": "填写互访网段时请选择路由器组网，或清空两端网段。",
+    "en-US": "Select router-to-router networking to use LAN subnets, or clear both subnet lists.",
+    "zh-TW": "使用互訪網段時請選擇路由器組網，或清空兩端網段。"
+  },
+  {
+    "key": "m7d1fe86d60",
+    "zh-CN": "复制组网配置",
+    "en-US": "Copy site configuration",
+    "zh-TW": "複製組網設定"
+  },
+  {
+    "key": "ma887c711b6",
+    "zh-CN": "请填写本端和对端局域网段",
+    "en-US": "Enter the local and remote LAN subnets.",
+    "zh-TW": "請填寫本端和對端區域網路網段"
+  },
+  {
+    "key": "mf12d34a2cd",
+    "zh-CN": "路由器组网需要非零 WG 心跳",
+    "en-US": "Router-to-router networking requires a nonzero WG keepalive.",
+    "zh-TW": "路由器組網需要非零 WG 心跳"
+  },
+  {
+    "key": "m47793a6bf6",
+    "zh-CN": "路由器组网（两端局域网互访）",
+    "en-US": "Router-to-router networking (connect both LANs)",
+    "zh-TW": "路由器組網（兩端區域網路互訪）"
+  },
+  {
+    "key": "m5a770e3854",
+    "zh-CN": "JSON 格式无效，请粘贴完整组网配置。",
+    "en-US": "Invalid JSON. Paste the complete site configuration.",
+    "zh-TW": "JSON 格式無效，請貼上完整組網設定。"
+  },
+  {
+    "key": "ma9551a4e11",
+    "zh-CN": "公网入口",
+    "en-US": "Public endpoint",
+    "zh-TW": "公網入口"
+  },
+  {
+    "key": "m98f19a3121",
+    "zh-CN": "可在隧道列表启用、停用或删除此设备。",
+    "en-US": "Use the tunnel list to enable, disable or delete this device.",
+    "zh-TW": "可在隧道清單啟用、停用或刪除此裝置。"
+  },
+  {
+    "key": "m4fed35be69",
+    "zh-CN": "客户端未运行",
+    "en-US": "Client stopped",
+    "zh-TW": "用戶端未執行"
+  },
+  {
+    "key": "m3897cbb7d4",
+    "zh-CN": "客户端运行中",
+    "en-US": "Client running",
+    "zh-TW": "用戶端執行中"
+  },
+  {
+    "key": "mcb8aa502f4",
+    "zh-CN": "导入隧道配置",
+    "en-US": "Import tunnel configuration",
+    "zh-TW": "匯入隧道設定"
+  },
+  {
+    "key": "ma8c3698b5b",
+    "zh-CN": "已停用",
+    "en-US": "Disabled",
+    "zh-TW": "已停用"
+  },
+  {
+    "key": "m77c0714f2e",
+    "zh-CN": "已导入对端路由器组网配置",
+    "en-US": "Imported the remote router’s site configuration.",
+    "zh-TW": "已匯入對端路由器組網設定"
+  },
+  {
+    "key": "m9901b305f0",
+    "zh-CN": "已导入的路由器组网",
+    "en-US": "Imported router connection",
+    "zh-TW": "已匯入的路由器組網"
+  },
+  {
+    "key": "mcdac95703d",
+    "zh-CN": "确认后将新建独立的 WG 接口和隧道。",
+    "en-US": "Confirmation creates a dedicated WG interface and tunnel.",
+    "zh-TW": "確認後將建立獨立的 WG 介面和隧道。"
+  },
+  {
+    "key": "m4a8d6841b4",
+    "zh-CN": "确认导入",
+    "en-US": "Confirm import",
+    "zh-TW": "確認匯入"
+  },
+  {
+    "key": "m67822165d4",
+    "zh-CN": "粘贴 NativeRouting 组网 JSON，或含 [Interface]、[Peer] 的原生 WG 配置。",
+    "en-US": "Paste NativeRouting site JSON or a native WG configuration containing [Interface] and [Peer].",
+    "zh-TW": "貼上 NativeRouting 組網 JSON，或含 [Interface]、[Peer] 的原生 WG 設定。"
+  },
+  {
+    "key": "m4d95c070f8",
+    "zh-CN": "组网配置字段不完整或无效，请从对端重新复制。",
+    "en-US": "Missing or invalid site configuration fields. Copy the configuration again from the other router.",
+    "zh-TW": "組網設定欄位不完整或無效，請從對端重新複製。"
+  },
+  {
+    "key": "md9b04b17c7",
+    "zh-CN": "请粘贴对端 NativeRouting 路由器导出的组网配置。手机 JSON 请在 sing-box 中导入。",
+    "en-US": "Paste site JSON exported by the other NativeRouting router. Import mobile JSON in sing-box.",
+    "zh-TW": "請貼上對端 NativeRouting 路由器匯出的組網設定。手機 JSON 請在 sing-box 中匯入。"
+  },
+  {
+    "key": "mbb3f8370b8",
+    "zh-CN": "预览组网配置",
+    "en-US": "Preview site configuration",
+    "zh-TW": "預覽組網設定"
+  },
+  {
+    "key": "mf36b0e3e9b",
+    "zh-CN": "本路由器后方的局域网，每行一个 IPv4 网段。",
+    "en-US": "Enter the LANs behind this router, one IPv4 subnet per line.",
+    "zh-TW": "本路由器後方的區域網路，每行一個 IPv4 網段。"
+  },
+  {
+    "key": "m9694785262",
+    "zh-CN": "对端路由器后方的局域网，每行一个 IPv4 网段。",
+    "en-US": "Enter the LANs behind the other router, one IPv4 subnet per line.",
+    "zh-TW": "對端路由器後方的區域網路，每行一個 IPv4 網段。"
+  },
+  {
+    "key": "md96ba8f1ab",
+    "zh-CN": "请选择已保存并启用的有效 WG 对端",
+    "en-US": "Select a saved and enabled WG peer.",
+    "zh-TW": "請選擇已儲存並啟用的有效 WG 對端"
+  },
+  {
+    "key": "mf5dc5651ed",
+    "zh-CN": "路由器组网需要同时设置本端和对端互访网段",
+    "en-US": "Router-to-router networking requires both local and remote LAN subnets.",
+    "zh-TW": "路由器組網需要同時設定本端和對端互訪網段"
+  },
+  {
+    "key": "m165cf50c88",
+    "zh-CN": "路由器组网需要非零 WG 心跳，可设置为 25 秒",
+    "en-US": "Set a nonzero WG keepalive, for example 25 seconds.",
+    "zh-TW": "路由器組網需要非零 WG 心跳，可設為 25 秒"
+  },
+  {
+    "key": "mfe95549e64",
+    "zh-CN": "导出类型与已保存的隧道用途不匹配",
+    "en-US": "The export type does not match the saved tunnel use.",
+    "zh-TW": "匯出類型與已儲存的隧道用途不符"
+  },
+  {
+    "key": "m5f060864b5",
+    "zh-CN": "这份组网配置已导入",
+    "en-US": "This site configuration has already been imported.",
+    "zh-TW": "這份組網設定已匯入"
+  },
+  {
+    "key": "md8783e9016",
+    "zh-CN": "组网配置格式无效",
+    "en-US": "Invalid site configuration format.",
+    "zh-TW": "組網設定格式無效"
+  },
+  {
+    "key": "mb9c3721c93",
+    "zh-CN": "组网配置格式或版本不受支持",
+    "en-US": "Unsupported site configuration format or version.",
+    "zh-TW": "不支援此組網設定格式或版本"
+  },
+  {
+    "key": "m3584103278",
+    "zh-CN": "导入失败，请检查本机 WG 配置后重试",
+    "en-US": "Import failed. Check this router’s WG configuration and try again.",
+    "zh-TW": "匯入失敗，請檢查本機 WG 設定後再試"
+  },
+  {
+    "key": "m28e1b5aff3",
+    "zh-CN": "导入的组网隧道请通过启用、禁用或删除操作管理",
+    "en-US": "Manage an imported site tunnel with Enable, Disable or Delete.",
+    "zh-TW": "已匯入的組網隧道請透過啟用、停用或刪除操作管理"
+  },
+  {
+    "key": "m04fc115eb3",
+    "zh-CN": "组网隧道缺少匹配的中继配置，请重新导入组网配置",
+    "en-US": "The site tunnel has no matching relay configuration. Reimport its site configuration.",
+    "zh-TW": "組網隧道缺少相符的中繼設定，請重新匯入組網設定"
+  },
+  {
+    "key": "m5504987c16",
+    "zh-CN": "本机可经对端路由器上网",
+    "en-US": "This router can use the remote router’s internet connection.",
+    "zh-TW": "本機可經對端路由器上網"
+  },
+  {
+    "key": "m87f1ade529",
+    "zh-CN": "对端路由器可经本机上网",
+    "en-US": "The remote router can use this router’s internet connection.",
+    "zh-TW": "對端路由器可經本機上網"
+  },
+  {
+    "key": "ma3b9320ae6",
+    "zh-CN": "双方可互相作为上网出口",
+    "en-US": "Either router can use the other’s internet connection.",
+    "zh-TW": "雙方可互相作為上網出口"
+  },
+  {
+    "key": "m403dff8a67",
+    "zh-CN": "上网方向",
+    "en-US": "Internet traffic direction",
+    "zh-TW": "上網方向"
+  },
+  {
+    "key": "m4d8b9e5f3b",
+    "zh-CN": "局域网互访",
+    "en-US": "LAN-to-LAN access",
+    "zh-TW": "區域網路互訪"
+  },
+  {
+    "key": "m33c3cfdce8",
+    "zh-CN": "未设置互访网段",
+    "en-US": "No LAN subnets configured",
+    "zh-TW": "未設定互訪網段"
+  },
+  {
+    "key": "mf2a52e2669",
+    "zh-CN": "已导入的路由器隧道",
+    "en-US": "Imported router tunnel",
+    "zh-TW": "已匯入的路由器隧道"
+  },
+  {
+    "key": "m1887a382b8",
+    "zh-CN": "粘贴从对端 NativeRouting 路由器复制的配置，或含 [Interface]、[Peer] 的原生 WG 配置。",
+    "en-US": "Paste a configuration copied from the other NativeRouting router, or a native WG configuration with [Interface] and [Peer].",
+    "zh-TW": "貼上從對端 NativeRouting 路由器複製的設定，或含 [Interface]、[Peer] 的原生 WG 設定。"
+  },
+  {
+    "key": "m587ff1bad0",
+    "zh-CN": "预览路由器配置",
+    "en-US": "Preview router configuration",
+    "zh-TW": "預覽路由器設定"
+  },
+  {
+    "key": "m548cba3ada",
+    "zh-CN": "已导入对端路由器配置",
+    "en-US": "Imported the remote router configuration.",
+    "zh-TW": "已匯入對端路由器設定"
+  },
+  {
+    "key": "m5a7309874c",
+    "zh-CN": "复制到路由器",
+    "en-US": "Copy for another router",
+    "zh-TW": "複製到路由器"
+  },
+  {
+    "key": "m71873af0fa",
+    "zh-CN": "WG 接口运行中",
+    "en-US": "WG interface running",
+    "zh-TW": "WG 介面執行中"
+  },
+  {
+    "key": "m63c55086f0",
+    "zh-CN": "WG 接口未运行",
+    "en-US": "WG interface stopped",
+    "zh-TW": "WG 介面未執行"
+  },
+  {
+    "key": "m8e14819e51",
+    "zh-CN": "WG 入口地址与隧道路由冲突",
+    "en-US": "The WG endpoint address conflicts with the tunnel routes.",
+    "zh-TW": "WG 入口位址與隧道路由衝突"
+  },
+  {
+    "key": "m1210a29d1a",
+    "zh-CN": "MTU 无效",
+    "en-US": "Invalid MTU.",
+    "zh-TW": "MTU 無效"
+  },
+  {
+    "key": "me97f5a0aaa",
+    "zh-CN": "Hysteria 2 入口地址与隧道路由冲突",
+    "en-US": "The Hysteria 2 endpoint address conflicts with the tunnel routes.",
+    "zh-TW": "Hysteria 2 入口位址與隧道路由衝突"
+  },
+  {
+    "key": "ma360a386c7",
+    "zh-CN": "无法解析路由器入口的 IPv4 地址",
+    "en-US": "The router endpoint did not resolve to an IPv4 address.",
+    "zh-TW": "無法解析路由器入口的 IPv4 位址"
+  },
+  {
+    "key": "m11177fcb20",
+    "zh-CN": "本机 UDP 端口已变化，请重新导入",
+    "en-US": "The local UDP port changed. Import the configuration again.",
+    "zh-TW": "本機 UDP 連接埠已變更，請重新匯入"
+  },
+  {
+    "key": "m5f2b9044e0",
+    "zh-CN": "本机没有可用 UDP 端口",
+    "en-US": "No UDP port is available on this router.",
+    "zh-TW": "本機沒有可用的 UDP 連接埠"
+  },
+  {
+    "key": "m4ca7ac02eb",
+    "zh-CN": "本机没有可用 WG 接口",
+    "en-US": "No WG interface is available on this router.",
+    "zh-TW": "本機沒有可用的 WG 介面"
+  },
+  {
+    "key": "me099cd8413",
+    "zh-CN": "组网密钥与本机 WG 接口冲突",
+    "en-US": "The imported key is already in use by a local WG interface.",
+    "zh-TW": "組網金鑰與本機 WG 介面衝突"
+  },
+  {
+    "key": "m32c11995f3",
+    "zh-CN": "入口地址指向本机、隧道或没有可用的 IPv4 路由",
+    "en-US": "The endpoint points to this router or a tunnel, or it has no usable IPv4 route.",
+    "zh-TW": "入口位址指向本機、隧道或沒有可用的 IPv4 路由"
+  },
+  {
+    "key": "m9b5e9d654d",
+    "zh-CN": "组网隧道运行配置应用失败，请检查用途保护和中继状态",
+    "en-US": "Could not apply the router tunnel configuration. Check the direction rules and relay status.",
+    "zh-TW": "組網隧道執行設定套用失敗，請檢查用途保護和中繼狀態"
+  },
+  {
+    "key": "mee43153f4c",
+    "zh-CN": "配置已导入，未能读取最新列表。",
+    "en-US": "Configuration imported. The updated lists could not be read.",
+    "zh-TW": "設定已匯入，無法讀取最新清單。"
+  },
+  {
+    "key": "m9fee64b85a",
+    "zh-CN": "重新读取列表",
+    "en-US": "Reload lists",
+    "zh-TW": "重新讀取清單"
+  },
+  {
+    "key": "ma38df307a2",
+    "zh-CN": "组网配置已保存，请返回列表检查隧道状态后重新启用",
+    "en-US": "Configuration saved. Check the tunnel in the list, then enable it again.",
+    "zh-TW": "組網設定已儲存，請返回清單檢查隧道狀態後重新啟用"
+  },
+  {
+    "key": "m66f93d07f1",
+    "zh-CN": "上次导入的接口与当前配置不一致，请返回接口列表核对地址、MTU 和监听端口。",
+    "en-US": "The previously imported interface differs from this configuration. Check its address, MTU and listening port in the interface list.",
+    "zh-TW": "上次匯入的介面與目前設定不一致，請返回介面清單核對位址、MTU 和監聽連接埠。"
+  },
+  {
+    "key": "m15c69b169e",
+    "zh-CN": "WG 接口建议已变化，请重新导入。",
+    "en-US": "The suggested WG interface changed. Import the configuration again.",
+    "zh-TW": "WG 介面建議已變更，請重新匯入。"
+  },
+  {
+    "key": "mdbb558538e",
+    "zh-CN": "接口名称仍被已有配置引用，请重新导入",
+    "en-US": "An existing configuration still uses this interface name. Import the configuration again.",
+    "zh-TW": "介面名稱仍被既有設定引用，請重新匯入"
+  },
+  {
+    "key": "m9758b42fa6",
+    "zh-CN": "组网配置只恢复了一部分，请先删除列表中残留的原 WG 隧道或接口，再重新导入",
+    "en-US": "The configuration was partially restored. Delete the remaining original WG tunnel or interface from the list, then import again.",
+    "zh-TW": "組網設定僅還原了一部分，請先刪除清單中殘留的原 WG 隧道或介面，再重新匯入"
+  },
+  {
+    "key": "me4c60e1993",
+    "zh-CN": "纯 Hysteria 2（UDP）",
+    "en-US": "Hysteria 2 only (UDP)",
+    "zh-TW": "純 Hysteria 2（UDP）"
+  },
+  {
+    "key": "m659e56cf58",
+    "zh-CN": "Hysteria 2 承载 WireGuard（UDP）",
+    "en-US": "WireGuard over Hysteria 2 (UDP)",
+    "zh-TW": "Hysteria 2 承載 WireGuard（UDP）"
+  },
+  {
+    "key": "m9dbcbb08b6",
+    "zh-CN": "请核对纯 HY2 的设备用途和公网入口。",
+    "en-US": "Check the purpose and public endpoint for this Hysteria 2 device.",
+    "zh-TW": "請核對純 HY2 的裝置用途和公網入口。"
+  },
+  {
+    "key": "mc285d084e6",
+    "zh-CN": "用此设备的 sing-box 扫码。二维码含本设备的连接凭据。",
+    "en-US": "Scan in sing-box on this device. This QR code contains its credentials.",
+    "zh-TW": "使用此裝置的 sing-box 掃碼。二維碼包含此裝置的連線憑證。"
+  },
+  {
+    "key": "m9897d53503",
+    "zh-CN": "需放行的公网端口",
+    "en-US": "Public ports to allow",
+    "zh-TW": "需放行的公網連接埠"
+  },
+  {
+    "key": "mc886c8d245",
+    "zh-CN": "确认后将创建纯 HY2 设备隧道。",
+    "en-US": "Confirm to create this Hysteria 2 device tunnel.",
+    "zh-TW": "確認後將建立純 HY2 裝置隧道。"
+  },
+  {
+    "key": "m973789eb05",
+    "zh-CN": "隧道配置内容",
+    "en-US": "Tunnel configuration",
+    "zh-TW": "隧道設定內容"
+  },
+  {
+    "key": "m4162e8615b",
+    "zh-CN": "未能检测到此 WG 接口的公网 IPv4，请手动填写可从外网访问的地址",
+    "en-US": "Could not detect a public IPv4 address on this interface. Enter a reachable address manually.",
+    "zh-TW": "未能偵測到此 WG 介面的公網 IPv4，請手動填寫可從外網存取的位址"
+  },
+  {
+    "key": "mc00721efe5",
+    "zh-CN": "纯 Hysteria 2 仅支持三种上网用途",
+    "en-US": "Choose an internet access purpose for pure Hysteria 2.",
+    "zh-TW": "純 Hysteria 2 僅支援三種上網用途"
+  },
+  {
+    "key": "m61d6d594b4",
+    "zh-CN": "纯 Hysteria 2 需要独立接口端口",
+    "en-US": "Pure Hysteria 2 requires a dedicated interface port.",
+    "zh-TW": "純 Hysteria 2 需要獨立介面連接埠"
+  },
+  {
+    "key": "mf81fc9680c",
+    "zh-CN": "设备已保存，纯 HY2 出口路由应用失败",
+    "en-US": "Device saved. Applying the pure HY2 egress route failed.",
+    "zh-TW": "裝置已儲存，純 HY2 出口路由套用失敗"
+  },
+  {
+    "key": "m682fd4cf87",
+    "zh-CN": "纯 HY2 协调或 STUN 端口已被占用",
+    "en-US": "The HY2 coordination or STUN port is already in use.",
+    "zh-TW": "純 HY2 協調或 STUN 連接埠已被佔用"
+  },
+  {
+    "key": "mcad4c61ace",
+    "zh-CN": "纯 HY2 数据端口已被占用",
+    "en-US": "The HY2 data port is already in use.",
+    "zh-TW": "純 HY2 資料連接埠已被佔用"
+  },
+  {
+    "key": "m866b44ea22",
+    "zh-CN": "纯 HY2 进程或网络接口未就绪，请检查公网端口",
+    "en-US": "The pure HY2 process or network interface is unavailable. Check the public ports.",
+    "zh-TW": "純 HY2 程序或網路介面尚未就緒，請檢查公網連接埠"
+  },
+  {
+    "key": "mfaf8658343",
+    "zh-CN": "无法核对本机接口地址",
+    "en-US": "Could not check the local interface address.",
+    "zh-TW": "無法核對本機介面位址"
+  },
+  {
+    "key": "m8073b174e4",
+    "zh-CN": "纯 Hysteria 2 设备配置无效",
+    "en-US": "Invalid pure Hysteria 2 device configuration.",
+    "zh-TW": "純 Hysteria 2 裝置設定無效"
+  },
+  {
+    "key": "m4d3b545ab3",
+    "zh-CN": "纯 HY2 使用独立同号端口且仅支持上网用途",
+    "en-US": "Pure HY2 requires a dedicated interface port and an internet access purpose.",
+    "zh-TW": "純 HY2 使用獨立同號連接埠且僅支援上網用途"
+  },
+  {
+    "key": "m5ed188282e",
+    "zh-CN": "纯 HY2 隧道编号超出支持范围",
+    "en-US": "The pure HY2 tunnel number is out of range.",
+    "zh-TW": "純 HY2 隧道編號超出支援範圍"
+  },
+  {
+    "key": "mf937c53d86",
+    "zh-CN": "纯 HY2 需要独立的同号接口和适用的上网用途",
+    "en-US": "Choose a dedicated interface with a matching port and an internet access purpose.",
+    "zh-TW": "純 HY2 需要獨立的同號介面和適用的上網用途"
+  },
+  {
+    "key": "m1f6b0508e4",
+    "zh-CN": "设备连接方式无效",
+    "en-US": "Invalid device transport.",
+    "zh-TW": "裝置連線方式無效"
+  },
+  {
+    "key": "mde5d98c9a2",
+    "zh-CN": "请选择已启用的纯 HY2 隧道",
+    "en-US": "Select an enabled pure HY2 tunnel.",
+    "zh-TW": "請選擇已啟用的純 HY2 隧道"
+  },
+  {
+    "key": "m325467c5e6",
+    "zh-CN": "无法分配管理地址",
+    "en-US": "Could not allocate a management address.",
+    "zh-TW": "無法分配管理位址"
+  },
+  {
+    "key": "m06a058ab4b",
+    "zh-CN": "无法分配设备管理地址",
+    "en-US": "Could not allocate a device management address.",
+    "zh-TW": "無法分配裝置管理位址"
+  },
+  {
+    "key": "ma23403bba0",
+    "zh-CN": "无法创建设备身份",
+    "en-US": "Could not create the device identity.",
+    "zh-TW": "無法建立裝置身分"
+  },
+  {
+    "key": "m3cf1dd551a",
+    "zh-CN": "纯 Hysteria 2 接口地址冲突",
+    "en-US": "The pure Hysteria 2 interface address is already in use.",
+    "zh-TW": "純 Hysteria 2 介面位址衝突"
+  },
+  {
+    "key": "m96167a3f32",
+    "zh-CN": "设备或本机地址已变化，请重新导入",
+    "en-US": "Device or local address changed. Import again.",
+    "zh-TW": "裝置或本機位址已改變，請重新匯入"
+  },
+  {
+    "key": "m0dcde9dc53",
+    "zh-CN": "设备身份无效",
+    "en-US": "Invalid device identity.",
+    "zh-TW": "裝置身分無效"
+  },
+  {
+    "key": "m2c6e3c4d07",
+    "zh-CN": "这份纯 Hysteria 2 设备配置已导入",
+    "en-US": "This pure Hysteria 2 device configuration was already imported.",
+    "zh-TW": "這份純 Hysteria 2 裝置設定已匯入"
+  },
+  {
+    "key": "m617ee53af3",
+    "zh-CN": "纯 HY2 配置或端口不可用，请检查数据、协调和 STUN 端口",
+    "en-US": "Pure HY2 is unavailable. Check the configuration and its data, coordination and STUN ports.",
+    "zh-TW": "純 HY2 設定或連接埠無法使用，請檢查資料、協調和 STUN 連接埠"
+  },
+  {
+    "key": "m7c669c8858",
+    "zh-CN": "纯 Hysteria 2 停止失败",
+    "en-US": "Could not stop pure Hysteria 2.",
+    "zh-TW": "純 Hysteria 2 停止失敗"
+  },
+  {
+    "key": "m77eae23413",
+    "zh-CN": "纯 Hysteria 2 暂停失败",
+    "en-US": "Could not pause pure Hysteria 2.",
+    "zh-TW": "純 Hysteria 2 暫停失敗"
+  },
+  {
+    "key": "mea5f082c1d",
+    "zh-CN": "纯 Hysteria 2 启动失败，请检查接口、端口和运行状态",
+    "en-US": "Could not start pure Hysteria 2. Check the interface, ports and runtime status.",
+    "zh-TW": "純 Hysteria 2 啟動失敗，請檢查介面、連接埠和執行狀態"
+  },
+  {
+    "key": "m1ef8e3a667",
+    "zh-CN": "纯 HY2 用于 IPv4 TCP／UDP 上网。访问路由器后台或两端内网请使用 WG。",
+    "en-US": "Use pure HY2 for IPv4 TCP and UDP internet access. Use WireGuard to reach the router dashboard or private LANs.",
+    "zh-TW": "純 HY2 用於 IPv4 TCP／UDP 上網。存取路由器後台或兩端內網請使用 WG。"
+  },
+  {
+    "key": "mfd11a8ef6e",
+    "zh-CN": "原纯 HY2 借线用途已停用。请选择上网用途或其他连接方式，再保存。",
+    "en-US": "The previous pure HY2 exit role is disabled. Select Internet access or a different connection method, then save.",
+    "zh-TW": "原純 HY2 借線用途已停用。請選擇上網用途或其他連線方式，再儲存。"
+  },
+  {
+    "key": "ma341f7b42a",
+    "zh-CN": "原纯 HY2 借线用途已停用，请删除此记录并从对端重新导入。",
+    "en-US": "The previous pure HY2 exit role is disabled. Delete this entry and import a new configuration from the peer router.",
+    "zh-TW": "原純 HY2 借線用途已停用，請刪除此記錄並從對端重新匯入。"
+  },
+  {
+    "key": "m2852dd87be",
+    "zh-CN": "纯 Hysteria 2 仅支持让这台设备连接路由器上网，请从对端重新导出",
+    "en-US": "Pure Hysteria 2 supports device Internet access through the router. Export a new configuration from the peer router.",
+    "zh-TW": "純 Hysteria 2 僅支援讓這台裝置連接路由器上網，請從對端重新匯出"
+  },
+  {
+    "key": "m15edff210d",
+    "zh-CN": "纯 HY2 只支持让这台设备连接路由器上网",
+    "en-US": "Pure HY2 only supports this device accessing the Internet through the router.",
+    "zh-TW": "純 HY2 只支援讓這台裝置連接路由器上網"
+  },
+  {
+    "key": "m9e9aa538a0",
+    "zh-CN": "纯 HY2 借线已停用，请重新选择设备连接方式",
+    "en-US": "Pure HY2 reverse egress is disabled. Choose a device connection method.",
+    "zh-TW": "純 HY2 借線已停用，請重新選擇裝置連線方式"
+  },
+  {
+    "key": "m6dc95660a8",
+    "zh-CN": "此设备原用 HY2 承载 WG，已停用。请选择新的连接方式并保存。",
+    "en-US": "WireGuard over HY2 has been retired. Select a new transport and save this device.",
+    "zh-TW": "此裝置原用 HY2 承載 WG，已停用。請選擇新的連線方式並儲存。"
+  },
+  {
+    "key": "m635dc069fc",
+    "zh-CN": "纯 HY2 仅支持设备上网，请清空互访网段。",
+    "en-US": "Pure HY2 only supports internet access. Clear the LAN subnets to continue.",
+    "zh-TW": "純 HY2 僅支援裝置上網，請清空互訪網段。"
+  },
+  {
+    "key": "m1119f682c6",
+    "zh-CN": "此配置使用已停用的 HY2 承载 WG，请从对端重新导出原生 WG 或纯 HY2 配置。",
+    "en-US": "WireGuard over HY2 has been retired. Export a new native WG or pure HY2 profile from the other router.",
+    "zh-TW": "此設定使用已停用的 HY2 承載 WG，請從對端重新匯出原生 WG 或純 HY2 設定。"
+  },
+  {
+    "key": "md8e35eb2a3",
+    "zh-CN": "原 HY2 承载 WG 隧道已停用。请删除此记录并导入新的配置。",
+    "en-US": "This WireGuard-over-HY2 tunnel has been retired. Delete the record and import a new profile.",
+    "zh-TW": "原 HY2 承載 WG 隧道已停用。請刪除此記錄並匯入新的設定。"
+  },
+  {
+    "key": "m72a3b4b7ca",
+    "zh-CN": "HY2 核心存放在内存盘，约占 88 MiB，由所有设备共用。",
+    "en-US": "The HY2 core uses about 88 MiB on the RAM disk, shared by all devices.",
+    "zh-TW": "HY2 核心存放在記憶體磁碟，約佔 88 MiB，由所有裝置共用。"
+  },
+  {
+    "key": "me743b35f48",
+    "zh-CN": "Hysteria 2 承载 WG 已停用，请选择原生 WG 或纯 HY2",
+    "en-US": "WireGuard over HY2 has been retired. Select native WG or pure HY2.",
+    "zh-TW": "Hysteria 2 承載 WG 已停用，請選擇原生 WG 或純 HY2"
+  },
+  {
+    "key": "mce282a6d71",
+    "zh-CN": "Hysteria 2 承载 WG 已停用，请重新导出原生 WG 或纯 HY2 配置",
+    "en-US": "WireGuard over HY2 has been retired. Export a new native WG or pure HY2 profile.",
+    "zh-TW": "Hysteria 2 承載 WG 已停用，請重新匯出原生 WG 或純 HY2 設定"
+  },
+  {
+    "key": "mc2e7f43620",
+    "zh-CN": "Hysteria 2 承载 WG 已停用，请删除并重新导入原生 WG 或纯 HY2 配置",
+    "en-US": "WireGuard over HY2 has been retired. Delete this record and import a native WG or pure HY2 profile.",
+    "zh-TW": "Hysteria 2 承載 WG 已停用，請刪除並重新匯入原生 WG 或純 HY2 設定"
+  },
+  {
+    "key": "m9f9a9cfbf0",
+    "zh-CN": "请刷新后明确选择连接方式",
+    "en-US": "Refresh the page and select the connection method.",
+    "zh-TW": "請重新整理後選擇連線方式"
+  },
+  {
+    "key": "mff1ab4694c",
+    "zh-CN": "请使用此设备已保存的连接方式导出配置",
+    "en-US": "Export using this device’s saved connection method.",
+    "zh-TW": "請使用此裝置已儲存的連線方式匯出設定"
+  },
+  {
+    "key": "m5cb3a748a3",
+    "zh-CN": "HY2 核心从压缩磁盘按需读取。",
+    "en-US": "The HY2 core loads from compressed disk storage on demand.",
+    "zh-TW": "HY2 核心會按需從壓縮磁碟讀取。"
+  },
+  {
+    "key": "m98b12e0b01",
+    "zh-CN": "接口配置已保存，运行状态尚未确认。请验证实际连接。",
+    "en-US": "The interface settings are saved. Its operating state is unconfirmed. Test the connection to verify it.",
+    "zh-TW": "介面設定已儲存，運行狀態尚未確認。請驗證實際連線。"
+  },
+  {
+    "key": "mc8ea61fab4",
+    "zh-CN": "接口保存结果尚未确认，请刷新列表核对后再操作。",
+    "en-US": "The interface save could not be confirmed. Refresh the list and check the settings before continuing.",
+    "zh-TW": "介面儲存結果尚未確認，請重新整理清單核對後再操作。"
+  },
+  {
+    "key": "me9feaecebb",
+    "zh-CN": "已撤销本次新增",
+    "en-US": "The new interface was rolled back",
+    "zh-TW": "已撤銷本次新增"
+  },
+  {
+    "key": "me70f0e2429",
+    "zh-CN": "新增未完成，清理失败，请刷新接口列表检查",
+    "en-US": "Interface creation and cleanup failed. Refresh the interface list",
+    "zh-TW": "新增未完成，清理失敗，請重新整理介面清單檢查"
+  },
+  {
+    "key": "m7a53cf110a",
+    "zh-CN": "接口配置已保存",
+    "en-US": "Interface settings saved",
+    "zh-TW": "介面設定已儲存"
+  },
+  {
+    "key": "mdee3f8eac9",
+    "zh-CN": "接口运行配置应用失败",
+    "en-US": "Could not apply the interface settings",
+    "zh-TW": "介面運行設定套用失敗"
+  },
+  {
+    "key": "mb561ae9089",
+    "zh-CN": "新接口已保存，联动策略未完全应用，请刷新后检查现有接口",
+    "en-US": "The new interface is saved. Some dependent policies failed to apply. Refresh and check the existing interface",
+    "zh-TW": "新介面已儲存，相關策略未完全套用，請重新整理後檢查現有介面"
+  },
+  {
+    "key": "m49380eef78",
+    "zh-CN": "未取得新接口编号，请刷新列表确认保存结果",
+    "en-US": "No new interface ID was returned. Refresh the list to check what was saved",
+    "zh-TW": "未取得新介面編號，請重新整理清單確認儲存結果"
+  },
+  {
+    "key": "m1c7fa63bf0",
+    "zh-CN": "无法验证接口密钥，请重新生成",
+    "en-US": "The interface keys could not be verified. Generate them again",
+    "zh-TW": "無法驗證介面密鑰，請重新產生"
+  },
+  {
+    "key": "ma0ae2b3c73",
+    "zh-CN": "接口公钥与私钥不匹配，请重新生成",
+    "en-US": "The interface public and private keys do not match. Generate them again",
+    "zh-TW": "介面公鑰與私鑰不符，請重新產生"
+  },
+  {
+    "key": "m74bace2d52",
+    "zh-CN": "WG 密钥格式错误：请使用完整的 32 字节 Base64 密钥",
+    "en-US": "Invalid WG key. Use a complete Base64-encoded 32-byte key",
+    "zh-TW": "WG 密鑰格式錯誤：請使用完整的 32 位元組 Base64 密鑰"
+  },
+  {
+    "key": "m9a6d6c2423",
+    "zh-CN": "接口名称已被系统使用，请换一个名称",
+    "en-US": "The system already uses that interface name. Choose another",
+    "zh-TW": "介面名稱已由系統使用，請更換名稱"
+  },
+  {
+    "key": "m7ada20bb43",
+    "zh-CN": "无法写入新接口配置，请刷新接口列表",
+    "en-US": "Could not save the new interface settings. Refresh the interface list",
+    "zh-TW": "無法寫入新介面設定，請重新整理介面清單"
+  },
+  {
+    "key": "mae5867f3fa",
+    "zh-CN": "接口编号无效，请刷新接口列表",
+    "en-US": "Invalid interface ID. Refresh the interface list",
+    "zh-TW": "介面編號無效，請重新整理介面清單"
+  },
+  {
+    "key": "m90455fd97e",
+    "zh-CN": "无法读取接口，请刷新接口列表",
+    "en-US": "Could not read the interface. Refresh the interface list",
+    "zh-TW": "無法讀取介面，請重新整理介面清單"
+  },
+  {
+    "key": "m95fe7f8e92",
+    "zh-CN": "接口不存在，请刷新接口列表",
+    "en-US": "The interface no longer exists. Refresh the interface list",
+    "zh-TW": "介面不存在，請重新整理介面清單"
+  },
+  {
+    "key": "m176cdffc25",
+    "zh-CN": "无法保存接口配置，请刷新接口列表",
+    "en-US": "Could not save the interface settings. Refresh the interface list",
+    "zh-TW": "無法儲存介面設定，請重新整理介面清單"
+  },
+  {
+    "key": "m10ff7d026f",
+    "zh-CN": "读取接口配置",
+    "en-US": "Read interface settings",
+    "zh-TW": "讀取介面設定"
+  },
+  {
+    "key": "m480d8e877d",
+    "zh-CN": "清理接入接口",
+    "en-US": "Clean up the ingress interface",
+    "zh-TW": "清理接入介面"
+  },
+  {
+    "key": "mc549574563",
+    "zh-CN": "清理回包策略",
+    "en-US": "Remove the reply policy",
+    "zh-TW": "清理回包策略"
+  },
+  {
+    "key": "ma4a0d4d22c",
+    "zh-CN": "删除内核接口",
+    "en-US": "Remove the kernel interface",
+    "zh-TW": "刪除核心介面"
+  },
+  {
+    "key": "mb06b383519",
+    "zh-CN": "校验绑定出口",
+    "en-US": "Validate the bound egress interface",
+    "zh-TW": "驗證綁定出口"
+  },
+  {
+    "key": "m75cfce4885",
+    "zh-CN": "准备绑定出口",
+    "en-US": "Prepare the bound egress interface",
+    "zh-TW": "準備綁定出口"
+  },
+  {
+    "key": "mfbbc301f18",
+    "zh-CN": "创建内核接口",
+    "en-US": "Create the kernel interface",
+    "zh-TW": "建立核心介面"
+  },
+  {
+    "key": "mbf81ed44a8",
+    "zh-CN": "设置接口地址",
+    "en-US": "Set the interface address",
+    "zh-TW": "設定介面位址"
+  },
+  {
+    "key": "m9eff135bfc",
+    "zh-CN": "设置接口 MTU",
+    "en-US": "Set the interface MTU",
+    "zh-TW": "設定介面 MTU"
+  },
+  {
+    "key": "mbef1edfdcf",
+    "zh-CN": "设置 MTU",
+    "en-US": "Set the MTU",
+    "zh-TW": "設定 MTU"
+  },
+  {
+    "key": "md3a9954c68",
+    "zh-CN": "配置接入接口",
+    "en-US": "Configure the ingress interface",
+    "zh-TW": "設定接入介面"
+  },
+  {
+    "key": "m2488378675",
+    "zh-CN": "应用回包策略",
+    "en-US": "Apply the reply policy",
+    "zh-TW": "套用回包策略"
+  },
+  {
+    "key": "m61037ab60b",
+    "zh-CN": "校验对端配置",
+    "en-US": "Validate peer settings",
+    "zh-TW": "驗證對端設定"
+  },
+  {
+    "key": "mea479adde9",
+    "zh-CN": "创建运行目录",
+    "en-US": "Create the runtime directory",
+    "zh-TW": "建立運行目錄"
+  },
+  {
+    "key": "m5179ed643a",
+    "zh-CN": "生成 WireGuard 配置",
+    "en-US": "Generate the WireGuard configuration",
+    "zh-TW": "產生 WireGuard 設定"
+  },
+  {
+    "key": "m15473cd5d1",
+    "zh-CN": "读取接口状态",
+    "en-US": "Read the interface state",
+    "zh-TW": "讀取介面狀態"
+  },
+  {
+    "key": "m5bf4e3a68b",
+    "zh-CN": "载入 WireGuard 配置",
+    "en-US": "Load the WireGuard configuration",
+    "zh-TW": "載入 WireGuard 設定"
+  },
+  {
+    "key": "m9598374bee",
+    "zh-CN": "读取对端配置",
+    "en-US": "Read peer settings",
+    "zh-TW": "讀取對端設定"
+  },
+  {
+    "key": "mc0290db89a",
+    "zh-CN": "启用内核接口",
+    "en-US": "Enable the kernel interface",
+    "zh-TW": "啟用核心介面"
+  },
+  {
+    "key": "me5f97ef5bf",
+    "zh-CN": "读取接口路由",
+    "en-US": "Read interface routes",
+    "zh-TW": "讀取介面路由"
+  },
+  {
+    "key": "m9a3398697d",
+    "zh-CN": "清理对端路由",
+    "en-US": "Remove peer routes",
+    "zh-TW": "清理對端路由"
+  },
+  {
+    "key": "m906c093d2f",
+    "zh-CN": "应用对端路由",
+    "en-US": "Apply peer routes",
+    "zh-TW": "套用對端路由"
+  },
+  {
+    "key": "m195325c777",
+    "zh-CN": "应用出口默认路由",
+    "en-US": "Apply the default egress route",
+    "zh-TW": "套用出口預設路由"
+  },
+  {
+    "key": "mc808a7050c",
+    "zh-CN": "保存运行快照",
+    "en-US": "Save the runtime snapshot",
+    "zh-TW": "儲存運行快照"
+  },
+  {
+    "key": "mef544aa8e5",
+    "zh-CN": "保存对端缓存",
+    "en-US": "Save the peer cache",
+    "zh-TW": "儲存對端快取"
+  },
+  {
+    "key": "m1ad67e360b",
+    "zh-CN": "恢复对端端点",
+    "en-US": "Restore peer endpoints",
+    "zh-TW": "復原對端端點"
+  },
+  {
+    "key": "m7ba6263a04",
+    "zh-CN": "应用运行配置",
+    "en-US": "Apply the runtime configuration",
+    "zh-TW": "套用運行設定"
+  },
+  {
+    "key": "m518e4c9070",
+    "zh-CN": "MTU 须为 576 至 9000 的整数",
+    "en-US": "MTU must be a whole number from 576 to 9000",
+    "zh-TW": "MTU 須為 576 至 9000 的整數"
+  },
+  {
+    "key": "m5241969640",
+    "zh-CN": "应用对端出口策略",
+    "en-US": "Apply the peer egress policy",
+    "zh-TW": "套用對端出口策略"
+  },
+  {
+    "key": "m6d47c424f9",
+    "zh-CN": "全选配置",
+    "en-US": "Select all configuration text",
+    "zh-TW": "全選設定內容"
+  },
+  {
+    "key": "m3fd47edce4",
+    "zh-CN": "关闭",
+    "en-US": "Close",
+    "zh-TW": "關閉"
+  },
+  {
+    "key": "m0a578e0548",
+    "zh-CN": "在手机 sing-box 新建本地配置，打开编辑器，粘贴完整 JSON 并保存。",
+    "en-US": "Create a local profile in sing-box on your phone, open its editor, paste the full JSON and save.",
+    "zh-TW": "在手機 sing-box 新增本機設定檔，開啟編輯器，貼上完整 JSON 並儲存。"
+  },
+  {
+    "key": "mfe0526266d",
+    "zh-CN": "请点“全选配置”，再使用手机的复制菜单。",
+    "en-US": "Tap “Select all configuration text”, then use the Copy command on your phone.",
+    "zh-TW": "請點「全選設定內容」，再使用手機的複製選單。"
+  },
+  {
+    "key": "maa61c0e723",
+    "zh-CN": "保存后可复制手机配置、扫码，或复制配置到另一台 NativeRouting 路由器。",
+    "en-US": "Save to copy the phone configuration, scan its QR code or copy the configuration for another NativeRouting router.",
+    "zh-TW": "儲存後可複製手機設定、掃碼，或複製設定到另一台 NativeRouting 路由器。"
+  },
+  {
+    "key": "m06ed3ceb96",
+    "zh-CN": "复制 sing-box 配置",
+    "en-US": "Copy sing-box configuration",
+    "zh-TW": "複製 sing-box 設定"
+  },
+  {
+    "key": "m7b638424d9",
+    "zh-CN": "复制 HY2 链接",
+    "en-US": "Copy HY2 link",
+    "zh-TW": "複製 HY2 連結"
+  },
+  {
+    "key": "m8518a878eb",
+    "zh-CN": "HY2 链接适用于支持证书指纹校验（pinSHA256）的客户端。",
+    "en-US": "Use the HY2 link with clients that verify the certificate fingerprint (pinSHA256).",
+    "zh-TW": "HY2 連結適用於支援憑證指紋驗證（pinSHA256）的用戶端。"
+  },
+  {
+    "key": "m26270b0fd2",
+    "zh-CN": "复制 WG 配置",
+    "en-US": "Copy WG configuration",
+    "zh-TW": "複製 WG 設定"
+  },
+  {
+    "key": "mfce38222f4",
+    "zh-CN": "路由器后台地址",
+    "en-US": "Router management address",
+    "zh-TW": "路由器後台位址"
+  },
+  {
+    "key": "m16e2bdd93b",
+    "zh-CN": "复制后台地址",
+    "en-US": "Copy management address",
+    "zh-TW": "複製後台位址"
+  },
+  {
+    "key": "m6eca6ab1b8",
+    "zh-CN": "全选后台地址",
+    "en-US": "Select management address",
+    "zh-TW": "全選後台位址"
+  },
+  {
+    "key": "me89c31f824",
+    "zh-CN": "请全选后台地址，再使用手机的复制菜单。",
+    "en-US": "Select the management address, then use your phone’s Copy menu.",
+    "zh-TW": "請全選後台位址，再使用手機的複製選單。"
+  },
+  {
+    "key": "m678fd7655a",
+    "zh-CN": "手机连上 HY2 后，可用内网 IP 访问局域网设备。打开爱快后台仍需管理账号。",
+    "en-US": "Connect your phone to HY2 to reach LAN devices by their IP addresses. Router management still requires an administrator login.",
+    "zh-TW": "手機連上 HY2 後，可使用內網 IP 存取區域網路裝置。登入愛快後台仍需管理帳號。"
+  },
+  {
+    "key": "m3f4141a84e",
+    "zh-CN": "分流入接口",
+    "en-US": "Routing rule ingress interface",
+    "zh-TW": "分流入介面"
+  },
+  {
+    "key": "m4b7e1f1689",
+    "zh-CN": "分流源地址",
+    "en-US": "Routing rule source address",
+    "zh-TW": "分流來源位址"
+  }
+]

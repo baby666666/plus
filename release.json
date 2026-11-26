@@ -1,0 +1,40 @@
+{
+  "release": "3.0",
+  "build_label": "V3_0",
+  "tag": "v3.0.0",
+  "status": "release",
+  "github_published": true,
+  "source_repository": "baby666666/plus",
+  "release_url": "https://github.com/baby666666/plus/releases/tag/v3.0.0",
+  "firmware_filename": "iKuai8_x64_3.7.26_Enterprise_NativeRouting_V3_0.bin",
+  "firmware_sha256": "0177ab1713743b480c48c5a8fcc098e6631a1938f530b2a53d34994472d4fd35",
+  "firmware_bytes": 46638555,
+  "signing_public_key_sha256": "969762bab9161946414f918805c919a7a072852f17f2b67fa37392f3a66e8c68",
+  "kernel_sha256": "8b78c7fd5f5ac4bf0ef49f038667e9e376db3a1b04a567e7f94a64adafb83393",
+  "image_filename": "iKuai8_x64_3.7.26_Enterprise_NativeRouting_V3_0_EFI_eth0-WAN-Web.img.gz",
+  "image_sha256": "39691f7b286c007a076a57585e3a4f12e331fee08708f390b5d8909f2943d8f3",
+  "image_bytes": 78506573,
+  "image_raw_sha256": "2a3b44951c7b4803327b6e17426d0d4cc80bcf0598fb26d4908e851e26cc3c3a",
+  "rebuild_inputs": {
+    "name": "NativeRouting-3.0-build-inputs.tar.gz",
+    "sha256": "e8f6ba0ab4d34aeef44c0a115ac55bce2146a0a36dafe935810bee0b732c0853",
+    "bytes": 43894405,
+    "files": {
+      "official-enterprise.bin": {
+        "sha256": "79345ed39e9d12bfa99e3c1fa4d4f671da7efd2914bd328fc74d5b122fe6d2ab",
+        "bytes": 42785554
+      },
+      "efi-boot-template.img.gz": {
+        "sha256": "00dba53173528f00efc3a4858a95225908d65a4807e6376b8884d41416e70cbf",
+        "bytes": 1363045
+      }
+    }
+  },
+  "offline_image_core": {
+    "name": "sing-box-1.14.4-linux-amd64-musl.tar.gz",
+    "sha256": "8f7c5f0651238850d96a0e488e5473cd77ec1a0098f63942e943f475a12057ca",
+    "bytes": 32555215,
+    "upstream_url": "https://github.com/SagerNet/sing-box/releases/tag/v1.14.4"
+  },
+  "materials_manifest_sha256": "495293f0f59245e7d753dc866a4bf22a703fda4f69cb8e2d5d4a5751df23384f"
+}
