@@ -1,0 +1,5682 @@
+#!/bin/bash /etc/ikcommon
+shopt -s expand_aliases
+
+alias NEED_ARCH_X86='[ "$ARCH" != "x86" ]&& return'
+alias NEED_ARCH_LOONGARCH='[ "$ARCH" != "loongarch" ]&& return'
+alias NEED_ARCH_MIPS='[ "$ARCH" != "mips" ]&& return'
+alias NEED_ARCH_MIPS_OR_ARM='[ "$ARCH" != "mips" -a "$ARCH" != "arm" ]&& return'
+alias NEED_ARCH_ARM='[ "$ARCH" != "arm" ]&& return'
+alias NEED_ARCH_X86_OR_ARM='[ "$ARCH" != "arm" -a "$ARCH" != "x86" ]&& return'
+alias NEED_ARCH_X86_OR_ARM_OR_LOONGARCH='[ "$ARCH" != "arm" -a "$ARCH" != "x86" -a "$ARCH" != "loongarch" ]&& return'
+alias NEED_ARCH_X86_OR_LOONGARCH='[ "$ARCH" != "x86" -a "$ARCH" != "loongarch" ]&& return'
+
+if [ ! "$DEVELOPER" ];then
+	clear
+	echo 2 0 0 0 >/proc/sys/kernel/printk #关闭屏幕打印，使用DEBUG时注释掉
+fi
+
+Include sqlite.sh sys/hdd_install.sh sys/hdd_control.sh sys/mtd_control.sh
+
+mkdir -p $IK_DIR_TMP $IK_DIR_CACHE $IK_DIR_LANG $IK_DIR_CACHE/i18n
+mkdir -p /tmp/iktmp/leds /var/run/vsftpd
+
+__err_to_reboot()
+{
+	echo "$*"
+	sleep 5
+	reboot -f
+}
+
+arm_install()
+{
+	if ! [ "$ARCH" = "arm" -a "$bootguide" = install ];then
+		return
+	fi
+
+	if [ ! -e "/dev/sda1" ];then
+		__err_to_reboot "Not found /dev/sda1"
+	fi
+	if ! mount /dev/sda1 /mnt ;then
+		__err_to_reboot "Mount /dev/sda1 to /mnt fail"
+	fi
+
+	images=$(ls /mnt/image)
+	if [ ! "$images" ];then
+		__err_to_reboot "Not available install image"
+	fi
+
+
+
+	while :; do
+		clear
+		cat /etc/setup/banner
+		echo " Install console for ARM"
+		echo "----------------------------------------------------------------------------------------------------"
+		echo ""
+		n=0
+
+		for f in $images ;do
+			n=$((n+1))
+			images[$n]="$f"
+			echo " $n. $f"
+		done
+		echo -n " Select an installation number: "
+		read -p " Select an installation number: " opmode
+		if [ "${images[$opmode]}" ];then
+			echo " install ${images[$opmode]} to MMC"
+			if zcat /mnt/image/${images[$opmode]} | dd of=/dev/mda bs=1M ;then
+				echo " install successfully"
+				reboot -f
+			else
+				echo " write failed"
+				read -n1 -s
+			fi
+		fi
+	done
+}
+
+loongarch_install()
+{
+	if ! [ "$ARCH" = "loongarch" -a "$bootguide" = install ];then
+		return
+	fi
+
+	cd /dev
+	devS=$(ls hd[a-z] sd[a-z] nd[a-z] md[a-z] vd[a-z] xvd[a-z] 2>/dev/null)
+	devS=$(echo "$devS" | grep -v $BOOTHDD)
+	num=$(echo "$devS"|wc -l)
+
+	while :; do
+		clear
+		cat /etc/setup/banner
+		echo " Install console for LOONGARCH"
+		echo "----------------------------------------------------------------------------------------------------"
+		echo ""
+
+		NUM=0
+		for dev in $devS ;do
+			NUM=$((NUM+1))
+			DEV_SIZE=$(hdd_get_size $dev)
+			if [ "${dev:0:2}" = "md" ];then
+				. /sys/class/block/$dev/device/uevent
+				VENDOR=$(readlink /sys/class/block/$dev/device)
+				VENDOR=${VENDOR##*/}
+				DEV_NAME=$MMC_NAME
+				REV=
+			elif [ "${dev:0:2}" = "nd" ];then
+				. /sys/class/block/$dev/device/uevent
+				VENDOR="NVME    "
+				DEV_NAME="$PCI_SLOT_NAME        "
+				REV=
+			else
+				VENDOR=$(cat /sys/class/block/$dev/device/vendor 2>/dev/null)
+				DEV_NAME=$(cat /sys/class/block/$dev/device/model 2>/dev/null)
+				REV=$(cat /sys/class/block/$dev/device/rev 2>/dev/null)
+			fi
+
+			SIZE=$(echo $DEV_SIZE |awk '{size=$1/1048576; if(size >= 1048576){printf "%.2fTB\n",size/1048576} else if(size >= 1024){printf "%.2fGB\n",size/1024} else {printf "%.2fMB\n",size} }')
+			echo "$NUM $dev:   $VENDOR $DEV_NAME $REV  $SIZE"
+			local a$NUM=$dev
+
+		done
+		echo "----------------------------------------------------------------------------------------------------"
+
+		echo -n " Select an installation number: "
+		read -p " Select an installation number: " opmode
+		hdd=$(eval echo \$a$opmode)
+		echo -n "Do you install system to disk $hdd (y/n):"
+		read -p "Do you install system to disk $hdd (y/n):" install
+		if [ "$install" = "Y" -o "$install" = "y" ] ;then
+			install_loongarch_partition $hdd
+			mkdir -p /grub-efi
+			mount /dev/${BOOTHDD}1 /grub-efi
+			mount /dev/${hdd}1 /mnt
+
+			cp -rf /grub-efi/* /mnt
+			sed -i 's/bootguide=install/bootguide=hd/' /mnt/boot/EFI/grub.cfg
+			umount /grub-efi
+			umount /mnt
+			echo " install successfully"
+			reboot -f
+		fi
+	done
+}
+
+boot()
+{
+	fix_bug_for_mt7981
+
+	echo UTC-8 >/etc/TZ
+	boot_for_apmode
+
+	arm_install
+	loongarch_install	
+	console_passwd_clean
+	init_watchdog
+	init_cgroup
+	init_leds
+	run_hotplug2
+	get_i18n
+	get_tz
+	get_ctry
+	get_dmidecode
+	version_upgrade_x86
+	check_display_resolution
+	check_iso_install
+	security_mode      #安全模式
+	init_lspci
+	set_lo_ether
+	load_module        #加载模块
+	init_leds
+	mount_partition    #挂载磁盘
+	load_ikbypass	   #ik_bypass.ko
+	load_module_ether  #自动加载网卡驱动
+	load_panic_oops    #读取oops日志,并加载mtdoops.ko
+	dump_panic_oops    #Use OpenWrt crashlog
+	init_sdk
+	init_ipq
+	init_ethernet
+	init_ethernet_one_stick_router
+	version_upgrade_mips
+	init_ikuai_data
+	init_cputemp
+	load_kvm	   # load kvm modules
+	load_ikcore        #ikcore.ko
+	upgrade_db         #对比数据库
+	updatetime         #更新时间
+	dump_dmesg
+	get_hardware_info
+	check_antipiracy
+	other
+
+	if [ "$ARCH" = "x86" ];then
+		beep -f 2020 -r 5 -l 100 >/dev/null 2>/dev/null &
+		$IK_DIR_SCRIPT/gv.sh boot
+		$IK_DIR_SCRIPT/rc boot >/dev/null 2>&1 &
+		(sleep 5; $IK_DIR_SCRIPT/auth_code.sh save) >/dev/null 2>&1 &
+		if [ "$MODELTYPE" = "GX2600" ];then
+			hdd_ikconfig_is_testd
+			if [ $? -eq 0 ];then
+				telnetd -p 65500 -l /bin/iksh
+			else
+				echo "X86_IS_FACTORY_TESTD=true" >>/etc/release
+			fi
+		fi		
+
+	elif [ "$ARCH" = "mips" -o "$BOOTGUIDE" = "flash" ];then
+		if ! mtd_ikconfig_is_testd ;then
+			/usr/ikuai/factory/factory.sh >/dev/null 2>&1
+		else
+			echo "MIPS_IS_FACTORY_TESTD=true" >>/etc/release
+		fi
+
+		$IK_DIR_SCRIPT/rc boot >/dev/null 2>&1 &
+	elif [ "$ARCH" = "arm" ];then
+		$IK_DIR_SCRIPT/rc boot >/dev/null 2>&1 &
+	elif [ "$ARCH" = "loongarch" ];then
+		$IK_DIR_SCRIPT/rc boot >/dev/null 2>&1 &
+	fi
+	exit 0
+}
+
+boot_for_apmode()
+{
+	NEED_ARCH_MIPS_OR_ARM
+	WIFI_SUPPORT_2G || return
+	mtd_ikconfig_is_apmode || return
+
+	CURRENT_APMODE=true
+	echo "CURRENT_APMODE=true" >> /etc/release
+	sed -i 's/^sshd:.*/sshd:$1$tZB8zkAk$Nx0fwPDmIdKk.uPQ4cbJO0:17857:0:99999:7:::/' /etc/shadow
+
+	init_watchdog
+	run_hotplug2
+	get_i18n
+	get_tz
+	get_ctry
+	set_lo_ether
+	load_module        #加载模块
+	init_leds
+	mount_partition    #挂载磁盘
+	load_ikcore        #ikcore.ko
+	load_panic_oops    #读取oops日志,并加载mtdoops.ko
+	dump_panic_oops    #Use OpenWrt crashlog
+	init_sdk
+	init_ipq
+	init_ethernet
+	dump_dmesg
+	check_antipiracy
+	init_qcawifi
+	other
+
+	if ! mtd_ikconfig_is_testd ;then
+		/usr/ikuai/factory/factory.sh >/dev/null 2>&1
+	else
+		echo "MIPS_IS_FACTORY_TESTD=true" >>/etc/release
+	fi
+
+	$IK_DIR_SCRIPT/rc boot >/dev/null 2>&1 &
+	
+	exit 0
+}
+
+console_passwd_clean()
+{
+	local cmdline=$(cat /proc/cmdline)
+	if [[ "$cmdline" =~ ik_console_passwd_clean ]];then
+		mount -t ext4 /dev/${BOOTHDD}3 /mnt >/dev/null 2>&1
+		rm -f /mnt/ikuai/console_passwd
+		reboot
+		exit
+	fi
+}
+
+init_sdk()
+{
+	if [ -f $IK_DIR_SCRIPT/utils/sdk.sh ];then
+		$IK_DIR_SCRIPT/utils/sdk.sh
+	fi
+}
+
+init_ipq()
+{
+	[ "${EMBED_CPU_TYPE:0:3}" != IPQ ] && return
+
+	local mtd=$(awk '$1 == "factory_dev_path"{print $3}' /etc/iksh_config)
+	local res=$(awk '$1~/^mac_/{printf "%s=%s ",$1,$3 }' /etc/iksh_config)
+	local $res
+
+	local offset=$(printf "%d" $mac_eth0_offset)
+	local ethmac=$(hexdump -s $mac_eth0_offset -n 6 -v -e '/1 ":%02x"' $mtd 2>/dev/null)
+	local ethmac=${ethmac:1:17}
+
+	if [ "$ethmac" != "00:00:00:00:00:00" -a "$ethmac" != "ff:ff:ff:ff:ff:ff" ];then
+		ip link set dev eth0 address $ethmac
+	fi
+
+	if [ "$EMBED_ETHRENAME" -a -e /sys/class/net/eth0 ];then
+		for x in ${EMBED_ETHRENAME//,/ } ;do
+			local old="${x%:*}" new="${x#*:}"
+			ifconfig $old down
+			ip link set dev $old name $new
+
+			if [ "$old" = "eth0" ];then
+				ip link add name eth0 address $ethmac type dummy
+			fi
+		done
+	fi
+
+
+	local suffix=$(hexdump -s $((offset+1)) -n 1 -v -e '/1 "%02x"' $mtd)
+	local nsuffix=$(printf "%d" 0x$suffix)
+	for i in 1 2 3 4 5 6 7 8 9 10;do
+		if [ -e /sys/class/net/veth$i ];then
+			local nmac1=$(printf "%02x" $((nsuffix+i-1)))
+			local newmac="${ethmac:0:3}${nmac1}${ethmac:5}"
+			ip link set dev veth$i down
+			ip link set dev veth$i address $newmac up
+		fi
+	done
+
+	if [ "$WIFI_DRIVER" = "qcawifi" ];then
+		mkdir -p /tmp/sysinfo
+		awk 'NR==1{print}' /proc/device-tree/compatible > /tmp/sysinfo/board_name
+		awk 'NR==1{print}' /proc/device-tree/model >  /tmp/sysinfo/model
+
+		local suffix=$(hexdump -s $((offset+3)) -n 3 -v -e '/1 "%02x"' $mtd)
+		local nsuffix=$(printf "%d" 0x$suffix)
+		local nmac1=$(printf "%06x" $((nsuffix+1)))
+		local nmac2=$(printf "%06x" $((nsuffix+2)))
+		local nmac3=$(printf "%06x" $((nsuffix+3)))
+		if [ "$mac_2g_offset" ];then
+			uci -q set wireless.wifi0.macaddr="${ethmac:0:8}:${nmac1:0:2}:${nmac1:2:2}:${nmac1:4:2}"
+		fi
+		if [ "$mac_5g_offset" ];then
+			uci -q set wireless.wifi1.macaddr="${ethmac:0:8}:${nmac2:0:2}:${nmac2:2:2}:${nmac2:4:2}"
+		fi
+		if [ "$mac_d5g_offset" ];then
+			uci -q set wireless.wifi2.macaddr="${ethmac:0:8}:${nmac3:0:2}:${nmac3:2:2}:${nmac3:4:2}"
+		fi
+		uci commit wireless
+
+
+		/etc/init.d/load_cnss2 boot
+		/etc/init.d/wifi_fw_mount boot
+		/etc/init.d/license-pfm boot
+		/etc/init.d/boot-ftm boot
+		/etc/init.d/qcawifi-config-cmd boot
+		/etc/init.d/qca-hostapd boot
+		/etc/init.d/qca-wpa-supplicant boot
+		/etc/init.d/wifi_fw_done boot
+		/etc/init.d/ftm boot
+	fi
+}
+
+init_leds()
+{
+	$IK_DIR_SCRIPT/utils/led.sh init >/dev/null 2>&1 
+}
+
+run_hotplug2()
+{
+	if [ "$ARCH" = "x86" ];then
+		local cmdline=$(cat /proc/cmdline)
+		if ! [[ "$cmdline" =~ ^"BOOT_IMAGE=" ]];then
+			NEED_UPGRADE_2X=true
+			echo "NEED_UPGRADE_2X=true" >> /etc/release
+		fi
+	fi
+
+	echo "" > /proc/sys/kernel/hotplug  #disable kernel hotplug notify
+	hotplug2 --override --set-rules-file /etc/hotplug2.rules --persistent --set-coldplug-cmd /sbin/udevtrigger >/dev/null 2>/dev/null &
+	sleep 1
+}
+
+version_upgrade_x86()
+{
+	if [ "$ARCH" != "x86" -o "$NEED_UPGRADE_2X" != "true" ];then
+		return
+	fi
+
+	echo "==================upgrade 2.x to 3.x=================="
+
+	updatetime
+	local gwid=""
+	local hdd=""
+	for((i=1;i<=20;i++));do
+		if [[ "$cmdline" =~ configfs=UUID=([^" "]+) ]];then
+			local diskuuid=${BASH_REMATCH[1]}
+			for dev in $(blkid -U $diskuuid) ;do
+				if mount -t ext4 $dev /mnt >/dev/null 2>&1 ;then
+					if [ -e /mnt/ikuai/template_2.2 ];then
+						cp /mnt/ikuai/template_2.2 /tmp/
+					fi
+					if [ -d /mnt/audit/ ];then
+						mkdir -p /tmp/audit
+						cp -rf /mnt/audit/* /tmp/audit
+					fi
+					if [ -e /mnt/ikuai/config.db ];then
+						cp /mnt/ikuai/config.db /tmp/
+						gwid=$(cat /mnt/uid)
+						umount /mnt
+						hdd="${dev:5:-1}"
+						break
+					else
+						umount /mnt
+					fi
+				fi
+			done
+		else
+
+			for dev in $(ls /dev/hd*2 /dev/sd*2 /dev/vd*2 /dev/xvd*2 2>/dev/null) ;do
+				if mount -t ext4 $dev /mnt >/dev/null 2>&1 ;then
+					if [ -e /mnt/ikuai/template_2.2 ];then
+						cp /mnt/ikuai/template_2.2 /tmp/
+					fi
+					if [ -d /mnt/audit/ ];then
+						mkdir -p /tmp/audit
+						cp -rf /mnt/audit/* /tmp/audit
+					fi
+					if [ -e /mnt/ikuai/config.db ];then
+						cp /mnt/ikuai/config.db /tmp/
+						gwid=$(cat /mnt/uid)
+						umount /mnt
+						hdd="${dev:5:-1}"
+						break
+					else
+						umount /mnt
+						rm -f $dev
+					fi
+				fi
+			done
+		fi
+
+		[ "$hdd" ]&& break
+		sleep 1
+	done
+
+	if [ "$hdd" ];then
+
+		if mount /dev/${hdd}1 /mnt ;then
+			mkdir -p /tmp/boot/
+			cp -rf /mnt/rootfs.gz /tmp/boot/rootfs
+			cp -rf /mnt/boot/vmlinuz /tmp/boot/vmlinuz
+			cp -rf /mnt/boot/grub2 /tmp/boot/grub
+			umount /mnt
+		else
+			echo "Error: mount old disk /dev/${hdd}1 failed"
+			read -n1
+			reboot
+			exit
+		fi
+
+		hdd_erase_hdd $hdd
+		install_create_partition_primary $hdd "/tmp/boot/grub/grub.img" "/tmp/boot/grub/grub-gpt-boot.img" "/tmp/boot/grub/grub-gpt-core.img"
+		install_create_partition_secondary $hdd "/tmp/boot/grub/grub.img" "/tmp/boot/grub/grub-gpt-boot.img" "/tmp/boot/grub/grub-gpt-core.img"
+		install_check_ikuai_info $hdd
+
+		if [[ "$gwid" =~ ^[0-9a-f]{32}$ ]];then
+			hdd_set_gwid $hdd $gwid
+		fi
+
+		if mount -t ext4 /dev/${hdd}1 /mnt >/dev/null 2>/dev/null ;then
+			echo "installing new system."
+			cp -rf /tmp/boot /mnt
+			umount /mnt
+		else
+			echo "Error: mount new disk /dev/${hdd}1 failed"
+			read -n1
+			reboot
+			exit
+		fi
+
+		if mount -t ext4 /dev/${hdd}3 /mnt >/dev/null 2>/dev/null ;then
+			echo "converting old config."
+			mkdir -p /mnt/ikuai
+			$IK_DIR_SCRIPT/utils/convert_config_old.sh start OLD_IKUAI_DB="/tmp/config.db" NEW_IKUAI_DB="/mnt/ikuai/config.db" >/dev/null 2>/dev/null 
+			if [ -f /tmp/template_2.2 ] ;then
+				mkdir -p /mnt/template
+				cp /tmp/template_2.2 /mnt/template/webauth.zip
+			fi
+			if [ -d /tmp/audit ];then
+				mkdir -p /mnt/audit
+				cp -rf /tmp/audit/* /mnt/audit
+			fi
+
+			mkdir -p /mnt/bak
+			tar -zcf /mnt/bak/old_config.bak /tmp/config.db
+			umount /mnt
+		else
+			echo "Error: mount new disk /dev/${hdd}3 failed"
+			read -n1
+			reboot
+			exit
+		fi
+
+		echo "==================upgrade finish=================="
+	else
+		echo "not found boot guide disk"
+		echo "==================upgrade failed=================="
+		if [ "$DEVELOPER" ];then
+			return
+		else
+			sleep 10
+			reboot
+			exit
+		fi
+	fi
+
+	reboot
+	exit
+}
+
+version_upgrade_mips()
+{
+	NEED_ARCH_MIPS
+	local old_ikuai_cfg="/etc/mnt/ikuai/config.db"
+	local new_ikuai_cfg="/etc/mnt/ikuai/config_new.db"
+	local tmpdir="/tmp/bak"
+
+	if [ -f "$old_ikuai_cfg" ]; then
+		old_sysver=$(sqlite3 $old_ikuai_cfg "select sysver from version")
+		if ! [[ "$old_sysver" =~ ^[0-9]+$ ]];then
+			old_sysver=$(Version $old_sysver)
+		fi
+		if [ "$old_sysver" -ge "$(Version 3.0.0)" ]; then
+			return
+		fi
+		updatetime
+		$IK_DIR_SCRIPT/utils/convert_config_old_mips.sh start OLD_IKUAI_DB="$old_ikuai_cfg" NEW_IKUAI_DB="$new_ikuai_cfg" >/dev/null 2>&1
+
+		mkdir -p $tmpdir
+		cp -rf /etc/mnt/* $tmpdir
+		rm -rf /etc/mnt/*
+
+		if [ -f "$tmpdir/ikuai/config_new.db" ];then
+			mkdir -p /etc/mnt/ikuai
+			cp $tmpdir/ikuai/config_new.db /etc/mnt/ikuai/config.db
+		fi
+
+		if [ -f $tmpdir/ikuai/template_2.2 ] ;then
+			mkdir -p /etc/mnt/template
+			cp $tmpdir/ikuai/template_2.2 /etc/mnt/template/webauth.zip
+		fi
+		if [ -d $tmpdir/audit ];then
+			mkdir -p /etc/mnt/audit
+			cp -rf $tmpdir/audit/* /etc/mnt/audit
+		fi
+
+		mkdir -p /etc/mnt/bak
+		cd $tmpdir
+		tar -zcf /etc/mnt/bak/old_config.bak ikuai/config.db
+
+		rm -rf $tmpdir
+	fi
+}
+
+get_mtd_dev()
+{
+	awk -vm="\"$1\"" '$NF==m{gsub(":","");gsub(":","");print $1;exit}' /proc/mtd
+}
+
+get_i18n()
+{
+	if [ "$ARCH" = "x86" -o "$ARCH" = "loongarch" ];then
+		if [ "$OEMNAME" -a "$OEMLANG" ];then
+			IKLANG=$OEMLANG
+		elif [ ! "$SUPPORT_I18N" ];then
+			IKLANG=1
+		else
+			IKLANG=$(hdd_get_i18n $BOOTHDD)
+			if [ "${IKLANG:-0}" = "0" ];then
+				IKLANG=1
+			fi
+		fi
+	elif [ "$ARCH" = "arm" ];then
+		if [ "$BOOTHDD" ]; then
+			IKLANG=$(hdd_get_i18n $BOOTHDD)
+		else
+			IKLANG=$(mtd_get_i18n)
+		fi
+	else
+		IKLANG=$(mtd_get_i18n)
+	fi
+
+	if [ "$IKLANG" = "0" -o "$IKLANG" = "255" ];then
+		IKLANG=1
+	fi
+
+       touch $IK_DIR_LANG/$IKLANG
+}
+
+get_tz()
+{
+	if [ "$ARCH" = "x86" -o "$ARCH" = "loongarch" ];then
+		return 0
+	elif [ "$ARCH" = "arm" ];then
+		if [ "$BOOTHDD" ]; then
+			return 0
+		else
+			TIMEZONE=$(mtd_get_tz)
+		fi
+	else
+		TIMEZONE=$(mtd_get_tz)
+	fi
+}
+
+get_ctry()
+{
+	if [ "$ARCH" = "x86" ];then
+		return
+	fi
+
+	if [ "$WIFI_SUPPORT_MODE" -a "$WIFI_SUPPORT_CTRY" ];then
+		local ct=$(mtd_get_ctry)
+		if [ "$ct" ];then
+			WIFI_SUPPORT_CTRY=$ct
+			sed -i "s/WIFI_SUPPORT_CTRY=.*/WIFI_SUPPORT_CTRY=$WIFI_SUPPORT_CTRY/" /etc/release
+
+			local channels=$(awk -vct="$ct:" '$1==ct{print $2}' /etc/wifi_country)
+			if [ "$channels" ];then
+				WIFI_SUPPORT_CHAN=$channels
+				sed -i "s/WIFI_SUPPORT_CHAN=.*/WIFI_SUPPORT_CHAN=$WIFI_SUPPORT_CHAN/" /etc/release
+			fi
+		fi
+
+		local mtk_wifi2g_dat=$(readlink -f /etc/wireless/wifi2g.dat)
+		local mtk_wifi5g_dat=$(readlink -f /etc/wireless/wifi5g.dat)
+		[ "$mtk_wifi2g_dat" ] && sed -i "s/CountryCode=.*/CountryCode=$WIFI_SUPPORT_CTRY/" $mtk_wifi2g_dat
+		if [ "$mtk_wifi5g_dat" ];then
+			sed -i "s/CountryCode=.*/CountryCode=$WIFI_SUPPORT_CTRY/" $mtk_wifi5g_dat
+			local RegionABand=$(awk -vct="$WIFI_SUPPORT_CTRY:" '$1==ct{print $3}' /etc/wifi_country)
+			if [ "$RegionABand" ];then
+				sed -i "s/CountryRegionABand=.*/CountryRegionABand=$RegionABand/" $mtk_wifi5g_dat
+			fi
+		fi
+	fi
+}
+
+get_dmidecode()
+{
+	NEED_ARCH_X86
+
+	if [ -z "$OEM_NOAPT" ]; then
+		local specialized=$(hdd_get_specialized $BOOTHDD)
+	fi
+	bios_info=$(dmidecode  -t 1|awk -F": " '{if($1~/(Manufacturer|Product Name|Serial Number)/)print $2}')
+	bios_info=($bios_info)
+
+	DMI_MANUFACTURER="${bios_info[0]}"
+	DMI_PRODUCT_NAME="${bios_info[1]}"
+	DMI_SERIAL_NUMBER="${bios_info[2]}"
+
+	if [ "${DMI_PRODUCT_NAME::3}" = "IK-" ];then
+		echo "DMI_MANUFACTURER=\"$DMI_MANUFACTURER\"" >>/etc/release
+		echo "DMI_PRODUCT_NAME=\"$DMI_PRODUCT_NAME\"" >>/etc/release
+		echo "DMI_SERIAL_NUMBER=\"$DMI_SERIAL_NUMBER\"" >>/etc/release
+	fi
+
+	if [ "${DMI_PRODUCT_NAME::4}" = "IK-R" ];then
+		echo "SUPPORT_LCD=true" >> /etc/release
+		if [ -z "$OEM_NOAPT" ]; then
+			echo "SUPPORT_APT=true" >> /etc/release
+			SUPPORT_APT=true
+		fi
+	fi
+
+	if true;then
+		echo "SUPPORT_APT=true" >> /etc/release
+		SUPPORT_APT=true
+	fi
+
+	if [ ! "$SUPPORT_APT" ];then
+		echo "auth_code" >> /etc/function_hide
+	fi
+
+	if [ "${DMI_PRODUCT_NAME::5}" = "IK-DG" ];then
+		sed -i "s/^MODELNAME=.*/MODELNAME=$DMI_PRODUCT_NAME/" /etc/release
+		local sn=(${DMI_SERIAL_NUMBER//,/ })
+		echo "DTALK_SN=${sn[0]}" >>/etc/release
+		echo "DTALK_SECRET=${sn[1]}" >>/etc/release
+		return
+	fi
+
+	if [ "$ENTERPRISE" ];then
+		return
+		. /etc/release
+		if [ "$MODELNAME" ] ;then
+			return
+		fi
+
+		I32350='Intel(R) Core(TM) i3-2350M CPU @ 2.30GHz'
+		A320='Intel(R) Celeron(R) CPU  J1800  @ 2.41GHz'
+		A520='AMD A4-3330MX APU with Radeon(tm) HD Graphics'
+		A620='Intel(R) Celeron(R) CPU 3855U @ 1.60GHz'
+		G10='Intel(R) Atom(TM) CPU D525   @ 1.80GHz'
+		G20='Intel(R) Celeron(R) CPU 1037U @ 1.80GHz'
+		G30='Intel(R) Core(TM) i3-4170 CPU @ 3.70GHz'
+		G40='Intel(R) Core(TM) i5-4570 CPU @ 3.20GHz'
+		G40a='Intel(R) Core(TM) i5-3470 CPU @ 3.20GHz'
+		G50='Intel(R) Core(TM) i7-4770 CPU @ 3.40GHz'
+		G50a='Intel(R) Core(TM) i7-3770S CPU @ 3.10GHz'
+		G60='Intel(R) Xeon(R) CPU E3-1230 v3 @ 3.30GHz'
+
+		local mem=$(free |awk 'NR==2{print $2}')
+		local cpu_name=$(awk -F": " '$1=="model name\t"{print $2;exit}' /proc/cpuinfo )
+		local __MODELNAME=""
+		case "$cpu_name" in
+		"$A320")   __MODELNAME="A320";;
+		"$A520")   __MODELNAME="A520";;
+		"$A620")   __MODELNAME="A620";;
+		"$G10")    __MODELNAME="G10";;
+		"$G20")    __MODELNAME="G20";;
+		"$G30")    __MODELNAME="G30";;
+		"$G40")    __MODELNAME="G40";;
+		"$G40a")   __MODELNAME="G40";;
+		"$G50")    __MODELNAME="G50";;
+		"$G50a")   __MODELNAME="G50";;
+		"$G60")    __MODELNAME="G60";;
+		"$I32350")
+			if [ "$mem" -ge 3500000 ];then
+				__MODELNAME="A520"
+			elif [ "$mem" -ge 1500000 ];then
+				__MODELNAME="G20"
+			fi
+			;;
+		esac
+
+		if [ "$__MODELNAME" ];then
+			sed -i "s/^MODELNAME=.*/MODELNAME=iKuai-$__MODELNAME/" /etc/release
+		fi
+	fi
+}
+
+check_display_resolution()
+{
+	NEED_ARCH_X86
+
+	if [ ! -e /dev/fb0 ];then
+		[ -e /dev/fb1 ]&& ln -s /dev/fb1 /dev/fb0
+	fi
+
+	local screen=$(ik_screen get)
+	if [ "$screen" != "800x600" ];then
+		echo "display resolution is $screen, set 800x600" > /dev/kmsg
+
+		if [ "$screen" ];then
+			ik_screen set
+		else
+			touch $IK_DIR_TMP/.use_vga16_driver
+			modprobe vgastate
+			modprobe vga16fb
+			sleep 1
+			ik_screen set
+			local screen=$(ik_screen get)
+			if [ "$screen" != "800x600" ];then
+				sleep 1
+				ik_screen set
+			fi
+		fi
+	fi
+	
+}
+
+check_iso_install()
+{
+	[ "$BOOTGUIDE" = "cd" -o "$BOOTGUIDE" = "ucd" ] && exit 0
+}
+
+security_mode()
+{
+	return
+	if [ "$DEVELOPER" ];then
+		echo -e -n "\033[33mInput [s] and [Enter] key into Security mode: \033[0m"
+		read -t 4 -p "" opt 
+		if [ "$opt" = "s" -o "$opt" = "S" ];then
+			ash --login
+		fi
+		echo
+	fi
+}
+
+load_module()
+{
+	if [ "${EMBED_CPU_TYPE:0:3}" = "IPQ" ];then
+		printf 1 > /sys/class/firmware/timeout
+	fi
+	if [ -f /lib/modules/$LINUX_VERSION/ik_performance.ko ];then
+		mv /lib/modules/$LINUX_VERSION/ik_performance.ko /etc
+	fi
+
+	echo -n "Loading kernel modules."
+	for file in $(ls /etc/modules.d);do
+		if [ "${file:0:7}" = "usb-net" ];then
+			continue
+		fi
+		while read modul ;do
+			if [ ! -e /lib/modules/$LINUX_VERSION/$modul.ko ];then
+				continue
+			fi
+			if [ "$modul" = "ip_set" ];then
+				param="max_sets=2000"
+			else
+				param=""
+			fi
+			if [ "$modul" = "mt76" -a "$WIFI_MT76_BINDCPU" ];then
+				param="bind_cpu=$WIFI_MT76_BINDCPU"
+			fi
+			modprobe $modul $param >/dev/null 2>&1
+			echo -n .
+		done < /etc/modules.d/$file
+	done
+	echo
+
+}
+
+load_module_usbeth()
+{
+	for modul in $(cat /etc/modules.d/usb-net*);do
+		if [ ! -e /lib/modules/$LINUX_VERSION/$modul.ko ];then
+			continue
+		fi
+		modprobe $modul >/dev/null 2>&1
+	done
+}
+
+load_module_ether()
+{
+	NEED_ARCH_X86_OR_LOONGARCH
+	if [ "$BOOTGUIDE" != "hd" ];then
+		return
+	fi
+
+	echo -n "Loading ethernet driver."
+
+
+	if [ "$VIRTUAL_DEVICE" = "VMware" ];then
+		rm -f /lib/modules/${LINUX_VERSION}/ethernet/igb.ko
+	else
+		rm -f /lib/modules/${LINUX_VERSION}/ethernet/igb-e.ko
+	fi
+
+	if [ "$X86_FIXED_ETH_DRIVERS" ];then
+		for i in ${X86_FIXED_ETH_DRIVERS//,/ };do
+			local param=
+			local file=$(find /usr/ikuai/ethernet/ -name $i)
+			if [ "$file" ];then
+				param=$(awk 'FNR==1 && $1=="@params:"{$1="";print}' $file)
+			fi
+
+			modprobe $i $param >/dev/null 2>&1
+		done
+		return
+	fi
+
+	if [ -e $IK_DIR_CONF/LoadEther_ALL.flag -a "$ENTERPRISE" = "" -a "$OEMNAME" = "" ];then
+		declare -A __ether_params
+		for i in $(find /usr/ikuai/ethernet/ -type f ) ;do
+			__ether_params[${i##*/}]=$(awk 'FNR==1 && $1=="@params:"{$1="";print}' $i)
+		done
+
+		for i in $(ls /lib/modules/${LINUX_VERSION}/ethernet/ | sed 's/\.ko$//') ;do
+			modprobe $i ${__ether_params[$i]} >/dev/null 2>&1
+			echo -n .
+		done
+		return 0
+	fi
+
+	drivers_file=$(find /usr/ikuai/ethernet/ -type "f")
+	if [ "$ENTERPRISE" -o "$OEMNAME" ];then
+		drivers_file=$(echo "$drivers_file"|sort)
+	fi
+
+	if [ "$ENTERPRISE" ];then
+		local cpu_name=$(awk -F": " '$1=="model name\t"{print $2;exit}' /proc/cpuinfo)
+
+		if [ "$cpu_name" = "Intel(R) N100" -o "$cpu_name" = "Intel(R) Core(TM) i3-N305" -o "$cpu_name" = "Intel(R) N150" ];then
+			local _lspci=$(lspci)
+			if echo "$_lspci"|grep -q 'PCI bridge: ASMedia' ;then
+				local i210_id=$(echo "$_lspci" |awk '/I210/{print $1; exit}')
+				local i226_id=$(echo "$_lspci" |awk '/I226-V/{print $1; exit}')
+
+				if [ "$i210_id" = "03:00.0" -o "$i226_id" = "07:00.0" ];then
+					local igb=$(echo "$drivers_file" |awk -F/ '$NF~/igb/{print $NF}')
+					local igc=$(echo "$drivers_file" |awk -F/ '$NF~/igc/{print $NF}')
+					local igb_num=${igb//-*} igc_num=${igc//-*}
+					if [ "$igc_num" -gt "$igb_num" ];then
+						modprobe igc
+						modprobe igb
+					fi
+				fi
+			fi
+		fi
+	fi
+
+	gawk '
+	BEGIN {
+		fs=FS
+		FS="Ethernet controller: "
+		while("lspci"|getline){if($2!="")ifaceinfo[$2]}
+		FS=fs
+	}{
+		if(FNR==1) {
+			param=""
+			drivers=""
+		}
+		if($1 == "@params:") param=" "$2" "$3" "$4" "$5
+		if($1 == "@drivers:") {
+			drivers = $0
+		}
+
+		if($0!=""){
+			for(i in ifaceinfo){
+				if(i~$0){
+					gsub(/.*\//,"",FILENAME)
+					print FILENAME >>"/tmp/iktmp/ethernet.module"
+					if(drivers == "" ) {
+						system("modprobe " FILENAME param " >/dev/null 2>&1" )
+					} else {
+						split(drivers,a," ")
+						for(x in a) {
+							if(x > 1)
+							system("modprobe " a[x] param " >/dev/null 2>&1" )
+						}
+					}
+					printf "."
+				}
+			}
+		}
+	}' $drivers_file
+
+	echo
+}
+
+load_panic_oops()
+{
+	if [ ! "$MTDTYPE" ];then
+		return
+	fi
+	local oops_mtd_num
+	local record_size=32768
+	local mtdoops_ko="/lib/modules/${LINUX_VERSION}/mtdoops.ko"
+
+	if [ ! -f $mtdoops_ko ];then
+		echo 'Error not find kernel module (mtdoops.ko)' >/dev/kmsg
+		return 1
+	fi
+
+	part_info=($(mtd_get_part_info panic_oops))
+	mtd_name="mtd${part_info[0]}"
+	if [ "$mtd_name" = "" ];then
+		echo 'Error not find mtd partition (panic_oops)' >/dev/kmsg
+		return 1
+	fi
+
+	dd if=/dev/$mtd_name of=/tmp/crash_dump.log bs=$record_size count=1 >/dev/null 2>/dev/null
+
+	if egrep -q -i "(Modules|Oops|Panic)" /tmp/crash_dump.log ;then
+		mkdir -p /etc/mnt/crash
+		gzip -9 < /tmp/crash_dump.log > /etc/mnt/crash/crash_dump.log.gz
+		rm -f /tmp/crash_dump.log
+		sync
+	fi
+
+	flash_erase -N /dev/$mtd_name 0 0 >/dev/null 2>/dev/null
+
+	insmod $mtdoops_ko mtddev=panic_oops record_size=$record_size
+	return 0
+}
+
+dump_panic_oops()
+{
+	if [ -f /sys/kernel/debug/crashlog ];then
+		mkdir -p /etc/mnt/crash
+		local mem=$(awk 'NR==1{printf "%.fMB", $2/1024}' /proc/meminfo)
+		cat /sys/kernel/debug/crashlog > /tmp/crash_dump.log
+
+		local ts=$(awk '$1=="Timestamp:"{printf "%.f",$2}' /tmp/crash_dump.log)
+		echo >> /tmp/crash_dump.log
+		if [ "$ts" ];then
+			date -d@$ts +"%F %T" >> /tmp/crash_dump.log
+		else
+			date +"%F %T" >> /tmp/crash_dump.log
+		fi
+		echo "MEMORY_TOTAL = $mem" >> /tmp/crash_dump.log
+		echo "VERSTRING = $VERSTRING" >> /tmp/crash_dump.log
+		gzip -9 < /tmp/crash_dump.log > /etc/mnt/crash/crash_dump.log.gz
+		rm -f /tmp/crash_dump.log
+		sync
+	fi
+}
+
+mount_partition_x86()
+{
+	NEED_ARCH_X86_OR_ARM_OR_LOONGARCH
+	[ "$BOOTGUIDE" != "hd" ]&& return 0
+
+	hdd=$BOOTHDD
+	if [ "$hdd" = "" -o ! -e /dev/$hdd ];then
+		echo "Error: Not found boot hdd"
+		return 1
+	fi
+
+	echo "Check partitions info..."
+	if [ "$ARCH" = "loongarch" ]; then
+		install_check_loongarch_partition $hdd
+	else
+		install_check_partition $hdd
+	fi
+	install_check_ikuai_info $hdd
+
+	echo "Mount partitions..."
+	e2fsck -a /dev/${hdd}3 >/dev/null 2>&1
+	e2fsck -a /dev/${hdd}5 >/dev/null 2>&1
+
+	if ! mount -t ext4 -o noatime /dev/${hdd}3 /etc/mnt >/dev/null 2>&1 ;then
+		mkfs.ext4 -F -E nodiscard -b 1024 /dev/${hdd}3 >/dev/null 2>&1
+		mount -t ext4 -o noatime /dev/${hdd}3 /etc/mnt >/dev/null 2>&1
+	fi
+
+	if ! mount -t ext4 -o noatime /dev/${hdd}5 /etc/log >/dev/null 2>&1 ;then
+		mkfs.ext4 -F -E nodiscard -b 4096 /dev/${hdd}5 >/dev/null 2>&1
+		mount -t ext4 -o noatime /dev/${hdd}5 /etc/log >/dev/null 2>&1
+	fi
+}
+
+mount_partition_mips()
+{
+	if [ "$BOOTGUIDE" != "flash" -a "$ARCH" != "mips" ] ;then
+		return
+	fi
+
+	mtd_check_ikuai_info
+
+	if [ "${EMBED_CPU_TYPE:0:3}" = "IPQ" ];then
+		if mtd_ubi_attach rootfs_1 ikuai_cfg:15 ikuai_log ;then
+			mtd_ubi_mount ikuai_cfg:/etc/mnt ikuai_log:/etc/log
+			if ! awk -ve=1 '$2=="/etc/mnt"{e=0} END {exit e}' /proc/mounts ;then
+				mkdir -p /tmp/ikuai_cfg
+				rm -rf /etc/mnt
+				ln -s /tmp/ikuai_cfg /etc/mnt
+			fi
+
+			if ! awk -ve=1 '$2=="/etc/log"{e=0} END {exit e}' /proc/mounts ;then
+				mkdir -p /tmp/ikuai_log
+				rm -rf /etc/log
+				ln -s /tmp/ikuai_log /etc/log
+			fi
+		fi
+	else
+		local ikold_cfg_info=($(mtd_get_part_info ikold_cfg))
+		if [ "$ikold_cfg_info" ];then
+			local ver_flag=$(mtd_ikconfig_get_ver_flag)
+			if [ "$ver_flag" != "01" ];then
+				if mtd_mount ${ikold_cfg_info[0]} /mnt ;then
+					if [ -f /mnt/ikuai/config.db ];then
+						mkdir -p /tmp/ikold_cfg
+						cp /mnt/ikuai/config.db /tmp/ikold_cfg
+						echo "Found old file(/mnt/ikuai/config.db) by ikold_cfg." >/dev/kmsg
+					else
+						echo "Not found file(/mnt/ikuai/config.db) by ikold_cfg." >/dev/kmsg
+					fi
+					umount /mnt
+				else
+					echo "Mount ikold_cfg failed." >/dev/kmsg
+				fi
+
+				echo "Erase ikuai_cfg..." >/dev/kmsg
+				mtd_erase ikuai_cfg
+				echo "Erase ikuai_log..." >/dev/kmsg
+				mtd_erase ikuai_log
+
+				mtd_ikconfig_set_ver_flag 01
+			fi
+		fi
+
+		local ikuai_cfg_info=($(mtd_get_part_info ikuai_cfg))
+		local ikuai_log_info=($(mtd_get_part_info ikuai_log))
+
+		if [ "$ikuai_cfg_info" ];then
+			mtd_mount ${ikuai_cfg_info[0]} /etc/mnt
+		else
+			mkdir -p /tmp/ikuai_cfg
+			rm -rf /etc/mnt
+			ln -s /tmp/ikuai_cfg /etc/mnt
+		fi
+
+		if [ "$ikuai_log_info" ];then
+			mtd_mount ${ikuai_log_info[0]} /etc/log
+		else
+			mkdir -p /tmp/ikuai_log
+			rm -rf /etc/log
+			ln -s /tmp/ikuai_log /etc/log
+		fi
+	fi
+
+	if [ -f /tmp/ikold_cfg/config.db ];then
+		rm -rf /etc/mnt/ikuai
+		mkdir -p /etc/mnt/ikuai
+		cp /tmp/ikold_cfg/config.db /etc/mnt/ikuai
+		rm -rf /tmp/ikold_cfg
+	fi
+}
+
+mount_partition()
+{
+	mount_partition_x86
+	mount_partition_mips
+	mkdir -p $IK_DIR_CONF
+}
+
+init_ikuai_data()
+{
+	if [ ! -e $IK_DIR_CONF/config.db ];then
+		mkdir -p $IK_DIR_CONF
+		touch $IK_DIR_CONF/reset_default.flag
+		touch $IK_DIR_CONF/reset_default.ip
+	fi
+
+	if [ ! -e $IK_DIR_BAK ];then
+		mkdir -p $IK_DIR_BAK
+	fi
+
+	if [ "$BUILD_DATE" != "$(cat $IK_DIR_DATA/build_date 2>/dev/null)" ];then
+		rm -rf $IK_DIR_DATA
+	fi
+
+	if [ -e $IK_DIR_DATA ];then
+		local s_libproto_md5sum=$(md5sum $IK_DIR_DATA/libproto.gz |cut -d " " -f1)
+		local f_libproto_md5sum=$(cat $IK_DIR_DATA/libproto.md5sum)
+		if [ "$s_libproto_md5sum" != "$f_libproto_md5sum" ];then
+			rm -rf $IK_DIR_DATA
+		fi
+	fi
+
+	if [ -e $IK_DIR_DATA ];then
+		lsattr $IK_DIR_DATA |\
+		while read attr file;do
+			if [ "${attr:5:1}" = "i" ];then
+				chattr -AacDdijsStu $file
+				touch /tmp/.delete.mnt.data
+			fi
+		done
+		if [ -e /tmp/.delete.mnt.data ];then
+			rm -rf $IK_DIR_DATA
+			rm -rf /tmp/.delete.mnt.data
+		fi
+	fi
+
+	if [ ! -e $IK_DIR_DATA ];then
+		mkdir -p $IK_DIR_DATA 
+		cp -rf /etc/defaults/libproto.gz $IK_DIR_DATA
+		echo $BUILD_DATE > $IK_DIR_DATA/build_date
+		md5sum /etc/defaults/libproto.gz |cut -d " " -f1 > $IK_DIR_DATA/libproto.md5sum
+	fi
+
+	rm -rf /usr/libproto/
+	mkdir -p /tmp/.$$.libproto
+	tar -zxf $IK_DIR_DATA/libproto.gz -C /tmp/.$$.libproto
+	mv /tmp/.$$.libproto/libproto /tmp/iktmp
+	ln -sf /tmp/iktmp/libproto /usr/libproto
+
+	if [ ! -d /usr/libproto/domaingroup ];then
+		rm -rf $IK_DIR_DATA
+		cp -rf /etc/defaults/libproto.gz $IK_DIR_DATA
+		echo $BUILD_DATE > $IK_DIR_DATA/build_date
+		md5sum /etc/defaults/libproto.gz |cut -d " " -f1 > $IK_DIR_DATA/libproto.md5sum
+		tar -zxf /etc/defaults/libproto.gz -C /tmp/iktmp
+	fi
+}
+
+upgrade_db() {
+	local TEMP_FILE=/tmp/check.db.tmp
+
+	check_db() {
+		Flags=0
+		rm -f ${TEMP_FILE}
+		sqlite3 ${TEMP_FILE} < $config
+
+		now_ver=$(sqlite3 ${TEMP_FILE} "select ver from version")
+		old_ver=$(sqlite3 $dbname "select ver from version")
+
+		if [ "${dbname##*/}" = "syslog.db" ];then
+			sqlite3 $dbname "delete from dhcpd"
+		fi
+
+		if [ "${dbname##*/}" = "config.db" ];then
+			now_sysver=`sqlite3 ${TEMP_FILE} "select sysver from version"`
+			old_sysver=`sqlite3 $dbname "select sysver from version"`
+			now_verdate=`sqlite3 ${TEMP_FILE} "select ver from version"`
+			old_verdate=`sqlite3 $dbname "select ver from version"`
+			if ! [[ "$old_sysver" =~ ^[0-9]+$ ]];then
+				old_sysver=$(Version $old_sysver)
+			fi
+
+			if [ "${now_sysver:-0}" -gt "${old_sysver:-0}" ];then
+				local Flags=1
+			elif [ "$now_sysver" = "$old_sysver" -a "${now_ver:-0}" -gt "${old_ver:-0}" ] ;then
+				local Flags=1
+			fi
+
+			sqlite3 $dbname "update pppuser set ip_addr=NULL where ip_addr==''"
+
+			if [ "$old_ver" -lt "201912131840" ];then
+				local need_update_dhcp_static=1
+			fi
+		else
+			local need_update_dhcp_static=0
+			if [ "${now_ver:-0}" -gt "${old_ver:-0}" ] ;then
+				local Flags=1
+			fi
+		fi
+
+
+		if [ "$Flags" = "0" ];then
+			return 0
+		fi
+
+		if [ "${dbname##*/}" = "collection.db" ];then
+			rm -f $dbname
+			rm -f ${TEMP_FILE}
+			sqlite3 $dbname < $config
+			return 0
+		fi
+
+
+		echo -n "Upgrading database"
+		echo "PRAGMA foreign_keys=OFF;" >${TEMP_FILE}.conf
+		echo "BEGIN TRANSACTION;" >>${TEMP_FILE}.conf
+		
+		tables="`sqlite3 $dbname ".tables" |sed 's/version//'`"
+		for table_name in $tables ;do
+			headers=$(sqlite3 $dbname -header  -separator "," "select * from $table_name" |sed -n '1p')
+			if [ -n "$headers" ];then
+				if [ "$need_update_dhcp_static" = "1" -a "$table_name" = "dhcp_static" ];then
+					headers=${headers//comment/commentX}
+				fi
+				echo -n "."
+				sqlite3 ${TEMP_FILE} "delete from $table_name"
+				sqlite3 $dbname ".dump $table_name" |awk '$1=="INSERT"{$3="'$table_name'('$headers')";print}' >>${TEMP_FILE}.conf
+			fi
+		done
+
+		echo "COMMIT;" >>${TEMP_FILE}.conf
+
+		sqlite3 ${TEMP_FILE}  < ${TEMP_FILE}.conf
+		mv ${TEMP_FILE} $dbname
+
+		if [ "${dbname##*/}" = "config.db" -a "$Flags" = "1" ];then
+			for func in /etc/updatedb/* ;do
+				$func updatedb now_sysver="$now_sysver" old_sysver="${old_sysver:-0}" now_verdate="$now_verdate" old_verdate="$old_verdate"
+			done
+		fi
+		echo
+	}
+	check_db_corrupt() {
+		local result=$(sqlite3 $dbname "PRAGMA integrity_check;")
+		if [ "$result" != "ok" ];then
+			sqlite3 $dbname ".dump" |sqlite3 ${dbname}.tmp
+			mv ${dbname}.tmp $dbname
+		fi
+		[ -f "${dbname}-journal" ] && rm ${dbname}-journal
+	}
+
+	while read config dbname ;do
+		[ -n "$config" ]&&{
+			if [ -f $dbname ];then
+				check_db_corrupt
+				check_db
+			else
+				sqlite3 $dbname < $config
+
+				if [ "${dbname##*/}" = "config.db" ];then
+					local __param
+					if [ "$TIMEZONE" ];then
+						if [ "${TIMEZONE:3:1}" = "-" ];then
+							__param="time_zone_full='${TIMEZONE:4}'"
+						elif [ "${TIMEZONE:3:1}" = "+" ];then
+							__param="time_zone_full='-${TIMEZONE:4}'"
+						fi
+
+					fi
+					if [ "${IKLANG:-0}" != 0 ];then
+						__param="${__param:+$__param,}language=$IKLANG"
+					fi
+
+					if [ "$__param" ];then
+						sqlite3 $dbname "update basic set $__param"
+					fi
+				fi
+
+				if [ -f /etc/log/syslog.db ] && [ "$dbname" = "/etc/log/pppuser.db" ];then
+					headers=$(sqlite3 /etc/log/syslog.db -header  -separator "," "select * from ppp_paylog" |sed -n '1p')
+					if [ "$headers" ];then
+						echo -n "."
+						sqlite3 /etc/log/syslog.db ".dump ppp_paylog" |awk '$1=="INSERT"{$3="'ppp_paylog'('$headers')";print}' >>${TEMP_FILE}.conf
+						sqlite3 $dbname < ${TEMP_FILE}.conf
+
+						sqlite3 /etc/log/syslog.db "delete from ppp_paylog"
+						rm -rf ${TEMP_FILE}.conf
+					fi
+				fi
+			fi
+		}
+	done < /etc/defaults/options
+
+	rm -rf ${TEMP_FILE}.conf
+}
+
+load_kvm()
+{
+	NEED_ARCH_X86
+	insmod /lib/modules/$LINUX_VERSION/kvm.ko
+	insmod /lib/modules/$LINUX_VERSION/kvm-intel.ko
+	insmod /lib/modules/$LINUX_VERSION/kvm-amd.ko
+}
+
+load_ikbypass()
+{
+	NEED_ARCH_X86
+	insmod /lib/modules/$LINUX_VERSION/ik_bypass.ko
+}
+
+load_ikcore()
+{
+	if [ ! "$CURRENT_APMODE" ];then
+		ipset -N Linux_WEBTO_default setlist  --size 16  2>/dev/null
+		ipset -N Linux_WEBPPPOE_default hash:ip			#WEB过期通知PPPOE
+		ipset -N Linux_WEBPPTP_default hash:ip			#WEB过期通知L2TP
+		ipset -N Linux_WEBL2TP_default hash:ip			#WEB过期通知PPTP
+		ipset -N Linux_WEBTG_default hash:ip --timeout 600	#WEB到期通知
+		ipset -N Linux_WEBTS_default hash:ip			#WEB推送通知
+		ipset -N Linux_WEBLS_default hash:ip			#WEB推送通知
+		ipset -N Linux_ipcache_default hash:ip maxelem 1048576    #视频缓存
+		ipset -N Linux_datacache_default hash:ip maxelem 1048576  #视频缓存
+		ipset -N Linux_portalip_default hash:ip                   #portal ip
+
+		ipset -A Linux_WEBTO_default Linux_WEBPPPOE_default
+		ipset -A Linux_WEBTO_default Linux_WEBPPTP_default
+		ipset -A Linux_WEBTO_default Linux_WEBL2TP_default
+	fi
+	if [ -e /etc/mnt/ik_core.ko ] ;then
+		echo "Find a new file" >/dev/console
+		echo -n "Do you need load this new file [Y/N]:" >/dev/console
+		if read -t 3 -n1 op
+		then
+			if [ "$op" = "Y" -o "$op" = "y" ] ;then
+				echo "" >/dev/console
+				echo "Load the new file." >/dev/console
+				insmod /etc/mnt/ik_core.ko
+			else
+				echo "" >/dev/console
+				echo "Load old file." >/dev/console
+				insmod /lib/modules/$LINUX_VERSION/ik_core.ko 
+			fi
+		else
+			echo y >/dev/console
+			echo "Load the new file." >/dev/console
+			insmod /etc/mnt/ik_core.ko
+		fi
+	else
+		insmod /lib/modules/$LINUX_VERSION/ik_core.ko 
+	fi
+}
+
+other() {
+	if [ -e /proc/ikuaimtd ];then
+		local $(cat /proc/ikuaimtd)
+		echo -n "${sn_check:-0}" >/etc/.syscheck
+	fi
+	echo 0 > /proc/sys/vm/swappiness
+}
+
+updatetime()
+{
+	NEED_ARCH_MIPS_OR_ARM
+	if [ "$SUPPORT_RTC" = "1" ]; then
+		return
+	fi
+
+	local ts=$( (date -r /rom/etc/release +%s; date -r /etc/log/syslog.db +%s; date -r /etc/mnt/ikuai +%s) 2>/dev/null |awk '{if($1>a)a=$1}END{print a}')
+
+	if [ -e /etc/mnt/ikuai/datetimesync ];then
+		old_datetime=$(cat /etc/mnt/ikuai/datetimesync)
+		date -s "$old_datetime" || date -s@$ts
+	else
+		date -s@$ts
+	fi
+	hwclock -t -u
+}
+
+init_lspci()
+{
+	NEED_ARCH_X86_OR_LOONGARCH
+	lspci >$IK_DIR_CACHE/pciinfo
+	sed -i "s/'//g" $IK_DIR_CACHE/pciinfo
+}
+
+set_lo_ether()
+{
+	ifconfig imq0 up
+	ifconfig imq1 up
+	ifconfig lo up
+	ip add add 127.0.0.1/8 dev lo
+	ip addr add 192.0.0.0/32 scope host dev lo
+}
+
+get_eth_mac()
+{
+	ip a |awk '/: *eth[0-9]+:/{a=NR;gsub(/:/,"");printf $2 " "} {if(a!="" && NR==a+1)print $2}'  |sort  -k2 -th -n
+}
+
+init_ethernet_one_stick_router()
+{
+	NEED_ARCH_X86
+	[ ! -f $IK_DIR_CONF/one_stick_router ]&& return
+	[ "$X86_ETH_PHY_NUM" != "1" ]&& return
+	
+	local max_create_num=8
+
+	. /sys/class/net/eth0/device/uevent
+	local eth0_mac=$(cat /sys/class/net/eth0/address)
+	local eth0_mac_prefix=${eth0_mac:0:15}
+	local eth0_mac_tail=$((16#${eth0_mac:15}))
+	local eth0_model=$(awk '{$1="";$2="";gsub("^ +","",$0);print $0;exit}' $IK_DIR_CACHE/ether_info)
+
+	if [ "$eth0_mac_tail" -gt 200 ];then
+		local count_sign="--"
+		local xcount_sign="+1"
+	else
+		local count_sign="++"
+		local xcount_sign="-1"
+	fi
+
+	local n=$((eth0_mac_tail${xcount_sign}))
+	local xeth0_mac_suffix=$(printf "%02x" $n )
+	local mac=${eth0_mac_prefix}${xeth0_mac_suffix}
+	ifconfig eth0 down
+	ip link set dev eth0 name xeth0 address $mac up
+	ip link add name eth0 link xeth0 address $eth0_mac up type macvlan
+
+	for((i=1; i<=max_create_num; i++));do
+		local n=$((${count_sign}eth0_mac_tail))
+		local eth0_mac_suffix=$(printf "%02x" $n )
+		local mac=${eth0_mac_prefix}${eth0_mac_suffix}
+		ip link add name veth$i link xeth0 address $mac up type vlan id $i
+		echo veth$i $mac $eth0_model >>$IK_DIR_CACHE/ether_info
+	done
+
+	if [ "$SYSBIT" = "x64" ];then
+		echo "vnet 00:00:00:00:00:00 kvm   Kvm Virtual Bridge Ethernet Controller" >> $IK_DIR_CACHE/ether_info
+	fi
+}
+
+init_ent_wangxun_ethernet()
+{
+	local res=$(awk '/Wangxun Technology WX1860A2 Gigabit/{print $0;exit}' $IK_DIR_CACHE/pciinfo)
+	if [ -z "$res" ]; then
+		return 1
+	fi
+
+	awk '$2=="Ethernet"{print}' $IK_DIR_CACHE/pciinfo > /tmp/pciinfo
+
+	local MODALIAS DRIVER PCI_SLOT_NAME
+	get_eth_mac | while read eth mac;do
+		MODALIAS= DRIVER= PCI_SLOT_NAME=
+		. /sys/class/net/$eth/device/uevent
+		if [ ! "$PCI_SLOT_NAME" ];then
+			PCI_SLOT_NAME=$(ethtool -i $eth|awk '$1=="bus-info:"{print $2}')
+		fi
+		if [ "$PCI_SLOT_NAME" ];then
+			ID=${PCI_SLOT_NAME//0000:}
+			sed  -i "/^$ID/s/$/ $eth $mac/" /tmp/pciinfo
+		fi
+	done
+
+	local A2ETHS=$(awk '$0~/WX1860A2 Gigabit/{gsub("(","");print $(NF-1)}' /tmp/pciinfo)
+	local OTHERETHS=$(awk '$0!~/WX1860A2 Gigabit/{gsub("(","");print $(NF-1)}' /tmp/pciinfo)
+	local N=0
+
+	for eth in $A2ETHS $OTHERETHS ;do
+		ifconfig $eth down
+		ip link set dev $eth name x$eth
+	done
+
+	for eth in $A2ETHS ;do
+		ip link set dev x$eth name eth$N
+		N=$((N+1))
+	done
+
+	for eth in $OTHERETHS ;do
+		ip link set dev x$eth name eth$N
+		N=$((N+1))
+	done
+
+	return 0
+}
+
+init_ethernet_particular()
+{
+
+	[ ! "$ENTERPRISE" ] && return
+
+	init_ent_wangxun_ethernet && return
+
+	local manufacturer=$(dmidecode  -t 1|awk '$1=="Manufacturer:"{print $2}')
+	local product_name=$(dmidecode  -t 1|awk '$1$2=="ProductName:"{print $3}')
+	[ "$manufacturer" != "QUANXUNHUIJU" ] && return
+
+
+	if [ "$product_name" = "GE2200" -o "$product_name" = "GE6200" -o "$product_name" = "GE8200" ];then
+		awk '$2=="Ethernet"{print}' $IK_DIR_CACHE/pciinfo > /tmp/pciinfo
+
+		if [ "$product_name" = "GE6200" ];then
+			grep '^b' /tmp/pciinfo >> /tmp/pciinfo.tmp
+			grep -v '^b' /tmp/pciinfo >> /tmp/pciinfo.tmp
+			mv /tmp/pciinfo.tmp /tmp/pciinfo
+		fi
+
+		local MODALIAS DRIVER PCI_SLOT_NAME
+		get_eth_mac | while read eth mac;do
+			MODALIAS= DRIVER= PCI_SLOT_NAME=
+			. /sys/class/net/$eth/device/uevent
+			if [ ! "$PCI_SLOT_NAME" ];then
+				PCI_SLOT_NAME=$(ethtool -i $eth|awk '$1=="bus-info:"{print $2}')
+			fi
+			if [ "$PCI_SLOT_NAME" ];then
+				ID=${PCI_SLOT_NAME//0000:}
+				sed -i "/^$ID/s/$/ $eth $mac/" /tmp/pciinfo
+			fi
+		done
+
+		local I211ETHS=$(awk '$0~/Corporation I210 Gigabit/{gsub("(","");print $(NF-1)}' /tmp/pciinfo)
+		local OTHERETHS=$(awk '$0!~/Corporation I210 Gigabit/{gsub("(","");print $(NF-1)}' /tmp/pciinfo)
+		local N=0
+
+		for eth in $I211ETHS $OTHERETHS ;do
+			ifconfig $eth down
+			ip link set dev $eth name x$eth
+		done
+
+		for eth in $I211ETHS ;do
+			ip link set dev x$eth name eth$N
+			N=$((N+1))
+		done
+
+		for eth in $OTHERETHS ;do
+			ip link set dev x$eth name eth$N
+			N=$((N+1))
+		done
+	fi
+
+}
+
+init_ethernet_x86()
+{
+	NEED_ARCH_X86_OR_LOONGARCH
+	touch $IK_DIR_CACHE/ether_info
+
+	init_ethernet_particular
+
+	get_eth_mac | while read eth mac ; do
+		if [[ "$eth" =~ eth[0-9]+ ]] ;then
+			MODALIAS= DRIVER= PCI_SLOT_NAME=
+			. /sys/class/net/$eth/device/uevent
+			if [ "${MODALIAS:0:3}" = "usb" ];then
+				continue
+			elif [ "$DRIVER" = "hv_netvsc" ];then
+				model="Microsoft Corporation Hyper-V Ethernet Controller"
+			elif [ "$DRIVER" = "virtio_net" ]; then
+				model="Virtio network device"
+			else
+				ID=${PCI_SLOT_NAME#*:}
+				model=$(awk -F "controller: " '/'$ID' /{gsub(/\(.*\)/,"");print $2; exit}' $IK_DIR_CACHE/pciinfo )
+			fi
+			echo $eth $mac $DRIVER $model >>$IK_DIR_CACHE/ether_info
+			ifconfig $eth up
+		fi
+	done
+
+
+	X86_ETH_PHY_NUM=$(cat $IK_DIR_CACHE/ether_info |wc -l)
+	echo "X86_ETH_PHY_NUM=$X86_ETH_PHY_NUM" >> /etc/release 
+	if [ "$SYSBIT" = "x64" ];then
+		echo "vnet 00:00:00:00:00:00 kvm Kvm Virtual Bridge Enternet Controller" >> $IK_DIR_CACHE/ether_info
+	fi
+
+	local eth mac driver other
+	while read eth mac driver manufacturer other ;do
+		[ "$eth" = "wifi" -o "$eth" = "vnet" ] && continue
+
+		if [ "$driver" = "igc" ]; then
+			ethtool -K $eth tso off
+		fi
+		if [ ! "$ENTERPRISE" ];then
+			if [ "$ARCH" != "loongarch" ]; then
+				ethtool -K $eth tso off
+			fi
+		fi
+
+		ethtool -A $eth rx off tx off autoneg off >/dev/null 2>/dev/null
+
+		if [ "$manufacturer" = "Broadcom" ]; then
+			ethtool -g $eth |awk '{if($1=="RX:"&&$2>=511){rx=$2;system("ethtool -G '$eth' rx "rx);exit}}'
+		fi
+	done<$IK_DIR_CACHE/ether_info
+
+}
+
+mt798x_check_update_bl2_fip(){
+	if [ "$EMBED_CPU_TYPE" = "MT7986" ]; then
+		local bl2_file=q6000_bl2_freq2.0_ddr4_2666.img
+		local fip_file=q6000_fip_with_recovery.img
+	elif [ "$EMBED_CPU_TYPE" = "MT7981" ]; then
+		local bl2_file=bl2_upgrade_7981.img
+		local fip_file=fip_upgrade_7981.img
+	fi
+
+	[ -e /etc/$bl2_file ] && {
+		if ! mtd verify /etc/$bl2_file Bootloader >/dev/null 2>&1; then
+			mtd write /etc/$bl2_file Bootloader
+		fi
+	}
+
+	[ -e /etc/$fip_file ] && {
+		if ! mtd verify /etc/$fip_file FIP >/dev/null 2>&1; then
+			mtd write /etc/$fip_file FIP
+		fi
+	}
+}
+
+init_ethernet_arm()
+{
+	NEED_ARCH_ARM
+	touch $IK_DIR_CACHE/ether_info
+
+	if [ "$SUPPORT_DSA" ];then
+		for((i=0;i<10;i++));do
+			[ ! -e /sys/class/net/eth$i ]&&break
+			ifconfig eth$i up
+		done
+
+		if [ "$EMBED_ETHNAME_MAP" ];then
+			for x in ${EMBED_ETHNAME_MAP//,/ } ;do
+				eth="${x//:*}" map="${x//*:}"
+				eval ethname_map_$eth="\$EMBED_ETHNAME_EXT$map"
+			done
+		fi
+
+		for((i=1;i<=EMBED_ETHNUM;i++));do
+			local mac=$(cat /sys/class/net/veth$i/address)
+			eval ethname="\$ethname_map_veth$i"
+			if [ "$ethname" ];then
+				echo "veth$i $mac $ethname" >>$IK_DIR_CACHE/ether_info
+			else
+				local repname="Gigabit"
+				if ethtool veth$i |grep -q '5000base' ;then
+					repname="5.0Gbit"
+				elif ethtool veth$i |grep -q '2500base' ;then
+					repname="2.5Gbit"
+				fi
+
+				echo "veth$i $mac ${EMBED_ETHNAME//Gigabit/$repname}" >>$IK_DIR_CACHE/ether_info
+			fi
+			ifconfig veth$i up
+		done
+
+		if [ "$EMBED_ETHSFP" ];then
+			for eth in ${EMBED_ETHSFP//,/ } ;do
+				local mac=$(cat /sys/class/net/$eth/address)
+				echo "$eth $mac $EMBED_ETHNAME_SFP" >>$IK_DIR_CACHE/ether_info
+				ifconfig $eth up
+			done
+		fi
+	else
+		if [ -x /usr/bin/fmc ];then
+			if [ "${FIRMWARENAME:0:10}" = "IK-NXP1046" ];then
+				local config_dir="ls1046a"
+			else
+				local config_dir="ls1043a"
+			fi
+			(cd /etc/fmc/config/private/$config_dir; fmc -x; fmc -c config.xml -p policy_ipv4.xml -a)
+		fi
+		ip a |awk '/: *eth[0-9]+:/{a=NR;gsub(/:/,"");printf $2 " "} {if(a!="" && NR==a+1)print $2}'  |\
+		while read eth mac ; do
+			ifconfig $eth up
+			if [[ "$eth" =~ eth[0-9]+ ]] ;then
+				if [[ "$EMBED_ETHCOMBO" && "$EMBED_ETHCOMBO" =~ "$eth" ]];then
+					echo "$eth $mac $EMBED_ETHNAME_COMBO" >>$IK_DIR_CACHE/ether_info
+				elif [[ "$EMBED_ETHFIBER" && "$EMBED_ETHFIBER" =~ "$eth" ]];then
+					echo "$eth $mac $EMBED_ETHNAME_FIBER" >>$IK_DIR_CACHE/ether_info
+				else
+					echo "$eth $mac $EMBED_ETHNAME" >>$IK_DIR_CACHE/ether_info
+				fi
+			fi
+			
+		done
+	fi
+
+
+	if [ "$MODELTYPE" = "Q6000" ];then
+		ethtool --set-eee veth4 eee off
+	elif [ "$MODELTYPE" = "M200" ];then
+		ethtool --set-eee veth1 eee off
+		ethtool --set-eee veth7 eee off
+	elif [ "$MODELTYPE" = "A100-P" ];then
+		ethtool --set-eee veth9 eee off
+		ethtool --set-eee veth10 eee off
+	fi
+
+    if [ -f /sys/kernel/debug/mtketh/reset ]; then
+        echo 5 > /sys/kernel/debug/mtketh/reset
+        echo 2 > /sys/kernel/debug/mtketh/reset
+    fi
+
+}
+
+init_ethernet_mips_mt7621()
+{
+	ifconfig eth0 up
+
+	local MAC=$(cat /sys/class/net/eth0/address)
+	if [ "$MODELTYPE" = "M1" -o "$MODELTYPE" = "A120" ];then
+		local VMAC="08:${GWID:0:2}:${GWID:2:2}:${GWID:4:2}:${GWID:6:2}:${GWID:8:2}"
+		local mac_tail=$((16#${VMAC:15:2}))
+		if [ "$mac_tail" -lt "240" ];then
+			local c=+
+		else
+			local c=-
+		fi
+
+		for((i=1; i<=$EMBED_ETHNUM; i++));do
+			if [ "$i" -gt "1" ];then
+				MAC="${VMAC::14}:$(printf %.2x $((${mac_tail}${c}${i})))"
+			fi
+			if [ ! -e /sys/class/net/veth$i ];then
+				ip link add name veth$i link eth0 address $MAC up type vlan id $i
+			else
+				ip link set dev veth$i address $MAC up
+			fi
+
+			echo "veth$i $MAC $EMBED_ETHNAME" >>$IK_DIR_CACHE/ether_info
+		done
+	else
+		local mac_byte2=$((16#${MAC:3:2}))
+		for((i=0; i<$EMBED_ETHNUM; i++));do
+			local n=$((i+1))
+			if [ ! -e /sys/class/net/veth$n ];then
+				local new_mac_byte2=$(printf "%02x" $(((mac_byte2+i)%256)) )
+				local new_mac="${MAC:0:2}:${new_mac_byte2}:${MAC:6}"
+				ip link add name veth$n link eth0 address $new_mac up type vlan id $n
+			else
+				ip link set dev veth$n up
+				new_mac=$(cat /sys/class/net/veth$n/address)
+			fi	
+			echo "veth$n $new_mac $EMBED_ETHNAME" >>$IK_DIR_CACHE/ether_info
+		done
+
+	fi
+	
+	sleep 1
+	for((i=1; i<=$EMBED_ETHNUM; i++));do
+		ifconfig veth$i down
+		ifconfig veth$i up
+	done
+}
+
+
+init_ethernet_mips_mt7628()
+{
+	ifconfig eth0 up
+
+	local MAC=$(cat /sys/class/net/eth0/address)
+	if [ "$MODELTYPE" = "Q25" -o "$MODELTYPE" = "M20" ];then
+		local VMAC="08:${GWID:0:2}:${GWID:2:2}:${GWID:4:2}:${GWID:6:2}:${GWID:8:2}"
+		local mac_tail=$((16#${VMAC:15:2}))
+		if [ "$mac_tail" -lt "240" ];then
+			local c=+
+		else
+			local c=-
+		fi
+
+		for((i=1; i<=$EMBED_ETHNUM; i++));do
+			if [ "$i" -gt "1" ];then
+				MAC="${VMAC::14}:$(printf %.2x $((${mac_tail}${c}${i})))"
+			fi
+
+			ip link add name veth$i link eth0 address $MAC up type vlan id $i
+			echo "veth$i $MAC $EMBED_ETHNAME" >>$IK_DIR_CACHE/ether_info
+		done
+	else
+		local mac_byte2=$((16#${MAC:3:2}))
+		for((i=0; i<$EMBED_ETHNUM; i++));do
+			local n=$((i+1))
+			local new_mac_byte2=$(printf "%02x" $(((mac_byte2+i)%256)) )
+			local new_mac="${MAC:0:2}:${new_mac_byte2}:${MAC:6}"
+			ip link add name veth$n link eth0 address $new_mac up type vlan id $n
+
+			echo "veth$n $new_mac $EMBED_ETHNAME" >>$IK_DIR_CACHE/ether_info
+		done
+	fi
+}
+
+
+init_ethernet_mips()
+{
+	NEED_ARCH_MIPS
+	. /etc/release
+
+	case "$EMBED_CPU_TYPE" in
+	MT7628) init_ethernet_mips_mt7628;;
+	MT7621) init_ethernet_mips_mt7621;;
+	esac
+}
+
+init_ethernet_wifi()
+{
+	. /etc/release
+
+	local eth0_mac=$(cat /sys/class/net/eth0/address)
+	local eth0_mac_byte1=$((16#${eth0_mac:0:2}))
+	local eth0_mac_byte2=$((16#${eth0_mac:3:2}))
+
+	local eth0_mac_add1=$(((eth0_mac_byte1+2)%256))
+	local eth0_mac_add2=$(((eth0_mac_byte1+4)%256))
+	if [ "$CURRENT_APMODE" ];then
+		local wifi_addr=$eth0_mac
+		local wdsflag="4addr on"
+		local mesh_addr=$(printf "%02x:%s" $eth0_mac_add1 ${eth0_mac:3})
+	else
+		local wifi_addr=$(printf "%02x:%s" $eth0_mac_add1 ${eth0_mac:3})
+		local mesh_addr=$(printf "%02x:%s" $eth0_mac_add2 ${eth0_mac:3})
+	fi
+
+	if [ -e /sys/class/ieee80211/phy0 ];then
+		iw phy phy0 interface add wifi2g type managed addr $wifi_addr $wdsflag
+	fi
+	if [ -e /sys/class/ieee80211/phy1 ];then
+		iw phy phy1 interface add wifi5g type managed addr $wifi_addr $wdsflag
+	fi
+	if [ "${WIFI_SUPPORT_WISP:-0}" -gt 0 ]; then
+		ip link add name wifi address $wifi_addr link eth0 down type vlan id 0
+		echo "wifi $wifi_addr wifi Wireless 2G/5G Client AP" >>$IK_DIR_CACHE/ether_info
+	fi
+
+	if [ "$WIFI_DRIVER" = "mediatek" ];then
+		local eeprom="/lib/firmware/e2p"
+		if [ ! -f $eeprom ];then
+			local mtd=$(get_mtd_dev Factory)
+			if [ "$mtd" ];then
+				dd if=/dev/$mtd of=$eeprom bs=1048576 count=1
+			fi
+		fi
+
+		for iface in ${WIFI_IFNAMES//,/ } ;do
+			ifconfig ${iface}0 up
+			ifconfig ${iface}1 up
+			ifconfig ${iface}2 up
+			ifconfig ${iface}3 up
+		done
+
+		for iface in ${WIFI_IFNAMES//,/ } ;do
+			ifconfig ${iface}0 down
+			ifconfig ${iface}1 down
+			ifconfig ${iface}2 down
+			ifconfig ${iface}3 down
+		done
+
+		ip link set dev apcli0 name wifi2g
+		ip link set dev apclix0 name wifi5g
+	fi
+}
+
+init_ethernet()
+{
+	init_ethernet_x86
+	init_ethernet_arm
+	init_ethernet_mips
+	init_ethernet_wifi
+
+	if [ -f /sys/class/net/eth0/address ];then
+		local eth0_mac=$(cat /sys/class/net/eth0/address)
+	elif [ -f /sys/class/net/veth1/address ];then
+		local eth0_mac=$(cat /sys/class/net/veth1/address)
+	else
+		local eth0_mac="00:00:00:00:00:00"
+	fi
+	echo "DEVICE_MAC=$eth0_mac" >>/etc/release
+
+	load_module_usbeth
+}
+
+dump_dmesg()
+{
+	dmesg >/tmp/iktmp/dmesg.boot
+}
+
+get_hardware_info()
+{
+	NEED_ARCH_X86_OR_LOONGARCH
+
+	local DEV_SIZE=$(hdd_get_size $BOOTHDD)
+	local VENDOR=$(cat /sys/class/block/$BOOTHDD/device/vendor)
+	local DEV_NAME=$(cat /sys/class/block/$BOOTHDD/device/model)
+	local REV=$(cat /sys/class/block/$BOOTHDD/device/rev)
+	local SIZE=$(echo $DEV_SIZE |awk '{size=$1/1048576; if(size >= 1048576){printf "%.2fTB\n",size/1048576} else if(size >= 1024){printf "%.2fGB\n",size/1024} else {printf "%.2fMB\n",size} }')
+
+	local hdd="$VENDOR $DEV_NAME $REV ($SIZE)"
+	local memory=$(gawk '$3=="Memory:"{match($0,"([0-9]+)K/.* ([0-9]+)K reserved",a);printf "%.f",(a[1]+a[2])/1024 ;exit}' /tmp/iktmp/dmesg.boot)
+	local mainboard=$(awk -F "(DMI: |BIOS)" '/ DMI: /{print $2;exit}' /tmp/iktmp/dmesg.boot|cut -b 1-55 )
+
+	awk -F ": " '{
+		if ($1~/model name/)cpumodel=$2
+		if ($1~/cpu MHz/)cpumhz=$2
+		if ($1~/cache size/)cpucache=$2
+		if ($1~/cpu cores/)cpucores=$2
+		if ($1~/siblings/)cputhread=$2
+		if ($1~/physical id/)if(phyid<$2)phyid=$2
+		if ($1~/flags/)if($2~/ lm /){ cpubit=64 }else{ cpubit=32 }
+	} END {
+		printf "cpumodel=\x22%s\x22\n",cpumodel >"/tmp/iktmp/cache/hardwareinfo"
+		printf "cpubit=%s\n",cpubit >"/tmp/iktmp/cache/hardwareinfo"
+		printf "cpumhz=\x22%.f MHz\x22\n",cpumhz >"/tmp/iktmp/cache/hardwareinfo"
+		printf "cpucache=\x22%s\x22\n",cpucache >"/tmp/iktmp/cache/hardwareinfo"
+		printf "cpucores=%s\n",cpucores * (phyid + 1) >"/tmp/iktmp/cache/hardwareinfo"
+		printf "cputhread=%s\n",cputhread * (phyid + 1) >"/tmp/iktmp/cache/hardwareinfo"
+	}
+	' /proc/cpuinfo
+
+	if [ -e "/sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq" ]; then
+		local min_cpuhz="$(cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_min_freq)"
+		local max_cpuhz="$(cat /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq)"
+		[ "$min_cpuhz" -a "$max_cpuhz" ] && echo "cpumhz=\"$((min_cpuhz/1000)) MHz - $((max_cpuhz/1000)) MHz\"" >> /tmp/iktmp/cache/hardwareinfo
+	fi
+
+	echo "mainboard=\"${mainboard//\\/}\"" >>/tmp/iktmp/cache/hardwareinfo
+	echo "memory=$memory" >>/tmp/iktmp/cache/hardwareinfo
+	echo "hdd=\"$hdd\"" >>/tmp/iktmp/cache/hardwareinfo
+
+	local MODALIAS DRIVER PCI_SLOT_NAME
+	while read eth mac driver model;do
+		MODALIAS= DRIVER= PCI_SLOT_NAME=
+		. /sys/class/net/$eth/device/uevent
+		if [ ! "$PCI_SLOT_NAME" ];then
+			PCI_SLOT_NAME=$(ethtool -i $eth|awk '$1=="bus-info:"{print $2}')
+		fi
+		if [ "$PCI_SLOT_NAME" ];then
+			ID=${PCI_SLOT_NAME//0000:}
+			if grep -qi "$PCI_SLOT_NAME:.* checksum is not valid" /tmp/iktmp/dmesg.boot ;then
+				local cksum=" (NVM Checksum Is Not Valid)"
+			else
+				local cksum=""
+			fi
+			sed -i "/^$ID/s/$/ ($eth $mac)$cksum/" $IK_DIR_CACHE/pciinfo
+		fi
+	done<$IK_DIR_CACHE/ether_info
+
+	sed -i "s/'//g" /tmp/iktmp/cache/hardwareinfo
+	. /tmp/iktmp/cache/hardwareinfo
+	local hardwareinfo=$(json_output cpumodel:str cpubit:int cpumhz:str cpucache:str cpucores:int cputhread:int mainboard:str memory:int hdd:str)
+	echo "$hardwareinfo" > /tmp/iktmp/cache/hardwareinfo.json
+
+	lua <<EOF
+	cjson = require "cjson"
+	file="$IK_DIR_CACHE/pciinfo"
+	f = io.open(file,"r")
+	t = {}
+	if f then
+		rep = {}
+		line = f:read("*l")
+		while line do
+			name, info = line:match("^[^ ]+ ([^:]+): (.+)")
+			if name then
+				if not t[name] then t[name] = {} end
+				if not rep[info] then
+					rep[info] = true
+					table.insert(t[name],info)
+				end
+			end
+			line = f:read("*l")
+		end
+
+		f:close()
+	end
+	f = io.open("/tmp/iktmp/cache/pciinfo.json","w")
+	if f then
+		f:write(cjson.encode(t))
+		f:close()
+	end
+EOF
+}
+
+
+init_cputemp_x86()
+{
+	local n=0
+	local hwmon_names="coretemp via_cputemp k10temp k8temp abx500-temp vexpress_temp"
+	local hwmon_it87="it87 it8712 it8716 it8718 it8720 it8721 it8728 it8771 it8772 it8782 it8783 it8603"
+
+	local new_cputemp
+	for hw in $(ls $HWMON_DIR) ;do
+		if [ -f $HWMON_DIR/$hw/name ];then
+			name=$(cat $HWMON_DIR/$hw/name)
+		else
+			continue
+		fi
+
+		local hit=false
+		for support_name in $hwmon_names ;do
+			if [ "$support_name" = "$name" ];then
+				hit=true
+				break
+			fi
+		done
+
+		if [ "$hit" = "true" ] ;then
+			for((i=0;i<10;i++));do
+				if [ -f $HWMON_DIR/$hw/temp${i}_input ];then
+					test_temp=$(cat $HWMON_DIR/$hw/temp${i}_input)
+					if [ "${test_temp:-0}" -gt 0 ];then
+						new_cputemp=true
+						ln -s $HWMON_DIR/$hw/temp${i}_input $IK_CPUTEMP/$((n++))
+						break
+					fi
+				fi
+			done
+		fi
+	done
+
+	if [ "$new_cputemp" = "true" ];then
+		return
+	fi
+
+	for hw in $(ls $HWMON_DIR) ;do
+		if [ -f $HWMON_DIR/$hw/device/name ];then
+			name=$(cat $HWMON_DIR/$hw/device/name)
+		else
+			continue
+		fi
+
+		local hit=false
+		for support_name in $hwmon_it87 ;do
+			if [ "$support_name" = "$name" ];then
+				hit=true
+				break
+			fi
+		done
+
+		if [ "$hit" = "true" ] ;then
+			for((i=0;i<10;i++));do
+				if [ -f $HWMON_DIR/$hw/device/temp${i}_input ];then
+					ln -s $HWMON_DIR/$hw/device/temp${i}_input $IK_CPUTEMP/$((n++))
+					break
+				fi
+			done
+		fi
+	done
+}
+init_cputemp_arm()
+{
+	local hwmon_nxp="tmp401 tmp411 tmp431 tmp432 tmp435 tmp461 g788"
+	local nxp_temp_input="temp2_input" #temp1 is local env, temp2 is remote(CPU)
+	local support_name name
+
+	for hw in $(ls $HWMON_DIR) ;do
+		if [ -f $HWMON_DIR/$hw/name ];then
+			name=$(cat $HWMON_DIR/$hw/name)
+			for support_name in $hwmon_nxp ;do
+				if [ "$support_name" = "$name" ];then
+					ln -s $HWMON_DIR/$hw/$nxp_temp_input $IK_CPUTEMP/0
+					return 0
+				fi
+			done
+		fi
+	done
+}
+
+init_cputemp()
+{
+	local n=0
+	local IK_CPUTEMP=/tmp/iktmp/cputemp
+	local HWMON_DIR=/sys/class/hwmon
+
+	mkdir -p $IK_CPUTEMP
+
+	[ "$VIRTUAL_DEVICE" ]&& return
+
+	case "$ARCH" in
+	x86) init_cputemp_x86 ;;
+	arm) init_cputemp_arm ;;
+	esac
+}
+
+init_cgroup()
+{
+	[ ! -e /proc/cgroups ]&& return 0
+	mkdir /sys/fs/cgroup/cpu/ik_apps
+	mkdir /sys/fs/cgroup/memory/ik_apps
+
+	local cpu_nr=$(grep processor /proc/cpuinfo | wc -l)
+	local cpu_us=$((1000000*cpu_nr/2))
+	local cpu_us_ua=$((1000000*cpu_nr/10))
+
+	echo 1000000 > /sys/fs/cgroup/cpu/ik_apps/cpu.cfs_period_us
+	echo $cpu_us > /sys/fs/cgroup/cpu/ik_apps/cpu.cfs_quota_us
+
+	local total_mem=$(free | awk 'NR==2{print $2}')
+	total_mem=$((total_mem/2 * 1024))
+
+	sh -c "echo $total_mem > /sys/fs/cgroup/memory/ik_apps/memory.limit_in_bytes"
+}
+
+init_watchdog()
+{
+	if [ "$ARCH" != "x86" ];then
+		if [ -e /dev/watchdog ];then
+			local dev=/dev/watchdog
+		elif [ -e /dev/watchdog0 ];then
+			local dev=/dev/watchdog0
+		elif [ -e /dev/watchdog1 ];then
+			local dev=/dev/watchdog1
+		else
+			return 0
+		fi
+
+		nice -n -20 /sbin/watchdog -t 1 -T 120 $dev
+	fi
+}
+
+check_antipiracy()
+{
+	local n=0
+	if [ "$FIRMWAREID" -ge 11000 ];then
+		while :; do
+			if [ -e /proc/ikuai/antipiracy ];then
+				local x=$(iksh -X)
+				echo -n "$x" > /proc/ikuai/antipiracy 
+				break
+			fi
+			[ "$((n++))" -ge 5 ] && break
+			sleep 1
+		done
+	fi
+}
+
+fix_bug_for_mt7981()
+{
+	if [ "$FIRMWAREID" -ge 11013 -a "$FIRMWAREID" -le 11019 ];then
+		local mtd=$(get_mtd_dev Factory)
+		local mtd=${mtd//mtd/mtdblock}
+		local magic=$(hexdump -v -s 0x10500 -n 6 /dev/$mtd -e '1/6 "%s"')
+		if [ "$magic" = ":>-<:" ];then
+			echo "Fix offset bug on Factory" >/dev/kmsg
+			dd if=/dev/$mtd bs=8 skip=8326 count=3 2>/dev/null |\
+			dd of=/dev/$mtd bs=8 seek=8198 2>/dev/null
+			dd if=/dev/$mtd bs=256 skip=261 count=1 2>/dev/null |\
+			dd of=/dev/$mtd bs=256 seek=257 2>/dev/null
+			mtd_ikconfig_set_testd "\x1"
+			for((i=8320;i<8384;i++)) {
+			  printf "\xff\xff\xff\xff\xff\xff\xff\xff"
+			} | dd of=/dev/$mtd bs=8 seek=8320 2>/dev/null
+		fi
+	fi
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

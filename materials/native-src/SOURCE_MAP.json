@@ -1,0 +1,171 @@
+{
+  "scope": "Development source correspondence, not a fresh build or binary reproducibility certificate. curl additionally requires the pinned upstream sources and static OpenSSL build.",
+  "entries": [
+    {
+      "runtime_file": "materials/firmware/port-3726/files/usr/sbin/native-rule-dns",
+      "runtime_sha256": "44ecc21885e47de7bacc457aec45dc85a5c219cd44d083e0091a4725a6dc6d11",
+      "sources": [
+        {
+          "path": "materials/native-src/nr_dns.c",
+          "sha256": "acb9590b1baefa6951ba18ab7bdb0b202f8eba0e8c84fc42fe5e37591a71d687"
+        },
+        {
+          "path": "materials/native-src/dns_control.h",
+          "sha256": "6fde3bae633be216da7f22c8836c73e3eb6d36274fc726da4260b2691bea27f4"
+        },
+        {
+          "path": "materials/native-src/dns_evidence.h",
+          "sha256": "b15e513c576547719694d3a905891989afcabed5ee93c3ec62655f84a55b2992"
+        },
+        {
+          "path": "materials/native-src/dns_limits.h",
+          "sha256": "fb72a88ceb99a0c4f1261382ae012a02b5378a974bb23d4db606abc4ca0fe6d1"
+        },
+        {
+          "path": "materials/native-src/dns_policy.h",
+          "sha256": "48e1d7de90aecd0cdfbbf6ae794eba8cde0c1aa8bdb3e29970904bb9b4c4ce3b"
+        }
+      ],
+      "build": {
+        "compiler": "Zig 0.14.1",
+        "target": "x86_64-linux-musl",
+        "flags": [
+          "-O2",
+          "-s",
+          "-static",
+          "-pthread"
+        ],
+        "source": "materials/native-src/nr_dns.c"
+      }
+    },
+    {
+      "runtime_file": "materials/firmware/port-3726/files/usr/sbin/native-group-plan",
+      "runtime_sha256": "ec6cbb3072a36a3a3c4f68fd732e5a4a088198bcc5a97c2224830266e3c4e6a5",
+      "sources": [
+        {
+          "path": "materials/native-src/native_group_plan.c",
+          "sha256": "f88220f0164bbc085c9f2c910f75b7d9cc7aacffaaf3bb8476fe1f2ff3cb2d16"
+        }
+      ]
+    },
+    {
+      "runtime_file": "materials/firmware/port-3726/files/usr/sbin/native-conntrack-prune",
+      "runtime_sha256": "3925db4ff2aa9420b95227763e0f63ca38acb09f24eb11942de00fe17acc6717",
+      "sources": [
+        {
+          "path": "materials/native-src/native_conntrack_prune.c",
+          "sha256": "f1d5a5688c9c9eaed4c9e3da467f44c943e1ac4706ee378a668dd96e5ef88a37"
+        }
+      ],
+      "build": {
+        "compiler": "Zig 0.14.1",
+        "target": "x86_64-linux-musl",
+        "flags": [
+          "-O2",
+          "-s",
+          "-static"
+        ],
+        "source": "materials/native-src/native_conntrack_prune.c"
+      }
+    },
+    {
+      "runtime_file": "materials/firmware/port-3726/files/usr/sbin/native-work-run",
+      "runtime_sha256": "9145192e38ea30cac1ba5f6640d3b575dc0107c2d0083fee49d706e5bad42a47",
+      "sources": [
+        {
+          "path": "materials/native-src/native_work_run.c",
+          "sha256": "99a3b0aca0963e28e0b6e4a26897a96795b7c8916808476b68d320510d0de3e5"
+        }
+      ]
+    },
+    {
+      "runtime_file": "materials/firmware/port-3726/files/usr/sbin/native-url-sync",
+      "runtime_sha256": "e7632c97bda0c1d03b9d0283fae1d97b41e9df862e2260d21b251e771e6b7212",
+      "sources": [
+        {
+          "path": "materials/native-src/native_url_sync.c",
+          "sha256": "3d2c3e67c94d88bb0ac6fb380eb525db53bed5b398398b7b880c5e74545c2642"
+        }
+      ]
+    },
+    {
+      "runtime_file": "materials/firmware/port-3726/files/usr/sbin/native-url-load",
+      "runtime_sha256": "e322fc0360c9b780b02dc3350a2e8e0a03ad6cc35acbdee19009aa1784b5cbce",
+      "sources": [
+        {
+          "path": "materials/native-src/native_url_load.c",
+          "sha256": "e248d5e3cd3e8195d5ecc7e87c6052167e0799f55529042cc1720cf6d7dabfbf"
+        }
+      ],
+      "debug_information": "Stripped; allocated code/data and program headers preserved."
+    },
+    {
+      "runtime_file": "materials/firmware/port-3726/files/usr/sbin/native-shadow-plan",
+      "runtime_sha256": "37470762ee4ac546312504c4baed835805f776405f06da733ee1b784efe771c5",
+      "sources": [
+        {
+          "path": "materials/native-src/native_shadow_plan.c",
+          "sha256": "eeecadf0aa617bcdfa76941237837b60972eca8daf2896c8cc82f924a77ce938"
+        }
+      ]
+    },
+    {
+      "runtime_file": "materials/firmware/port-3726/files/usr/sbin/native-url-count",
+      "runtime_sha256": "2f7e2714e214739ac65498e07622d43d104825fb7e7edb59f5215b69324b7424",
+      "sources": [
+        {
+          "path": "materials/native-src/native_url_count.c",
+          "sha256": "156ef3a27352076d377c4449718df6c714cd0b274e5f30f347cff3e5cad3585b"
+        }
+      ]
+    },
+    {
+      "runtime_file": "materials/firmware/port-3726/files/usr/bin/curl",
+      "runtime_sha256": "51b4184361fc4f0d5a6da2b9b5636e617f6d5ed6d9d9469d9a85b83a72713fbf",
+      "sources": [
+        {
+          "path": "materials/native-src/native_safe_fetch.c",
+          "sha256": "267fceba5aea669b15cba90cf29b627d51933b57fc1d6e09b945ac0a09dab68c"
+        },
+        {
+          "path": "materials/native-src/curl-build/tool_main.c.modified",
+          "sha256": "68104f2cfc353f3f465f3649cde7667fb0d052a7c068976eaf4aa04b09f0f937"
+        }
+      ],
+      "build": {
+        "compiler": "Zig 0.14.1",
+        "target": "x86_64-linux-musl",
+        "curl": "8.23.0",
+        "openssl": "3.5.9",
+        "recipe": "materials/native-src/curl-build/README.md",
+        "host_build_paths_mapped": true,
+        "CA_bundle": "/etc/ssl/certs/ca-certificates.crt"
+      }
+    },
+    {
+      "runtime_file": "materials/firmware/port-3726/files/usr/libexec/nr-mksquashfs",
+      "runtime_sha256": "4c98dc284a0d9d00704a45abd3bae591e36e7d8cb7cf05470acd20b706576009",
+      "sources": [
+        {
+          "path": "materials/native-src/hy2-corepack/build.py",
+          "sha256": "f7c2a662ba3f9b75637980f7f9631b4bf21880a5d62fb2a5f199906b061bc815"
+        },
+        {
+          "path": "materials/native-src/hy2-corepack/squashfs-tools-4.6.1.tar.gz",
+          "sha256": "9c4974e07c61547dae14af4ed1f358b7d04618ae194e54d6be72ee126f0d2f53"
+        },
+        {
+          "path": "materials/native-src/hy2-corepack/xz-5.8.4.tar.xz",
+          "sha256": "4ce24038fd4221e0d13bc1a2de7a4db56e90b92b3bf75321f6c14be73f65de4b"
+        }
+      ],
+      "build": {
+        "compiler": "Zig 0.14.1",
+        "target": "x86_64-linux-musl",
+        "squashfs-tools": "4.6.1",
+        "xz": "5.8.4",
+        "recipe": "materials/native-src/hy2-corepack/build.py"
+      }
+    }
+  ]
+}

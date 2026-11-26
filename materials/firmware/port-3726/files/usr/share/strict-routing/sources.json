@@ -1,0 +1,33 @@
+{
+  "source": "IPdeny country allocation lists; CN excludes HK/MO/TW; continent grouping is explicit in regions.json",
+  "domain_source": "felixonmars/dnsmasq-china-list",
+  "fetched_date": "2026-10-04",
+  "inputs": {
+    "dnsmasq-source.tar.xz": "f622682848b33677adb2b6ad08264618a2ae0a01da486a93fd8cd91186b3d153",
+    "china-domains.conf": "af74fd2a23913cd73c67cc87b07c238f9659f41ab5622f1181bb5f3132a2528a",
+    "ip-country-zones.tar.gz": "1293a8845020b97a7a1af4fc2be8ce5c433c65f0192b408ac90e172d2def2ba5"
+  },
+  "files": {
+    "asia.delta": "fa7e2bac0956833b92c6d7ec563eb58ae6b6db373576cd4b277776bf10874103",
+    "region-countries.json": "f4c19ee40c951c6f3470a6682c8f1fb53cfbc054b2372e8059d6043853f227dc",
+    "americas.delta": "911a722af42e5dd701bf09752763583636934f6859ff2567363419b96ba8b7e2",
+    "cn.delta": "8cf99f3fcfb17323c8f8f8dfbbc2098c6a3771d1fbd41fb75ee5a5885b335a30",
+    "domain-manifest.json": "6cc60ceb142f3a0f8f40f59844f9ea4c9d8d1a2246529ea1ae8e1fa4e900bd6c",
+    "mo.delta": "cda20d54e1c62dbe94b882fee5352ed4916e8fda137cb9a4e1e85fc39300cb7d",
+    "region-manifest.json": "686aeb6c7b4f5e169bf359bc9787c7f1af9a9508c3e14a7bbb2aea77f85530ff",
+    "africa.delta": "7778a871612e82ba4df19352deeda79b785a9dcdc4d18e23af1043c8e3ed91df",
+    "tw.delta": "9539cf92870bf3fc082c60476711b8f7d31c75be5dd13e229fd63ddc2cb13287",
+    "hk.delta": "d1d76e8b698e5ec6bb50b7d036c49399448a5200a4a8848d584ce2ec68b8a027",
+    "regions.json": "00b3daa72cdb7d78fcbdf165e333c184b78298f55a40dff0e3b559270c38e413",
+    "europe.delta": "16c2efc2477e7430bf8ec0c961fb7c69de8a28db4d51baa2653938c78c406036",
+    "oceania.delta": "a0a6f70c3a15d8cc9f7ba3d0033c5d9f6ddb92b6df77438715fb08870eab7a7d",
+    "cn.frontcode": "24621acaade371c90acd31df9a43701f5bbc5ddde732c80a28ce81ec69ee9bbe"
+  },
+  "dnsmasq": "2.91 statically linked; synchronous IPset ACK; see source package",
+  "formats": {
+    "*.delta": "sorted IPv4 network delta in unsigned LEB128, followed by prefix byte",
+    "cn.frontcode": "sorted reversed domain labels; previous common-prefix length byte, suffix length byte, suffix ASCII"
+  },
+  "region_updates": "Validated HTTPS country snapshots; persistent versions in /etc/mnt/ikuai/region-iplib; managed by native IP groups",
+  "domain_updates": "Validated HTTPS mainland domain snapshots; .hk/.mo/.tw excluded; complement is outside mainland; persistent versions in /etc/mnt/ikuai/domain-iplib; manual overrides in strict-routing.json"
+}

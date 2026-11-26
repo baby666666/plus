@@ -1,0 +1,3 @@
+# Build + portable host regression dependencies. Python 3.12 is the verified baseline.
+-r ../materials/base/requirements-analysis.txt
+lupa==2.6

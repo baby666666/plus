@@ -1,0 +1,17 @@
+#!/bin/bash
+# Create the fixed single-file filesystem from an authenticated upstream ELF on stdin.
+set -eu -o pipefail
+umask 077
+[ "$#" = 1 ] && [ -n "$1" ] && [ ! -e "$1" ] && [ ! -L "$1" ] || exit 2
+case $1 in -*) exit 2;; esac
+unset SOURCE_DATE_EPOCH
+# A pseudo-file data stream gives mksquashfs the size, ownership, mode and
+# timestamp before the file contents. No uncompressed temporary file is needed.
+{
+    printf '%s\n' '/ D 0 0555 0 0' 'sing-box R 0 0500 0 0 92070560 0 0' \
+        '# START OF DATA - DO NOT MODIFY' '#'
+    cat
+} | /usr/libexec/nr-mksquashfs - "$1" -pf - -noappend -no-progress -quiet \
+    -comp xz -Xdict-size 65536 -b 131072 -processors 1 \
+    -read-queue 1 -write-queue 2 -fragment-queue 1 -no-fragments \
+    -no-duplicates -no-exports -no-xattrs -mkfs-time 0 -all-time 0

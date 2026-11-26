@@ -1,0 +1,5 @@
+dissect.cstruct==4.6
+dissect.util==3.22
+dissect.extfs==3.14
+pyelftools==0.32
+unicorn==2.1.4

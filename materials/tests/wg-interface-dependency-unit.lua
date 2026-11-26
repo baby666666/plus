@@ -1,0 +1,26 @@
+local m=dofile(arg[1]);local count=0
+local function state()
+ return {interfaces={{id=1,name='wg1',local_address='10.100.1.1/24',local_listenport=50001},{id=2,name='wg2',local_address='10.100.2.1/24',local_listenport=50002},{id=3,name='wg3',local_address='10.100.3.1/24',local_listenport=50003}},peers={{id=1,interface='wg1',allowips='10.100.1.2/32',peer_publickey='PHONE'},{id=2,interface='wg2',allowips='10.100.2.2/32',site_local='10.100.1.0/24',site_remote='192.168.20.0/24',exit_peer='yes',peer_publickey='B'}},networks={{name='wg1',address='10.100.1.1/24'},{name='pppwg1',address='10.100.1.1/32'},{name='lan1',address='192.168.10.1/24'}}}
+end
+local function test(name,f)local ok,err=pcall(f);assert(ok,name..': '..tostring(err));count=count+1 end
+test('reject deleting interface with normal client',function()assert(not m.check_iface_delete(state(),'1'))end)
+test('reject deleting interface with site peer',function()assert(not m.check_iface_delete(state(),'2'))end)
+test('reject disabled attached peer too',function()local s=state();s.peers[1].enabled='no';assert(not m.check_iface_delete(s,'1'))end)
+test('reject removing indirectly referenced client network',function()local s=state();table.remove(s.peers,1);assert(not m.check_iface_delete(s,'1'))end)
+test('deleting unused interface works',function()assert(m.check_iface_delete(state(),'3'))end)
+test('batch deletion is refused before any state mutation',function()local s=state();assert(not m.check_iface_delete(s,'3,2'));assert(#s.interfaces==3 and s.interfaces[3].name=='wg3')end)
+test('invalid and stale delete ids rejected',function()for _,v in ipairs{'','9','0','-1','1;DELETE','3,999'}do assert(not m.check_iface_delete(state(),v))end end)
+test('rename attached client interface rejected',function()assert(not m.check_iface(state(),'wg10','10.100.1.1/24',50001,1))end)
+test('rename attached exit interface rejected',function()assert(not m.check_iface(state(),'wg20','10.100.2.1/24',50002,2))end)
+test('rename empty unused interface allowed',function()assert(m.check_iface(state(),'wg30','10.100.3.1/24',50003,3))end)
+test('rename empty interface keeps indirect subnet dependency reachable',function()local s=state();table.remove(s.peers,1);assert(m.check_iface(s,'wg10','10.100.1.1/24',50001,1))end)
+test('address change cannot invalidate another site',function()assert(not m.check_iface(state(),'wg1','10.101.1.1/24',50001,1))end)
+test('kernel aliases cannot mask the removed old network',function()local s=state();table.remove(s.peers,1);assert(not m.check_iface(s,'wg1','10.101.1.1/24',50001,1))end)
+test('router address cannot equal client tunnel address',function()assert(not m.check_iface(state(),'wg1','10.100.1.2/24',50001,1))end)
+test('router address cannot equal exit peer tunnel address',function()assert(not m.check_iface(state(),'wg2','10.100.2.2/24',50002,2))end)
+test('own site remote cannot become own interface range',function()assert(not m.check_iface(state(),'wg2','192.168.20.1/24',50002,2))end)
+test('safe router host change within existing site network allowed',function()assert(m.check_iface(state(),'wg1','10.100.1.10/24',50001,1))end)
+test('unchanged legacy address remains editable',function()assert(m.check_iface(state(),'wg1','10.100.1.1/24',50011,1))end)
+test('unrelated interface can change subnet',function()assert(m.check_iface(state(),'wg3','10.100.33.1/24',50003,3))end)
+test('normal successful projection does not mutate input snapshot',function()local s=state();assert(m.check_iface(s,'wg3','10.100.33.1/24',50003,3));assert(s.interfaces[3].local_address=='10.100.3.1/24'and #s.networks==3)end)
+print('PASS '..count..' interface dependency cases')

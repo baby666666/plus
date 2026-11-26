@@ -1,0 +1,50 @@
+{
+  "helper": "router-time.8a36075a50a206ba7a15.js",
+  "app": "app.featureport.541754ffdb97279400eb.js",
+  "chunks": {
+    "89": {
+      "source": "basic.js",
+      "runtime": "89.7d52ebc34a4eb17ace7b.js"
+    },
+    "122": {
+      "source": "admin.js",
+      "runtime": "122.b4302d3bba6ca769dd8c.js"
+    },
+    "123": {
+      "source": "notice.js",
+      "runtime": "123.d33cab24285d81f1210b.js"
+    },
+    "124": {
+      "source": "arp.js",
+      "runtime": "124.aece60232e7f3f519361.js"
+    },
+    "160": {
+      "source": "pppauth.js",
+      "runtime": "160.065df3454cd749db7a41.js"
+    },
+    "161": {
+      "source": "wanpppoe.js",
+      "runtime": "161.0d4137d940b8bff7741b.js"
+    },
+    "162": {
+      "source": "apaction.js",
+      "runtime": "162.e587b14305954a84a4d1.js"
+    },
+    "163": {
+      "source": "sysevent.js",
+      "runtime": "163.8736a600bac0005f28de.js"
+    },
+    "164": {
+      "source": "dhcpd.js",
+      "runtime": "164.b4a470807a8d53cd3323.js"
+    },
+    "165": {
+      "source": "ddns.js",
+      "runtime": "165.d823300e30af14717f15.js"
+    },
+    "121": {
+      "source": "perceivable.js",
+      "runtime": "121.c3bcd77a2347527b5c98.js"
+    }
+  }
+}

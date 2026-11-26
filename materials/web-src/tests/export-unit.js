@@ -1,0 +1,12 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+let methods;vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'../src/ctpanel.js'),'utf8'),{Vue:function(o){methods=o.methods;}});
+const results=[];
+function run(name,f){f();results.push({name,passed:true})}
+function setup(){const calls=[],messages=[];const page={sources:[{name:'a'}],exportBusy:false,exportMenu:true,$message:{warning:x=>messages.push(x),error:x=>messages.push(x)}};let navigate='';const sandbox={Vue:function(o){methods=o.methods;},AjaxPost:(...args)=>calls.push(args),window:{location:{set href(x){navigate=x}}},encodeURIComponent};vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'../src/ctpanel.js'),'utf8'),sandbox);return {page,calls,messages,method:methods.exportFile,get navigate(){return navigate}}}
+for(const format of ['csv','txt'])run(format+' native export then exact download filename',()=>{const t=setup();t.method.call(t.page,format);assert.equal(t.calls.length,1);assert.equal(t.calls[0][1].action,'EXPORT');assert.equal(t.calls[0][1].param.format,format);assert(t.page.exportBusy);t.calls[0][2]({Result:30000,Filename:'software_sources.'+format});assert.equal(t.navigate,'/Action/download?filename=software_sources.'+format);assert(!t.page.exportBusy)});
+run('invalid extension makes no request',()=>{const t=setup();t.method.call(t.page,'../../test.po');assert.equal(t.calls.length,0);assert.equal(t.messages.length,1)});
+run('empty list makes no request',()=>{const t=setup();t.page.sources=[];t.method.call(t.page,'csv');assert.equal(t.calls.length,0)});
+run('double click creates one export',()=>{const t=setup();t.method.call(t.page,'csv');t.method.call(t.page,'csv');assert.equal(t.calls.length,1)});
+for(const response of [{Result:30000,Filename:'../../bad.po'},{Result:30000},{Result:10014,ErrMsg:'login required'}])run('bad API response never starts download '+JSON.stringify(response),()=>{const t=setup();t.method.call(t.page,'csv');t.calls[0][2](response);assert.equal(t.navigate,'');assert(!t.page.exportBusy);assert.equal(t.messages.length,1)});
+run('transport failure restores button',()=>{const t=setup();t.method.call(t.page,'txt');t.calls[0][3]({});assert(!t.page.exportBusy);assert.equal(t.navigate,'');assert.equal(t.messages.length,1)});
+fs.writeFileSync(require('node:path').join(require('node:os').tmpdir(),'export-frontend-unit.json'),JSON.stringify({passed:results.length,cases:results},null,2)+'\n');console.log('PASS',results.length,'native export UI contract cases');
