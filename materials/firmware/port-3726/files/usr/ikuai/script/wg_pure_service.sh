@@ -144,6 +144,11 @@ while read -r dev id port inner extra;do
     if [ "$op" = check ];then
         selected "$dev" || continue
         [ ! -e "$stage/reverse-error.$id" ] || { fail 'HY2 反向映射配置或端口不可用';exit 1; }
+        # Reject a conflicting public reverse port before the slower carrier
+        # checks so a failed edit cannot time out while holding the WG lock.
+        if [ -s "$stage/reverse-server.$id" ];then
+            "$reverse" check "puh-$id" "$stage/reverse-server.$id" "$dev" || exit 1
+        fi
         "$engine" check "$stage/pure.$id" || exit 1
         read_admin || exit 1
         # A projected new interface may not exist yet. Synchronization checks real
@@ -154,9 +159,6 @@ while read -r dev id port inner extra;do
         if ! "$engine" "puh-$id" available "$port";then
             [ "$(/usr/bin/wg show "$dev" listen-port 2>/dev/null)" = "$port" ] ||
                 { fail '纯 HY2 数据端口已被占用';exit 1; }
-        fi
-        if [ -s "$stage/reverse-server.$id" ];then
-            "$reverse" check "puh-$id" "$stage/reverse-server.$id" "$dev" || exit 1
         fi
         continue
     fi

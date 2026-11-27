@@ -22,7 +22,7 @@ port_manager=/usr/ikuai/script/wg_hyr_ports.sh
 tls=$data/tls
 action=${1:-}
 shift || exit 2
-case $action in hold|prepare|check_mode|status|settings|profile|site_profile|uri|native_profile|sync|monitor|shutdown) ;; *) exit 2;; esac
+case $action in hold|preflight|prepare|check_mode|status|settings|profile|site_profile|uri|native_profile|sync|monitor|shutdown) ;; *) exit 2;; esac
 fail(){ printf '%s\n' "$1"; exit 1; }
 private_dir(){
     [ -d "$1" ] || mkdir -m 700 "$1" 2>/dev/null || return 1
@@ -122,7 +122,7 @@ if [ -d "$change" ]; then
     case "$action" in
         # A read-only status request never commits an interrupted update.
         status|hold|shutdown|monitor|sync|check_mode) ;;
-        settings|profile|site_profile|uri|native_profile) fail 'WG 隧道设置正在恢复，请刷新后重试';;
+        preflight|settings|profile|site_profile|uri|native_profile) fail 'WG 隧道设置正在恢复，请刷新后重试';;
         *) "$0" hyr "$db" sync >/dev/null || fail 'WG 隧道设置正在恢复，请刷新后重试';;
     esac
 fi
@@ -144,10 +144,10 @@ if [ "$action" = hold ]; then
 fi
 current=-
 if [ -e "$data" ] || [ -L "$data" ]; then
-    private_dir "$data" || { [[ $action = native_profile || $action = uri ]] || stop_service; fail 'Hysteria 2 存储权限异常'; }
+    private_dir "$data" || { [[ $action = preflight || $action = native_profile || $action = uri ]] || stop_service; fail 'Hysteria 2 存储权限异常'; }
 fi
 if [ -e "$state" ] || [ -L "$state" ]; then
-    private_file "$state" || { [[ $action = native_profile || $action = uri ]] || stop_service; fail 'Hysteria 2 存储权限异常'; }
+    private_file "$state" || { [[ $action = preflight || $action = native_profile || $action = uri ]] || stop_service; fail 'Hysteria 2 存储权限异常'; }
     current=$state
 fi
 # Editing reads the persisted peer under both locks. It needs no
@@ -233,12 +233,13 @@ fi
 need_tls=yes
 if [[ $action = sync || $action = monitor ]] &&
     ! jq -e '.members[] | select(.transport=="pure_hy2" and .mode!="lend")' "$state" >/dev/null;then need_tls=no;fi
-if [ "$action" = prepare ] && [ "${4:-}" = off ]; then need_tls=no; fi
+if [[ $action = preflight || $action = prepare ]] && [ "${4:-}" = off ]; then need_tls=no; fi
 if [ "$need_tls" = yes ] && [ ! -d "$tls" ] && [ ! -L "$tls" ]; then
     case "$action" in
-        prepare)
+        preflight|prepare)
             if [ "$current" != - ] && jq -e '.members[] | select(.transport=="pure_hy2" and .mode!="lend")' "$current" >/dev/null;then
-                stop_service; fail 'Hysteria 2 证书不可用'
+                [ "$action" = preflight ] || stop_service
+                fail 'Hysteria 2 证书不可用'
             fi
             identity=$(mktemp -d "$data/tls.XXXXXX") || exit 1
             serial=$(cat /proc/sys/kernel/random/uuid) || exit 1
@@ -252,7 +253,7 @@ if [ "$need_tls" = yes ] && [ ! -d "$tls" ] && [ ! -L "$tls" ]; then
 fi
 if [ "$need_tls" = yes ]; then
     private_dir "$tls" && private_file "$tls/key.pem" && private_file "$tls/cert.pem" ||
-        { stop_service; fail 'Hysteria 2 证书不可用'; }
+        { [ "$action" = preflight ] || stop_service; fail 'Hysteria 2 证书不可用'; }
 fi
 if [[ $action = profile || $action = site_profile ]]; then
     openssl x509 -in "$tls/cert.pem" -pubkey -noout 2>/dev/null |
@@ -261,7 +262,7 @@ if [[ $action = profile || $action = site_profile ]]; then
     run_model "$action" "$@"; exit $?
 fi
 [ "$action" != monitor ] || action=sync
-if [ "$action" = prepare ]; then
+if [[ $action = preflight || $action = prepare ]]; then
     # Actual and projected databases are both private and under the WG lock.
     [[ "$#" -ge 7 && "$#" -le 12 ]] || exit 2
     projected=$1; row=$2; iface=$3; mode=$4; expected=$5; first_ip=$6; first_port=$7; port_mode=${8:-}; addr_mode=${9:-}; resume=${10:-}
@@ -271,6 +272,10 @@ if [ "$action" = prepare ]; then
     db=$projected
     run_model set_mode "$row" "$mode" "$expected" "$first_ip" "$first_port" "$port_mode" "$addr_mode" "$resume" "${11:-}" "$actual_db" "${12:-}" || exit 1
     "$pure" check "$stage" "$iface" || fail '纯 HY2 配置或端口不可用，请检查 UDP 端口'
+    # The native writer runs this under wireguard_address before any hold or
+    # role fence. Rejected proposals must not revoke an existing connection.
+    # The normal prepare repeats these checks before publishing its journal.
+    [ "$action" != preflight ] || exit 0
 elif ! run_model "$action" "$@"; then
     [ "$action" != sync ] || stop_service
     exit 1

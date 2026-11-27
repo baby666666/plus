@@ -277,6 +277,15 @@ class VM:
                    '>/tmp/nr-reverse-test-fixture.log 2>&1 & echo $! >/tmp/nr-reverse-test-fixture.pid; '
                    'for n in $(seq 1 50); do grep -q READY /tmp/nr-reverse-test-fixture.log && exit 0; sleep .2; done; exit 1')
 
+    def worker_identity(self, unit):
+        assert re.fullmatch(r'(?:puh|puc)-[1-9][0-9]*', unit)
+        # The native service identity contains no credential or configuration:
+        # PID, process start ticks and executable inode distinguish restarts.
+        fields = self.shell('cat /tmp/iktmp/wg-hy-reverse/' + unit + '/service.pid').split()
+        assert len(fields) == 3 and fields[0].isdigit() and fields[1].isdigit()
+        assert re.fullmatch(r'[0-9]+:[0-9]+', fields[2])
+        return {'pid': int(fields[0]), 'start_ticks': int(fields[1]), 'executable_inode': fields[2]}
+
     def diagnostics(self):
         # Never read raw configuration, environment, argv, cookies or bundles.
         status = {}
@@ -608,7 +617,15 @@ def main():
             if success:
                 assert result.get('Result') == 30000, ('center', 'edit', result.get('Result'), result.get('ErrMsg'))
             else:
-                assert result.get('Result') not in (10014, 30000), 'Occupied listener save unexpectedly succeeded'
+                # Preserve the actual rejected response before testing the held
+                # stream. A native RPC timeout must not masquerade as preflight.
+                error = str(result.get('ErrMsg') or '')
+                scrubbed = re.sub(r'[A-Fa-f0-9]{32,}', '[REDACTED]', error)
+                scrubbed = re.sub(r'[A-Za-z0-9+/]{40,}={0,2}', '[REDACTED]', scrubbed)
+                report['port_conflict_reply'] = {'result': result.get('Result'), 'error': scrubbed[:1024]}
+                assert isinstance(result.get('Result'), int) and result['Result'] not in (10014, 30000), 'Occupied listener save unexpectedly succeeded'
+                assert not re.search(r'等待|超时|timeout|timed\s*out|deadline', error, flags=re.I), 'Port-conflict response was an infrastructure timeout'
+                assert re.search(r'端口|\bport\b', error, flags=re.I), 'Native rejection did not identify a port-preflight error'
             return result
 
         center.start_fixture('busy')
@@ -625,7 +642,21 @@ def main():
             wait_for('existing stream before port-conflict save', lambda: any(
                 row['id'] == '2' and row['active'] > 0
                 for row in server_member(True)['reverse_status']['mappings']), timeout=30)
-            rejected = edit_reverse(conflict, success=False)
+            server_unit = 'puh-' + str(server_member()['peer_id'])
+            report['port_conflict_worker_identity'] = {'before': {
+                'center': center.worker_identity(server_unit),
+                'client': client.worker_identity('puc-' + client_id)}}
+            conflict_started = time.monotonic()
+            try:
+                rejected = edit_reverse(conflict, success=False)
+            finally:
+                report['port_conflict_worker_identity']['edit_seconds'] = round(time.monotonic() - conflict_started, 1)
+                after = report['port_conflict_worker_identity']['after'] = {}
+                for vm, unit in ((center, server_unit), (client, 'puc-' + client_id)):
+                    try:
+                        after[vm.name] = vm.worker_identity(unit)
+                    except Exception:
+                        after[vm.name] = {'unavailable': True}
             held.sendall(b'after-rejected-save')
             held.shutdown(socket.SHUT_WR)
             received = bytearray()

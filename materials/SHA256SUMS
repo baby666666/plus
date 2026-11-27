@@ -110,7 +110,7 @@ f772efd56f878cbfd0a1a5e4294a0f23211b91edfd7a79482dafa6b09c04e066  firmware/port-
 ecc18df6d25e498ed5140ac988e9892ff7434cc242ed7a91a20b9350afaec53e  firmware/port-3726/files/usr/ikuai/script/wg_dns_split.lua
 55611472dd8ea1c2b91c746d59061759996c26f3090c977930a1174c526170f7  firmware/port-3726/files/usr/ikuai/script/wg_dns_split.sh
 ecc18df6d25e498ed5140ac988e9892ff7434cc242ed7a91a20b9350afaec53e  firmware/port-3726/files/usr/ikuai/script/wg_dns_test.lua
-807861989533fab33de57edb517171f66a8d13f0862a371e088fc50b2937d5fe  firmware/port-3726/files/usr/ikuai/script/wg_hy_ctl.sh
+26bb8c755997f1aa94649c6b0a296faba17756c0fbd4b913ba51fdf9f2773709  firmware/port-3726/files/usr/ikuai/script/wg_hy_ctl.sh
 dee7789337d3d70951f72a1c20dd151247cad168b3d7664531d4a037abba6c1f  firmware/port-3726/files/usr/ikuai/script/wg_hy_engine.sh
 55e9c0dcf524cb5ded8251877896d6f8320666626a64b18897c06d2814d512e9  firmware/port-3726/files/usr/ikuai/script/wg_hy_reverse.sh
 d6fc33185c45ea9f543c252b7a237840749e9636f863ac1d4658b9811240f9aa  firmware/port-3726/files/usr/ikuai/script/wg_hyr_config.lua
@@ -127,14 +127,14 @@ a135ef8f89d3a55d9be9c8fb8780b75ec1c6cbf305d491887b535f44cdd48de6  firmware/port-
 659aaf8b6d2fa278fe034b842e607e50f57fdd27758a2fba173e4fccf7512802  firmware/port-3726/files/usr/ikuai/script/wg_pure_probe.lua
 cc5e534546acd778391e6a20534a3bf4adca0ff667e82ddabab03d226c4c80a7  firmware/port-3726/files/usr/ikuai/script/wg_pure_profile.lua
 3f8fd66d9191c251daa9e5c9f1839b9173537233d2baab65b3e6cbc076ee218a  firmware/port-3726/files/usr/ikuai/script/wg_pure_routing.sh
-c813c920d882c15a8eef662e9c18d5380334f4d09ad464081c51c68a02f3000f  firmware/port-3726/files/usr/ikuai/script/wg_pure_service.sh
+04e92c976938082ffddde091b2ce5ca6e20f38c3aee8bc64229c8e07fcc716e7  firmware/port-3726/files/usr/ikuai/script/wg_pure_service.sh
 d9f0fa2bba2f8518572c899216ab39e7288321a2a6e2952cb7d118de542c275d  firmware/port-3726/files/usr/ikuai/script/wg_reverse_config.lua
 97a882783a47b88bf675592596ec0c0d3ea4a28d6fe7fc069d40ec7be9aa9d25  firmware/port-3726/files/usr/ikuai/script/wg_role_migrate.lua
 6a22905ace1ebefefe96fca2f5ca86518a03f875e67d7986a4904678edd79be3  firmware/port-3726/files/usr/ikuai/script/wg_site.sh
 2144ca04ccfe14d557b446cb0bcde4083ada2284ce5b47a0fa2f01957547cebe  firmware/port-3726/files/usr/ikuai/script/wg_site_client.lua
 990156237d768aebebdf52ee9b58aba2c083a4141ff80c0a24a6e596cadc12b9  firmware/port-3726/files/usr/ikuai/script/wg_site_client.sh
 6df775d0feac8af9326007921f530fbc7047c3f8d113cd6ef426c9a45e149646  firmware/port-3726/files/usr/ikuai/script/wg_site_compile.lua
-6d95d83835826abc6e3df95f7a3963cd1392d5dca610494a0f508d065a184401  firmware/port-3726/files/usr/ikuai/script/wireguard.sh
+3cbc353384ced57a376d6cc2d5944a1967401d10eb1b316a7688d5ebba2b6c85  firmware/port-3726/files/usr/ikuai/script/wireguard.sh
 ce1bb3ca77c5afcd2164df5edfe7bee1755a595fe45f3f41f64af067ddf49e27  firmware/port-3726/files/usr/ikuai/script/wuying.sh
 c1243971a39c7d127ff155f1a9776db6ed65f7a5cdf39484665a3a442acbdf09  firmware/port-3726/files/usr/ikuai/www/index.html
 dee109a9331a06de33fb770eac94a2d209279e3047ab163be31d71a973d47848  firmware/port-3726/files/usr/ikuai/www/index.html.gz
