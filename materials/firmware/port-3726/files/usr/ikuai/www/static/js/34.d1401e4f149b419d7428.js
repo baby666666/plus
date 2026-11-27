@@ -13,6 +13,23 @@
         return value;
     }
     var validName = /^[A-Za-z0-9][A-Za-z0-9._-]{0,47}$/;
+    function reverseConfig(value){return root.WGPasteImport.validateReverse(value);}
+    function reverseDraft(value){
+        var saved=reverseConfig(value);
+        return {enabled:saved.enabled,mappings:saved.mappings.map(function(row){
+            return {id:row.id,protocol:row.protocol,listen_port:String(row.listen_port),target_ip:row.target_ip,
+                target_port:String(row.target_port),sources_text:row.sources.join(', ')};
+        })};
+    }
+    function reverseParameters(draft){
+        if(!draft || !draft.enabled)return {enabled:false,mappings:[]};
+        return reverseConfig({enabled:true,mappings:draft.mappings.map(function(row){
+            function port(value){return /^(?:[1-9][0-9]{0,4})$/.test(String(value))?Number(value):NaN;}
+            return {id:row.id,protocol:row.protocol,listen_port:port(row.listen_port),target_ip:row.target_ip.trim(),
+                target_port:port(row.target_port),sources:row.sources_text.split(/[,\s]+/).filter(Boolean)};
+        })});
+    }
+    function sameReverse(first,second){return JSON.stringify(first)===JSON.stringify(second);}
     // Keep only saved, non-secret fields in the editor. Old registrations used shared defaults.
     function snapshot(status) {
         if (!status || typeof status.enabled!=='boolean' || !Array.isArray(status.members)) throw Error();
@@ -29,6 +46,7 @@
                 return {peer_id:String(m.peer_id), id:m.id, name:m.name, interface:m.interface, address:m.address,
                     peer_publickey:m.peer_publickey, mode:mode, addr_mode:addressMode, port_mode:portMode,
                     management_url:isPure(transport)?managementURL(m.management_url):'',
+                    reverse:isPure(transport)?reverseConfig(m.reverse):{enabled:false,mappings:[]},
                     transport:transport, public_ip:m.public_ip || '', public_port:m.public_port, retired:!isPure(transport) || m.retired===true,
                     active:isPure(transport) && m.active!==false, paused:!isPure(transport) || m.paused===true || !status.enabled};
             })
@@ -134,7 +152,8 @@
         data:function () {
             return {transport:'native',mode:'access',portMode:'wg',addrMode:'auto',service:null,member:null,draft:null,qr:null,phoneKind:'',phoneText:'',playing:false,busy:false,serial:0,error:'',notice:'',
                 selected:false,discovering:false,discoveryError:'',reading:false,saving:false,committed:false,revision:0,
-                resume:false,settingsOpen:false,stale:false};
+                resume:false,settingsOpen:false,stale:false,reverseDraft:reverseDraft(),reverseRuntime:null,
+                reverseServiceRunning:null,reverseReading:false,reverseReadError:''};
         },
         computed:{
             selectedInterface:function(){return this.peerForm.interface;},
@@ -143,6 +162,11 @@
                 return v.revision>0 && fields.every(function(k,i){return v._initialFields[i]===v.peerForm[k];});
             },
             managementAddress:function(){return this.exportReady?this.member.management_url:'';},
+            reverseUnchanged:function(){
+                try{return !!this.member && sameReverse(reverseParameters(this.reverseDraft),this.member.reverse);}
+                catch(e){return false;}
+            },
+            pureRouterReady:function(){return this.exportReady && this.reverseUnchanged;},
             nativeRouterReady:function () {
                 var f=this.peerForm, origin=this._origin;
                 return !!(this.transport==='native' && this.service && !this.member && this.unchanged && !this.stale &&
@@ -182,6 +206,40 @@
             this._initialFields=null;this.$emit('transport',false);
         },
         methods:{
+            addReverseMapping:function(){
+                if(this.reverseDraft.mappings.length>=32)return false;
+                var used={};this.reverseDraft.mappings.forEach(function(row){used[row.id]=true;});
+                var id=1;while(used[String(id)] && id<=32)id++;
+                if(id>32)return false;
+                this.reverseDraft.mappings.push({id:String(id),protocol:'tcp',listen_port:'',target_ip:'',target_port:'',sources_text:''});
+                return true;
+            },
+            removeReverseMapping:function(id){
+                this.reverseDraft.mappings=this.reverseDraft.mappings.filter(function(row){return row.id!==id;});
+            },
+            readReverseStatus:function(){
+                var v=this,m=v.member,f=v.peerForm;
+                if(v.reverseReading || !m || !isPure(v.transport) || m.transport!=='pure_hy2' || !m.reverse.enabled)return false;
+                var request=v._reverseRequest={};
+                v.reverseReading=true;v.reverseReadError='';
+                function current(){return !v._isDestroyed && v._reverseRequest===request && v.member===m && v.peerForm===f && isPure(v.transport);}
+                return v.request('show',{TYPE:'hyr_status',peer_id:m.peer_id,id:m.id}).then(function(data){
+                    if(!current())return false;
+                    var status=data && data.hyr_status,rows=status && Array.isArray(status.members) && status.members.filter(function(row){
+                        return String(row.peer_id)===m.peer_id && row.id===m.id && row.interface===m.interface;
+                    });
+                    if(!rows || rows.length!==1)throw Error();
+                    v.reverseRuntime=root.WGPasteImport.reverseState(rows[0].reverse_status);
+                    v.reverseServiceRunning=typeof rows[0].running==='boolean'?rows[0].running:null;
+                    return true;
+                }).catch(function(){
+                    if(current()){
+                        v.reverseRuntime=null;v.reverseServiceRunning=null;
+                        v.reverseReadError=tr('无法读取反向连接状态，请重试。');
+                    }
+                    return false;
+                }).then(function(ok){if(current())v.reverseReading=false;return ok;});
+            },
             onVisibility: function () { if (document.hidden) this.closeQr(); },
             stopFrames: function () {
                 clearInterval(this._qrTimer); this._qrTimer = null; this.playing = false;
@@ -281,6 +339,8 @@
                 }
                 v.closeQr();var token=++v.serial;
                 v.busy=false;v.reading=true;v.service=null;v.member=null;v.revision=0;
+                v._reverseRequest=null;v.reverseReading=false;v.reverseRuntime=null;v.reverseServiceRunning=null;v.reverseReadError='';
+                v.reverseDraft=reverseDraft();
                 v.resume=false;v.settingsOpen=false;
                 v.selected=false;v.stale=false;v.error='';v.notice='';
                 v.$emit('transport',v.transport!=='native',false,false,isPure(v.transport));
@@ -301,10 +361,12 @@
                         v.stale=true;v.error=staleMessage();return false;
                     }
                     if(afterSave && (!member || member.transport!==identity.method || member.mode!==identity.mode || member.port_mode!==identity.portMode ||
-                        member.addr_mode!==identity.addrMode || (identity.resume && member.paused) || (identity.addrMode!=='shared' && member.public_ip!==identity.publicIP))) return false;
+                        member.addr_mode!==identity.addrMode || !sameReverse(member.reverse,identity.reverse) ||
+                        (identity.resume && member.paused) || (identity.addrMode!=='shared' && member.public_ip!==identity.publicIP))) return false;
                     v.member=member;
                     v.service={public_ip:hy.public_ip,core_storage:hy.core_storage,core_format:hy.core_format};
                     v.draft={public_ip:''};
+                    v.reverseDraft=reverseDraft(member?member.reverse:undefined);
                     v.portMode=member ? member.port_mode : 'wg';
                     v.addrMode=member ? member.addr_mode : 'auto';
                     v.draft.public_ip=member ? (member.addr_mode==='shared'?hy.public_ip:member.public_ip) : '';
@@ -321,10 +383,12 @@
                 this.closeQr();this.error='';this.notice='';this.selected=true;
                 var existing=this.member && this.member.transport===method ? this.member : null;
                 this._addressRequest=null;this.discovering=false;this.discoveryError='';this.transport=method;
+                this._reverseRequest=null;this.reverseReading=false;this.reverseRuntime=null;this.reverseServiceRunning=null;this.reverseReadError='';
                 if(method==='native') this.resume=false;
                 if(existing) {
                     this.mode=existing.mode;this.portMode=existing.port_mode;this.addrMode=existing.addr_mode;
                     this.draft.public_ip=existing.addr_mode==='shared'?this.service.public_ip:existing.public_ip;
+                    if(isPure(method))this.reverseDraft=reverseDraft(existing.reverse);
                 } else if(isPure(method)) {
                     this.portMode='wg';
                     if(this.addrMode==='shared')this.addrMode='auto';
@@ -384,6 +448,7 @@
                 try {address=root.WGClientConfig.endpointIP(this.draft.public_ip);} catch(e) {throw Error(tr('请填写有效的 IPv4 地址'));}
                 if(this.member && this.member.paused && this.resume) send.hyr_resume='yes';
                 send.hyr_public_ip=address;
+                send.hyr_reverse_hex=root.WGPasteImport.reverseHex(reverseParameters(this.reverseDraft));
                 try {root.WGClientConfig.endpointIP(f.client_endpoint);} catch(e) {this.$set(f,'client_endpoint',address);}
                 send.exit_peer=this.mode==='access'?'no':'yes';
                 return send;
@@ -393,6 +458,7 @@
                 if(!f.id || this.selected || this.resume || (f.comment||'')===this._openedComment || editInputs(f)!==this._openedInputs) return null;
                 if(m && (m.port_mode!==this.portMode || m.addr_mode!==this.addrMode ||
                     (this.addrMode!=='shared' && m.public_ip!==payload.hyr_public_ip))) return null;
+                if(isPure(this.transport) && !this.reverseUnchanged)return null;
                 return {id:f.id,comment:f.comment||'',comment_only:'yes',hyr_origin_key:payload.hyr_origin_key,
                     hyr_origin_iface:payload.hyr_origin_iface,hyr_id:payload.hyr_id,
                     native_origin_role:payload.native_origin_role,native_origin_exit:payload.native_origin_exit};
@@ -404,6 +470,7 @@
                     v._submitted={id:row.id,interface:row.interface,allowips:row.allowips,peer_publickey:row.peer_publickey,
                         site_local:row.site_local,site_remote:row.site_remote,method:row.wg_transport || v.transport,mode:row.wg_role || v.mode,portMode:row.hyr_port_mode || v.portMode,
                         resume:row.hyr_resume==='yes' || v.resume,addrMode:row.hyr_addr_mode || v.addrMode,publicIP:row.hyr_public_ip || v.draft.public_ip,
+                        reverse:row.hyr_reverse_hex?root.WGPasteImport.reverseFromHex(row.hyr_reverse_hex):reverseParameters(v.reverseDraft),
                         native_role:'',exit_peer:row.exit_peer,inputs:editInputs(row),comment:row.comment||''};
                     v._savedFields=fields.map(function(k){return row[k];});
                 }
@@ -425,7 +492,7 @@
                 var native=qrRequested==='router' && v.transport==='native',router=qrRequested==='router';
                 var copying=qrRequested==='json' || qrRequested==='uri';
                 var serverKey=v.serverKey,listenPort=v.listenPort;
-                if(!(native?v.nativeRouterReady:v.exportReady) || (v.busy && !(copying && v.phoneKind && v.phoneKind!==qrRequested)))return false;
+                if(!(native?v.nativeRouterReady:router?v.pureRouterReady:v.exportReady) || (v.busy && !(copying && v.phoneKind && v.phoneKind!==qrRequested)))return false;
                 if(copying && v.phoneKind===qrRequested && v.phoneText)return v.copyShownPhone();
                 v.closeQr();
                 if(copying)v.phoneKind=qrRequested;
@@ -433,7 +500,7 @@
                 var name=native?'':'HY2-'+member.name, token=++v.serial;
                 v.busy=true;v._exportPending=true;v.error='';v.notice='';
                 function current(){return !v._isDestroyed && !document.hidden && v.serial===token && v.peerForm===form &&
-                    v.member===member && (native?v.nativeRouterReady && v.serverKey===serverKey && v.listenPort===listenPort:v.exportReady);}
+                    v.member===member && (native?v.nativeRouterReady && v.serverKey===serverKey && v.listenPort===listenPort:router?v.pureRouterReady:v.exportReady);}
                 var type=native?'native_router_profile':router?'hyr_site_profile':qrRequested==='uri'?'hyr_uri':'hyr_profile';
                 var request=native?{TYPE:type,peer_id:String(v._origin.id),hyr_origin_iface:v._origin.interface,
                     hyr_origin_key:v._origin.peer_publickey,expected_server_key:serverKey}:{TYPE:type,peer_id:member.peer_id,id:member.id};
@@ -445,7 +512,7 @@
                     if(router){
                         var preview=root.WGPasteImport.validateSite(profile);
                         agrees=preview.purpose===v.mode && preview.transport===v.transport &&
-                            (pure?matchesPureEndpoint(v,preview.server,preview.port):
+                            (pure?matchesPureEndpoint(v,preview.server,preview.port) && sameReverse(reverseConfig(preview.reverse),member.reverse):
                             matchesNativeExport(v,profile.wireguard,profile.transport));
                     }else if(qrRequested==='uri'){
                         agrees=matchesPureUri(v,profile);
@@ -511,6 +578,54 @@
                     domProps:{value:v.draft[key]},on:{input:function(e){if(key==='public_ip'){v._addressRequest=null;v.discovering=false;v.discoveryError='';} v.draft[key]=e.target.value.trim();}}})]);
             }
             function controls(children){return h('div',{staticClass:'wg-tunnel-controls'},children);}
+            function renderReverseEditor(){
+                var saved=v.member && v.member.reverse;
+                function reverseInput(row,key,label,placeholder,maxlength){
+                    return h('label',{staticClass:'wg-tunnel-field'},[label,h('input',{staticClass:'inptText',
+                        attrs:{type:'text',disabled:locked || !v.reverseDraft.enabled,
+                            inputmode:key.indexOf('port')>=0?'numeric':'text',maxlength:maxlength,
+                            placeholder:placeholder,'aria-label':label+' '+row.id},
+                        domProps:{value:row[key]},on:{input:function(event){row[key]=event.target.value;}}
+                    })]);
+                }
+                var items=[h('h4',[tr('反向端口映射')]),h('label',[
+                    h('input',{attrs:{type:'checkbox',name:'hyr_reverse_enabled',disabled:locked},domProps:{checked:v.reverseDraft.enabled},
+                        on:{change:function(event){v.reverseDraft.enabled=event.target.checked;if(event.target.checked && !v.reverseDraft.mappings.length)v.addReverseMapping();}}}),
+                    tr('允许通过服务端端口访问这台路由器的指定服务')
+                ]),h('p',{staticClass:'note'},[tr('仅支持兼容的 NativeRouting 路由器；手机配置不包含反向映射。')])];
+                if(v.reverseDraft.enabled){
+                    items.push(h('p',{staticClass:'note'},[tr('填写客户端本机或局域网的目标 IPv4 和端口。每条映射单独设置允许访问的来源网段。')]));
+                    v.reverseDraft.mappings.forEach(function(row){
+                        items.push(h('fieldset',{key:row.id,staticClass:'wg-reverse-mapping'},[
+                            h('legend',[tr('映射'),' ',row.id]),
+                            h('div',{staticClass:'wg-reverse-fields'},[
+                                h('label',{staticClass:'wg-tunnel-field'},[tr('协议'),h('select',{staticClass:'inptText',attrs:{disabled:locked,'aria-label':tr('协议')+' '+row.id},
+                                    domProps:{value:row.protocol},on:{change:function(event){row.protocol=event.target.value;}}},[
+                                    h('option',{attrs:{value:'tcp'}},['TCP']),h('option',{attrs:{value:'udp'}},['UDP'])
+                                ])]),
+                                reverseInput(row,'listen_port',tr('服务端映射端口'),'18080',5),
+                                reverseInput(row,'target_ip',tr('客户端目标 IPv4'),'192.168.62.1',15),
+                                reverseInput(row,'target_port',tr('客户端目标端口'),'80',5),
+                                reverseInput(row,'sources_text',tr('允许访问的来源网段'),'203.0.113.0/24',512)
+                            ]),button(tr('移除映射'),function(){v.removeReverseMapping(row.id);},locked)
+                        ]));
+                    });
+                    items.push(button(tr('新增映射'),v.addReverseMapping,locked || v.reverseDraft.mappings.length>=32),
+                        h('p',{staticClass:'note'},[tr('多个网段用逗号分隔；0.0.0.0/0 表示允许所有来源。')]),
+                        h('p',{staticClass:'note'},[tr('保存映射变更后，请重新复制到客户端路由器并导入。')])
+                    );
+                }
+                if(saved && saved.enabled){
+                    items.push(h('h4',[tr('已保存映射的连接状态')]),
+                        controls([button(v.reverseReading?tr('正在读取…'):tr('读取连接状态'),v.readReverseStatus,locked || v.reverseReading)]),
+                        h('p',[tr('HY2 服务状态'),' · ',v.reverseServiceRunning===true?tr('服务运行中'):v.reverseServiceRunning===false?tr('服务未运行'):tr('无记录')]),
+                        root.WGPasteImport.renderReverseStatus(h,v.reverseRuntime,saved.mappings)
+                    );
+                    if(v.reverseReadError)items.push(h('p',{staticClass:'error_tip',attrs:{role:'status'}},[v.reverseReadError]));
+                }
+                if(!v.reverseUnchanged && v.member)items.push(h('p',{staticClass:'note'},[tr('反向映射有未保存的更改，保存后才能复制路由器配置。')]));
+                return h('section',{staticClass:'wg-reverse-editor'},items);
+            }
             function renderQr(){
                 var qr=v.qr;
                 return h('section',{ref:'qrBox',staticClass:'wg-tunnel-qr'},[
@@ -571,6 +686,7 @@
                 body.push(h('details',{staticClass:'wg-hyr-options',attrs:{open:v.settingsOpen},
                     on:{toggle:function(e){v.settingsOpen=e.target.open;}}},[h('summary',[title])].concat(options)));
                 if(v.discoveryError)body.push(h('p',{staticClass:'error_tip'},[v.discoveryError]));
+                if(pure)body.push(renderReverseEditor());
                 if(v.member && v.member.paused && !v.member.retired)body.push(h('label',[
                     h('input',{attrs:{type:'checkbox',name:'hyr_resume',disabled:locked},
                         domProps:{checked:v.resume},on:{change:function(e){v.resume=e.target.checked;}}}),
@@ -582,7 +698,7 @@
                         button(tr('复制 sing-box 配置'),function(){return v.exportMember('json');},false,false,'json'),
                         button(tr('复制 HY2 链接'),function(){return v.exportMember('uri');},false,false,'uri'),
                         button(tr('下载设备 JSON'),function(){return v.exportMember(false);}),
-                        button(tr('复制到路由器'),function(){return v.exportMember('router');})
+                        button(tr('复制到路由器'),function(){return v.exportMember('router');},!v.pureRouterReady)
                     ]));
                     body.push(h('p',{staticClass:'note'},[tr('在手机 sing-box 新建本地配置，打开编辑器，粘贴完整 JSON 并保存。')]));
                     body.push(h('p',{staticClass:'note'},[tr('HY2 链接适用于支持证书指纹校验（pinSHA256）的客户端。')]));

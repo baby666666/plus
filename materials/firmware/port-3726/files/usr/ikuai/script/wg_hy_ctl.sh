@@ -263,13 +263,13 @@ fi
 [ "$action" != monitor ] || action=sync
 if [ "$action" = prepare ]; then
     # Actual and projected databases are both private and under the WG lock.
-    [[ "$#" -ge 7 && "$#" -le 11 ]] || exit 2
+    [[ "$#" -ge 7 && "$#" -le 12 ]] || exit 2
     projected=$1; row=$2; iface=$3; mode=$4; expected=$5; first_ip=$6; first_port=$7; port_mode=${8:-}; addr_mode=${9:-}; resume=${10:-}
     [[ $iface =~ ^wg[0-9]{1,10}$ ]] || fail '请选择已保存的 WG 接口'
     run_model check_mode "$row" "$expected" || exit 1
     actual_db=$db
     db=$projected
-    run_model set_mode "$row" "$mode" "$expected" "$first_ip" "$first_port" "$port_mode" "$addr_mode" "$resume" "${11:-}" "$actual_db" || exit 1
+    run_model set_mode "$row" "$mode" "$expected" "$first_ip" "$first_port" "$port_mode" "$addr_mode" "$resume" "${11:-}" "$actual_db" "${12:-}" || exit 1
     "$pure" check "$stage" "$iface" || fail '纯 HY2 配置或端口不可用，请检查 UDP 端口'
 elif ! run_model "$action" "$@"; then
     [ "$action" != sync ] || stop_service

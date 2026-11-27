@@ -58,6 +58,8 @@ def main():
                      [PY, str(ROOT / 'tools/tests/test_wg_pure_admin.py')],
                      [PY, str(ROOT / 'tools/tests/test_wg_pure_management.py')],
                      [PY, str(ROOT / 'tools/tests/test_wg_site_client.py')],
+                     [PY, str(ROOT / 'tools/tests/test_wg_reverse_models.py')],
+                     [PY, str(ROOT / 'tools/tests/test_wg_reverse_service.py')],
                      [PY, str(ROOT / 'tools/tests/test_wg_hyr_native.py')],
                      [PY, str(ROOT / 'tools/tests/test_wg_hyr_ports.py')],
                      [PY, str(ROOT / 'tools/tests/test_wg_hy_ctl.py')]]
@@ -77,10 +79,11 @@ wg-probe-reset wg-transport-scan'''.split()
         commands += [['node', str(M / 'tests' / (name + '-unit.js'))] for name in
                      ['routing-ui', 'routing-status-ui', 'encrypted-dns-ui']]
         commands += [['node', str(M / 'web-src/tests' / (name + '-unit.js'))] for name in
-                     ['source-files', 'export', 'router-time', 'management-language']]
+                     ['source-files', 'export', 'router-time', 'management-language', 'reverse-config']]
         commands += [[PY, str(M / 'web-src/tests/export-backend-unit.py')],
                      ['node', str(M / 'web-src/tests/router-time-vue-unit.js'), str(fixtures['vendor'])],
-                     ['node', str(M / 'web-src/tests/wg-native-hy-unit.js'), str(fixtures['vendor'])]]
+                     ['node', str(M / 'web-src/tests/wg-native-hy-unit.js'), str(fixtures['vendor'])],
+                     ['node', str(M / 'web-src/tests/reverse-ui-unit.js'), str(fixtures['vendor'])]]
         env = dict(os.environ, PYTHONDONTWRITEBYTECODE='1')
         for command in commands:
             name = str(Path(command[1]).relative_to(ROOT))

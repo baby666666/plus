@@ -2632,5 +2632,575 @@
     "zh-CN": "分流源地址",
     "en-US": "Routing rule source address",
     "zh-TW": "分流來源位址"
+  },
+  {
+    "key": "mc55d2836f6",
+    "zh-CN": "HY2 服务状态",
+    "en-US": "HY2 service status",
+    "zh-TW": "HY2 服務狀態"
+  },
+  {
+    "key": "mea83f66118",
+    "zh-CN": "UDP 转发失败",
+    "en-US": "UDP forwarding failed",
+    "zh-TW": "UDP 轉發失敗"
+  },
+  {
+    "key": "m41c1c71229",
+    "zh-CN": "UDP 转发队列已满",
+    "en-US": "UDP forwarding queue is full",
+    "zh-TW": "UDP 轉發佇列已滿"
+  },
+  {
+    "key": "m4e91b8a761",
+    "zh-CN": "两端映射配置不一致，请重新导入。",
+    "en-US": "The mapping settings differ between routers. Import the configuration again.",
+    "zh-TW": "兩端映射設定不一致，請重新匯入。"
+  },
+  {
+    "key": "mb910a0c213",
+    "zh-CN": "仅支持兼容的 NativeRouting 路由器；手机配置不包含反向映射。",
+    "en-US": "Requires a compatible NativeRouting router. Phone profiles do not include reverse mappings.",
+    "zh-TW": "僅支援相容的 NativeRouting 路由器；手機設定不包含反向映射。"
+  },
+  {
+    "key": "m43e5feb160",
+    "zh-CN": "保存映射变更后，请重新复制到客户端路由器并导入。",
+    "en-US": "After saving mapping changes, copy and import the updated configuration on the client router.",
+    "zh-TW": "儲存映射變更後，請重新複製到用戶端路由器並匯入。"
+  },
+  {
+    "key": "mf025035674",
+    "zh-CN": "停用的反向映射不能包含生效规则。",
+    "en-US": "Disabled reverse mappings cannot contain active rules.",
+    "zh-TW": "停用的反向映射不能包含生效規則。"
+  },
+  {
+    "key": "m08f28c9476",
+    "zh-CN": "允许来源必须是有效的 IPv4 CIDR 网段。",
+    "en-US": "Allowed sources must be valid IPv4 CIDR networks.",
+    "zh-TW": "允許來源必須是有效的 IPv4 CIDR 網段。"
+  },
+  {
+    "key": "m6f0ddcc88c",
+    "zh-CN": "允许访问的来源网段",
+    "en-US": "Allowed source networks",
+    "zh-TW": "允許存取的來源網段"
+  },
+  {
+    "key": "m495e8bd153",
+    "zh-CN": "允许通过服务端端口访问这台路由器的指定服务",
+    "en-US": "Allow access to this router's specified services through server ports",
+    "zh-TW": "允許透過伺服器連接埠存取這台路由器的指定服務"
+  },
+  {
+    "key": "mab2f31f30a",
+    "zh-CN": "协议",
+    "en-US": "Protocol",
+    "zh-TW": "通訊協定"
+  },
+  {
+    "key": "m590bc50c60",
+    "zh-CN": "反向协议通信失败",
+    "en-US": "Reverse protocol communication failed",
+    "zh-TW": "反向通訊協定通訊失敗"
+  },
+  {
+    "key": "m2b44437557",
+    "zh-CN": "反向工作连接无效",
+    "en-US": "Invalid reverse data connection",
+    "zh-TW": "反向資料連線無效"
+  },
+  {
+    "key": "m50778908fe",
+    "zh-CN": "反向工作连接被拒绝",
+    "en-US": "Reverse data connection rejected",
+    "zh-TW": "反向資料連線遭拒絕"
+  },
+  {
+    "key": "me4cb8633ad",
+    "zh-CN": "反向工作连接超时",
+    "en-US": "Reverse data connection timed out",
+    "zh-TW": "反向資料連線逾時"
+  },
+  {
+    "key": "mbfb657d77d",
+    "zh-CN": "反向映射导入配置无效，请从对端重新导出。",
+    "en-US": "Invalid reverse mapping import. Export it again from the other router.",
+    "zh-TW": "反向映射匯入設定無效，請從對端重新匯出。"
+  },
+  {
+    "key": "m36fabae2f6",
+    "zh-CN": "反向映射有未保存的更改，保存后才能复制路由器配置。",
+    "en-US": "Save the reverse mapping changes before copying the router configuration.",
+    "zh-TW": "反向映射有未儲存的變更，儲存後才能複製路由器設定。"
+  },
+  {
+    "key": "mbcc2fe2181",
+    "zh-CN": "反向映射未获授权",
+    "en-US": "Reverse mapping is not authorized",
+    "zh-TW": "反向映射未獲授權"
+  },
+  {
+    "key": "m7f6fee7758",
+    "zh-CN": "反向映射的编号、协议、端口或目标 IPv4 无效。",
+    "en-US": "Invalid reverse mapping ID, protocol, port or target IPv4.",
+    "zh-TW": "反向映射的編號、通訊協定、連接埠或目標 IPv4 無效。"
+  },
+  {
+    "key": "ma7c14fd338",
+    "zh-CN": "反向映射配置无效",
+    "en-US": "Invalid reverse mapping configuration",
+    "zh-TW": "反向映射設定無效"
+  },
+  {
+    "key": "ma2eafef9f7",
+    "zh-CN": "反向映射配置无效，请重新读取已保存配置。",
+    "en-US": "Invalid reverse mapping configuration. Reload the saved settings.",
+    "zh-TW": "反向映射設定無效，請重新讀取已儲存設定。"
+  },
+  {
+    "key": "m6600a952a3",
+    "zh-CN": "反向映射须包含 1 至 32 条规则。",
+    "en-US": "Reverse mappings require 1 to 32 rules.",
+    "zh-TW": "反向映射須包含 1 至 32 條規則。"
+  },
+  {
+    "key": "mdf48b6a2df",
+    "zh-CN": "反向端口映射",
+    "en-US": "Reverse port mappings",
+    "zh-TW": "反向連接埠映射"
+  },
+  {
+    "key": "m78faab814c",
+    "zh-CN": "反向连接数已达上限",
+    "en-US": "Reverse connection limit reached",
+    "zh-TW": "反向連線數已達上限"
+  },
+  {
+    "key": "mcdb6e4e456",
+    "zh-CN": "反向通道",
+    "en-US": "Reverse channel",
+    "zh-TW": "反向通道"
+  },
+  {
+    "key": "mafe3037d29",
+    "zh-CN": "反向通道已断开",
+    "en-US": "Reverse channel disconnected",
+    "zh-TW": "反向通道已中斷"
+  },
+  {
+    "key": "m610f06d48c",
+    "zh-CN": "反向通道已被新的连接替换",
+    "en-US": "A new connection replaced this reverse channel",
+    "zh-TW": "反向通道已被新的連線取代"
+  },
+  {
+    "key": "m731eab3c5f",
+    "zh-CN": "反向通道未连接",
+    "en-US": "Reverse channel is not connected",
+    "zh-TW": "反向通道未連線"
+  },
+  {
+    "key": "m516186fe3b",
+    "zh-CN": "反向通道认证失败",
+    "en-US": "Reverse channel authentication failed",
+    "zh-TW": "反向通道驗證失敗"
+  },
+  {
+    "key": "m2a1ea1bd4f",
+    "zh-CN": "发生错误，请重新读取连接状态。",
+    "en-US": "An error occurred. Read the connection status again.",
+    "zh-TW": "發生錯誤，請重新讀取連線狀態。"
+  },
+  {
+    "key": "m418c48c307",
+    "zh-CN": "发送字节",
+    "en-US": "Bytes sent",
+    "zh-TW": "傳送位元組"
+  },
+  {
+    "key": "ma9dcdf786f",
+    "zh-CN": "同一协议的服务端映射端口不能重复。",
+    "en-US": "Server mapping ports must be unique for each protocol.",
+    "zh-TW": "同一通訊協定的伺服器映射連接埠不能重複。"
+  },
+  {
+    "key": "m7522d207b5",
+    "zh-CN": "填写客户端本机或局域网的目标 IPv4 和端口。每条映射单独设置允许访问的来源网段。",
+    "en-US": "Enter the target IPv4 and port on the client router or its LAN. Set allowed source networks for each mapping.",
+    "zh-TW": "填寫用戶端本機或區域網路的目標 IPv4 和連接埠。每條映射單獨設定允許存取的來源網段。"
+  },
+  {
+    "key": "mcdc3faa135",
+    "zh-CN": "多个网段用逗号分隔；0.0.0.0/0 表示允许所有来源。",
+    "en-US": "Separate networks with commas. 0.0.0.0/0 allows all sources.",
+    "zh-TW": "多個網段用逗號分隔；0.0.0.0/0 表示允許所有來源。"
+  },
+  {
+    "key": "m6456f92c68",
+    "zh-CN": "客户端目标 IPv4",
+    "en-US": "Client target IPv4",
+    "zh-TW": "用戶端目標 IPv4"
+  },
+  {
+    "key": "m09ffeaa84b",
+    "zh-CN": "客户端目标端口",
+    "en-US": "Client target port",
+    "zh-TW": "用戶端目標連接埠"
+  },
+  {
+    "key": "m8510e48f58",
+    "zh-CN": "导入后，对端服务端可通过以下端口访问本机或本机局域网的指定服务。",
+    "en-US": "After import, the remote server can access the specified services on this router or its LAN through these ports.",
+    "zh-TW": "匯入後，對端伺服器可透過以下連接埠存取本機或本機區域網路的指定服務。"
+  },
+  {
+    "key": "m6eaaa5cfa9",
+    "zh-CN": "已保存映射的连接状态",
+    "en-US": "Connection status of saved mappings",
+    "zh-TW": "已儲存映射的連線狀態"
+  },
+  {
+    "key": "mf006455e3b",
+    "zh-CN": "已停止",
+    "en-US": "Stopped",
+    "zh-TW": "已停止"
+  },
+  {
+    "key": "mccb46e6b2a",
+    "zh-CN": "已监听",
+    "en-US": "Listening",
+    "zh-TW": "已監聽"
+  },
+  {
+    "key": "m07e7483a2d",
+    "zh-CN": "已认证连接",
+    "en-US": "Authenticated connection",
+    "zh-TW": "已驗證連線"
+  },
+  {
+    "key": "m03b2013c29",
+    "zh-CN": "接收字节",
+    "en-US": "Bytes received",
+    "zh-TW": "接收位元組"
+  },
+  {
+    "key": "m741890f24a",
+    "zh-CN": "新增映射",
+    "en-US": "Add mapping",
+    "zh-TW": "新增映射"
+  },
+  {
+    "key": "m5dbe54a213",
+    "zh-CN": "无法建立反向工作连接",
+    "en-US": "Cannot establish reverse data connection",
+    "zh-TW": "無法建立反向資料連線"
+  },
+  {
+    "key": "m0f008f74bc",
+    "zh-CN": "无法设置目标连接路由",
+    "en-US": "Cannot set the target connection route",
+    "zh-TW": "無法設定目標連線路由"
+  },
+  {
+    "key": "m04554c9aef",
+    "zh-CN": "无法读取反向连接状态，请重试。",
+    "en-US": "Cannot read reverse connection status. Try again.",
+    "zh-TW": "無法讀取反向連線狀態，請重試。"
+  },
+  {
+    "key": "m13819513f6",
+    "zh-CN": "无法连接反向服务",
+    "en-US": "Cannot connect to the reverse service",
+    "zh-TW": "無法連線反向服務"
+  },
+  {
+    "key": "m0e5ddef79c",
+    "zh-CN": "无法连接本地代理",
+    "en-US": "Cannot connect to the local proxy",
+    "zh-TW": "無法連線本機代理"
+  },
+  {
+    "key": "m9c170e6344",
+    "zh-CN": "无记录",
+    "en-US": "No record",
+    "zh-TW": "無記錄"
+  },
+  {
+    "key": "m951c3aa87c",
+    "zh-CN": "映射",
+    "en-US": "Mapping",
+    "zh-TW": "映射"
+  },
+  {
+    "key": "maed1c684c7",
+    "zh-CN": "映射端口已被占用",
+    "en-US": "Mapping port is in use",
+    "zh-TW": "映射連接埠已被占用"
+  },
+  {
+    "key": "mbb27119cb5",
+    "zh-CN": "映射端口监听失败",
+    "en-US": "Mapping port failed to listen",
+    "zh-TW": "映射連接埠監聽失敗"
+  },
+  {
+    "key": "m6f1bed2cac",
+    "zh-CN": "最近心跳",
+    "en-US": "Last heartbeat",
+    "zh-TW": "最近心跳"
+  },
+  {
+    "key": "m6ca3a88548",
+    "zh-CN": "最近目标连接成功",
+    "en-US": "Last successful target connection",
+    "zh-TW": "最近目標連線成功"
+  },
+  {
+    "key": "mf4a50a1da8",
+    "zh-CN": "服务未运行",
+    "en-US": "Service is not running",
+    "zh-TW": "服務未執行"
+  },
+  {
+    "key": "mad37de3449",
+    "zh-CN": "服务端映射端口",
+    "en-US": "Server mapping port",
+    "zh-TW": "伺服器映射連接埠"
+  },
+  {
+    "key": "m41b2752455",
+    "zh-CN": "服务端端口监听",
+    "en-US": "Server port listener",
+    "zh-TW": "伺服器連接埠監聽"
+  },
+  {
+    "key": "m86df7ec743",
+    "zh-CN": "服务运行中",
+    "en-US": "Service is running",
+    "zh-TW": "服務執行中"
+  },
+  {
+    "key": "m82bcf37253",
+    "zh-CN": "未监听",
+    "en-US": "Not listening",
+    "zh-TW": "未監聽"
+  },
+  {
+    "key": "m3d52574ce1",
+    "zh-CN": "未连接",
+    "en-US": "Not connected",
+    "zh-TW": "未連線"
+  },
+  {
+    "key": "m59c2fe790c",
+    "zh-CN": "本地代理拒绝连接",
+    "en-US": "Local proxy rejected the connection",
+    "zh-TW": "本機代理拒絕連線"
+  },
+  {
+    "key": "m087739b986",
+    "zh-CN": "正在启动",
+    "en-US": "Starting",
+    "zh-TW": "正在啟動"
+  },
+  {
+    "key": "m86b6d0d630",
+    "zh-CN": "正在读取…",
+    "en-US": "Reading…",
+    "zh-TW": "正在讀取…"
+  },
+  {
+    "key": "m694186911a",
+    "zh-CN": "正在连接",
+    "en-US": "Connecting",
+    "zh-TW": "正在連線"
+  },
+  {
+    "key": "mba3c003990",
+    "zh-CN": "此客户端已有在线连接",
+    "en-US": "This client already has an online connection",
+    "zh-TW": "此用戶端已有線上連線"
+  },
+  {
+    "key": "m4ac422e7d1",
+    "zh-CN": "每条反向映射须填写 1 至 16 个允许来源网段。",
+    "en-US": "Each reverse mapping requires 1 to 16 allowed source networks.",
+    "zh-TW": "每條反向映射須填寫 1 至 16 個允許來源網段。"
+  },
+  {
+    "key": "m2d5a3fba34",
+    "zh-CN": "活动连接数",
+    "en-US": "Active connections",
+    "zh-TW": "作用中連線數"
+  },
+  {
+    "key": "m22599d6ce0",
+    "zh-CN": "状态为本次手动读取的快照；没有目标成功记录不表示目标已经验证可达。",
+    "en-US": "This is a snapshot from this manual read. Without a successful target record, reachability has not been verified.",
+    "zh-TW": "狀態為本次手動讀取的快照；沒有目標成功記錄不表示目標已驗證可達。"
+  },
+  {
+    "key": "m5b8e4dc513",
+    "zh-CN": "目标服务连接失败",
+    "en-US": "Target service connection failed",
+    "zh-TW": "目標服務連線失敗"
+  },
+  {
+    "key": "m7d21ce5318",
+    "zh-CN": "目标服务连接超时",
+    "en-US": "Target service connection timed out",
+    "zh-TW": "目標服務連線逾時"
+  },
+  {
+    "key": "mfb28ff24d6",
+    "zh-CN": "移除映射",
+    "en-US": "Remove mapping",
+    "zh-TW": "移除映射"
+  },
+  {
+    "key": "m76f757aac5",
+    "zh-CN": "等待客户端连接",
+    "en-US": "Waiting for the client",
+    "zh-TW": "等待用戶端連線"
+  },
+  {
+    "key": "mfe91ce6c42",
+    "zh-CN": "访问来源未获授权",
+    "en-US": "Source is not authorized",
+    "zh-TW": "存取來源未獲授權"
+  },
+  {
+    "key": "m269b52d20a",
+    "zh-CN": "读取连接状态",
+    "en-US": "Read connection status",
+    "zh-TW": "讀取連線狀態"
+  },
+  {
+    "key": "m964ae1c900",
+    "zh-CN": "转发连接中断",
+    "en-US": "Forwarding connection interrupted",
+    "zh-TW": "轉發連線中斷"
+  },
+  {
+    "key": "m4916957fa8",
+    "zh-CN": "运行阶段",
+    "en-US": "Connection phase",
+    "zh-TW": "連線階段"
+  },
+  {
+    "key": "mba07b7f8d9",
+    "zh-CN": "连接出错",
+    "en-US": "Connection error",
+    "zh-TW": "連線錯誤"
+  },
+  {
+    "key": "mae5ead4d89",
+    "zh-CN": "连接超时",
+    "en-US": "Connection timed out",
+    "zh-TW": "連線逾時"
+  },
+  {
+    "key": "mf17941d76b",
+    "zh-CN": "反向代理设备编号无效",
+    "en-US": "Invalid reverse proxy device ID",
+    "zh-TW": "反向代理裝置編號無效"
+  },
+  {
+    "key": "m0f226ab89c",
+    "zh-CN": "反向映射只支持 TCP 或 UDP",
+    "en-US": "Reverse mappings support TCP or UDP only",
+    "zh-TW": "反向映射僅支援 TCP 或 UDP"
+  },
+  {
+    "key": "m2757b81f83",
+    "zh-CN": "反向映射来源必须是 IPv4 CIDR 网段",
+    "en-US": "Reverse mapping sources must be IPv4 CIDR networks",
+    "zh-TW": "反向映射來源必須是 IPv4 CIDR 網段"
+  },
+  {
+    "key": "m6340efeed5",
+    "zh-CN": "反向映射监听端口已被其他设备使用",
+    "en-US": "Another device is using the reverse mapping port",
+    "zh-TW": "反向映射監聽連接埠已被其他裝置使用"
+  },
+  {
+    "key": "mc83d641049",
+    "zh-CN": "反向映射监听端口重复",
+    "en-US": "Duplicate reverse mapping listen port",
+    "zh-TW": "反向映射監聽連接埠重複"
+  },
+  {
+    "key": "m906a8d2054",
+    "zh-CN": "反向映射目标必须是有效的单播 IPv4 地址",
+    "en-US": "Reverse mapping targets must be valid unicast IPv4 addresses",
+    "zh-TW": "反向映射目標必須是有效的單播 IPv4 位址"
+  },
+  {
+    "key": "m373dbc8625",
+    "zh-CN": "反向映射端口与 WG 或 HY2 服务冲突",
+    "en-US": "Reverse mapping port conflicts with a WG or HY2 service",
+    "zh-TW": "反向映射連接埠與 WG 或 HY2 服務衝突"
+  },
+  {
+    "key": "m0bbd5926a4",
+    "zh-CN": "反向映射端口与管理、DNS 或控制服务冲突",
+    "en-US": "Reverse mapping port conflicts with management, DNS or a control service",
+    "zh-TW": "反向映射連接埠與管理、DNS 或控制服務衝突"
+  },
+  {
+    "key": "ma6498f31f3",
+    "zh-CN": "反向映射端口范围为 1 至 65535",
+    "en-US": "Reverse mapping ports must be between 1 and 65535",
+    "zh-TW": "反向映射連接埠範圍為 1 至 65535"
+  },
+  {
+    "key": "mdfb1c87bee",
+    "zh-CN": "反向映射编号必须为不重复的 1 至 32",
+    "en-US": "Reverse mapping IDs must be unique numbers from 1 to 32",
+    "zh-TW": "反向映射編號必須為不重複的 1 至 32"
+  },
+  {
+    "key": "m5090a7da15",
+    "zh-CN": "反向端口映射配置无效",
+    "en-US": "Invalid reverse port mapping configuration",
+    "zh-TW": "反向連接埠映射設定無效"
+  },
+  {
+    "key": "m859c38ff04",
+    "zh-CN": "反向端口映射需要 1 至 32 条规则",
+    "en-US": "Reverse port mappings require 1 to 32 rules",
+    "zh-TW": "反向連接埠映射需要 1 至 32 條規則"
+  },
+  {
+    "key": "ma384ec2af0",
+    "zh-CN": "反向通道控制地址无效",
+    "en-US": "Invalid reverse channel control address",
+    "zh-TW": "反向通道控制位址無效"
+  },
+  {
+    "key": "m3bdcafb59c",
+    "zh-CN": "反向通道缺少有效的服务端内网地址",
+    "en-US": "The reverse channel needs a valid internal server address",
+    "zh-TW": "反向通道缺少有效的伺服器內網位址"
+  },
+  {
+    "key": "m438e35ac99",
+    "zh-CN": "每条反向映射需要 1 至 16 个允许来源网段",
+    "en-US": "Each reverse mapping needs 1 to 16 allowed source networks",
+    "zh-TW": "每條反向映射需要 1 至 16 個允許來源網段"
+  },
+  {
+    "key": "md70b94e1b1",
+    "zh-CN": "反向端口映射配置过长",
+    "en-US": "Reverse port mapping configuration is too long",
+    "zh-TW": "反向連接埠映射設定過長"
+  },
+  {
+    "key": "m9c4bd467bc",
+    "zh-CN": "反向映射配置已变化，请重新导入。",
+    "en-US": "Reverse mapping settings have changed. Import the configuration again.",
+    "zh-TW": "反向映射設定已變更，請重新匯入。"
   }
 ]

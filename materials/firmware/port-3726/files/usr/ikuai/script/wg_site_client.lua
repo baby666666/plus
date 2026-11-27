@@ -24,7 +24,7 @@ local function read_bundle()
     -- The native HTTP dispatcher rejects JSON punctuation inside scalar
     -- parameters. Decode after the normal parameter filter, on the router.
     local hex=peer.read(stage..'/bundle.hex')
-    check(#hex>0 and #hex<=32768 and #hex%2==0 and hex:match('^[0-9a-f]+$'),invalid)
+    check(#hex>0 and #hex<=131072 and #hex%2==0 and hex:match('^[0-9a-f]+$'),invalid)
     local text=hex:gsub('..',function(byte) return string.char(tonumber(byte,16)) end)
     local ok,b=pcall(json.decode,text)
     check(ok and type(b)=='table',invalid)
@@ -211,13 +211,16 @@ local function import_pure(db,b)
     local iid=managed_id(db,'wireguard','iface_id')
     check(pure.address_free(pid),'纯 Hysteria 2 接口地址冲突')
     local cfg=peer.encode(pure.config(b,pid))
+    local reverse_cfg=b.reverse and peer.encode(dofile(script..'wg_reverse_config.lua').client(b.reverse,pid,t.server)) or ''
     if action=='preflight' then
         peer.write(stage..'/transport','pure_hy2')
         peer.write(stage..'/checked.json',cfg)
+        peer.write(stage..'/checked-reverse.json',reverse_cfg)
         assert(db:exec('ROLLBACK')==sqlite.OK)
         return
     end
     check(peer.read(stage..'/transport')=='pure_hy2' and peer.read(stage..'/checked.json')==cfg,'设备或本机地址已变化，请重新导入')
+    check(peer.read(stage..'/checked-reverse.json')==reverse_cfg,'反向映射配置已变化，请重新导入')
     insert(db,[[INSERT INTO wireguard(id,enabled,name,interface,local_privatekey,local_publickey,local_address,local_listenport,mtu)
         VALUES(?,'yes',?,'auto',?,?,?,?,1500)]],iid,dev,private,pub,iface.local_address,port)
     insert(db,[[INSERT INTO wireguard_peers(id,enabled,interface,peer_publickey,allowips,endpoint,endpoint_port,keepalive,exit_peer,site_local,site_remote,native_role)
@@ -273,13 +276,21 @@ local function import(db)
     assert(db:exec('COMMIT')==sqlite.OK)
     print(dev)
 end
-local function stored_pure(r,model)
+local function stored_pure(r,model,forward_only)
     local b=json.decode(r.pure_bundle)
     check(type(b)=='table' and b.purpose==r.purpose and type(b.transport)=='table'
         and b.transport.server==r.server and b.transport.server_port==r.server_port,'纯 Hysteria 2 持久身份不匹配')
     if b.purpose=='both' then
         -- This branch runs only for an existing, bound RC15 database row.
         b={format=b.format,version=b.version,purpose='access',transport=b.transport}
+    end
+    if forward_only then
+        -- Recovery may revoke a damaged optional reverse capability while
+        -- retaining this already-bound device's strictly validated HY2 login.
+        -- Fresh imports always take the full validator, never this path.
+        check(b.version==2 and b.format=='nativerouting-pure-hy2-device',invalid)
+        fields(b,' format version purpose transport reverse ')
+        b={format=b.format,version=1,purpose=b.purpose,transport=b.transport}
     end
     return model.validate(b,peer)
 end
@@ -330,6 +341,18 @@ local function snapshot(db)
             local status={id=r.peer_id,interface=r.iface,server=r.server,server_port=r.server_port,
                 site_local=r.site_local,site_remote=r.site_remote,enabled=enabled,running=running,transport=transport,purpose=purpose}
             if retired then status.retired=true elseif direct then status.purpose='access' end
+            if direct and not retired then
+                local pure=dofile(script..'wg_pure_client.lua')
+                local ok,b=pcall(stored_pure,r,pure)
+                status.reverse={enabled=false}
+                if ok and b.reverse then
+                    status.reverse={enabled=true,mappings=b.reverse.mappings}
+                    status.reverse_status=(enabled and running) and
+                        dofile(script..'wg_reverse_config.lua').status('puc-'..r.peer_id) or {connected=false,state='stopped'}
+                elseif not ok and pcall(stored_pure,r,pure,true) then
+                    status.reverse_status={connected=false,state='error',error='config_invalid'}
+                end
+            end
             rows[#rows+1]=status
         else
             assert(peer.wgkey(r.local_public) and peer.wgkey(r.peer_public))
@@ -352,13 +375,20 @@ local function snapshot(db)
                 local pure=dofile(script..'wg_pure_client.lua')
                 -- A damaged restored identity must revoke this exact worker.
                 -- Keep the other live units and the global firewall snapshot usable.
-                local valid,cfg=pcall(function()
-                    local b=stored_pure(r,pure)
+                local valid,cfg,reverse_cfg,reverse_error=pcall(function()
+                    local ok,b=pcall(stored_pure,r,pure)
+                    local failure
+                    if not ok then b=stored_pure(r,pure,true);failure='config_invalid' end
                     assert(pure.address_free(r.peer_id))
-                    return peer.encode(pure.config(b,r.peer_id))
+                    return peer.encode(pure.config(b,r.peer_id)),b.reverse and
+                        peer.encode(dofile(script..'wg_reverse_config.lua').client(b.reverse,r.peer_id,b.transport.server)),failure
                 end)
                 pure_units[#pure_units+1]=r.iface..' '..r.peer_id..' '..(valid and 'ready' or 'conflict')
-                if valid then peer.write(stage..'/pure.'..r.peer_id,cfg) end
+                if valid then
+                    peer.write(stage..'/pure.'..r.peer_id,cfg)
+                    if reverse_cfg then peer.write(stage..'/reverse-client.'..r.peer_id,reverse_cfg..'\n') end
+                    if reverse_error then peer.write(stage..'/reverse-error.'..r.peer_id,reverse_error..'\n') end
+                end
             end
         end
     end

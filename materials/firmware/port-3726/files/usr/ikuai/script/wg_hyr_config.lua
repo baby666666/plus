@@ -200,10 +200,28 @@ local function status(state,list,requested)
             row.port_mode=m.port_mode or 'shared'
             row.addr_mode=m.addr_mode or 'shared'
             row.public_ip=m.public_ip or s.public_ip
+            local reverse_error
+            if m.transport=='pure_hy2' then
+                row.reverse={enabled=false}
+                if m.reverse then
+                    local ok,value=pcall(function()return dofile('/usr/ikuai/script/wg_reverse_config.lua').public(m.reverse) end)
+                    if ok then row.reverse=value else reverse_error='config_invalid' end
+                end
+            end
             if live then
                 local ready=io.open(stage..'/ready.'..r.id,'r')
                 row.running=ready~=nil and not row.retired
                 if ready then ready:close() end
+                if m.reverse then
+                    local failure=io.open(stage..'/reverse-error.'..r.id,'r')
+                    if failure then
+                        local code=failure:read(64);failure:close()
+                        if code=='port_conflict\n' then reverse_error='port_conflict' else reverse_error='config_invalid' end
+                    end
+                    if reverse_error then row.reverse_status={connected=false,state='error',error=reverse_error}
+                    else row.reverse_status=(row.running and r.active and not row.paused) and
+                        dofile('/usr/ikuai/script/wg_reverse_config.lua').status('puh-'..r.id) or {connected=false,state='stopped'} end
+                end
             end
             row.public_port=row.port_mode=='wg' and r.port or s.udp_port
             if r.active and not row.paused and (not live or row.running) then
@@ -347,7 +365,10 @@ local function profile(state,m,r)
         return pure().uri(m,ip,leaf_fingerprint())
     end
     local pin=center_pin()
-    if action=='site_profile' then return pure().bundle(m,ip,pin) end
+    if action=='site_profile' then
+        local endpoint=m.reverse and management_endpoint(m,r,ip)
+        return pure().bundle(m,ip,pin,endpoint and endpoint.gateway)
+    end
     return pure().phone(m,ip,pin)
 end
 
@@ -371,7 +392,7 @@ local function check_registration(m,expected)
 end
 
 local function stage_pure(state,list)
-    local rows,placements,addresses={}, {}, nil
+    local rows,placements,addresses,reverse_bindings={}, {}, nil, {}
     for _,r in ipairs(list) do
         local m=state.members[tostring(r.id)]
         if m and m.transport=='pure_hy2' and r.active and not m.paused then
@@ -390,12 +411,34 @@ local function stage_pure(state,list)
                     end
                     peer.write(stage..'/admin.'..r.id,table.concat(binding,'\n')..'\n')
                 end
-                peer.write(stage..'/pure.'..r.id,encode(pure().center(m,ip,addresses,admin))..'\n')
+                local effective=m
+                if m.reverse then
+                    local ok,config=pcall(function()
+                        local reverse=dofile('/usr/ikuai/script/wg_reverse_config.lua')
+                        reverse.conflicts(m.reverse,state,r.id,wg_listen_port,admin.http_port,admin.https_port)
+                        return reverse.server(m.reverse,r.id,admin.gateway)
+                    end)
+                    if ok then
+                        peer.write(stage..'/reverse-server.'..r.id,encode(config)..'\n')
+                        reverse_bindings[#reverse_bindings+1]=table.concat({r.interface,r.id,admin.gateway,admin.source},' ')
+                    else
+                        -- Optional reverse authority must never take ordinary HY2
+                        -- or another device down during boot/recovery/inspection.
+                        local message=type(config)=='table' and type(config.message)=='string' and config.message or ''
+                        local conflict=message:find('冲突',1,true) or message:find('已被其他设备使用',1,true)
+                        local code=conflict and 'port_conflict' or 'config_invalid'
+                        peer.write(stage..'/reverse-error.'..r.id,code..'\n')
+                        effective={};for key,value in pairs(m) do effective[key]=value end
+                        effective.reverse=nil
+                    end
+                end
+                peer.write(stage..'/pure.'..r.id,encode(pure().center(effective,ip,addresses,admin))..'\n')
                 rows[#rows+1]=table.concat({r.interface,r.id,m.port,m.inner_port},' ')
             end
         end
     end
     if #rows>0 then peer.write(stage..'/pure-bindings',table.concat(rows,'\n')..'\n') end
+    if #reverse_bindings>0 then peer.write(stage..'/reverse-bindings',table.concat(reverse_bindings,'\n')..'\n') end
     if #placements>0 then
         local f=assert(io.open(stage..'/placements','a'))
         assert(f:write(table.concat(placements,'\n')..'\n'));assert(f:close())
@@ -536,6 +579,25 @@ local function main()
                 m.id=credentials()
             end
             m.addr_mode=am; m.public_ip=ip
+            local reverse_text=arg[15]
+            if reverse_text and reverse_text~='' then
+                check(#reverse_text<=65536,'反向端口映射配置过长')
+                local ok,request=pcall(json.decode,reverse_text)
+                check(ok,'反向端口映射配置无效')
+                local reverse=dofile('/usr/ikuai/script/wg_reverse_config.lua')
+                local changed
+                m.reverse,changed=reverse.update(request,previous and previous.reverse,encode,m~=previous)
+                if changed and m==previous then m.id=credentials() end
+            elseif previous and previous.reverse and m~=previous then
+                local reverse=dofile('/usr/ikuai/script/wg_reverse_config.lua')
+                m.reverse=reverse.update(reverse.public(previous.reverse),previous.reverse,encode,true)
+            end
+            if m.reverse then
+                local endpoint=management_endpoint(m,row,m.public_ip or state.settings.public_ip)
+                check(endpoint,'反向通道缺少有效的服务端内网地址')
+                dofile('/usr/ikuai/script/wg_reverse_config.lua').conflicts(m.reverse,state,row.id,wg_listen_port,
+                    endpoint.http_port,endpoint.https_port)
+            end
         end
     elseif export then
         local m=state.members[key]

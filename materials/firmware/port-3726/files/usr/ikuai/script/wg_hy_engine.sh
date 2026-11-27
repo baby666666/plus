@@ -374,6 +374,7 @@ listening() {
 config_ports() {
     jq -r '.inbounds[] | if .type=="tun" then ("tun:"+.interface_name)
            elif .type=="hysteria2" then ("udp:"+(.listen_port|tostring))
+           elif .type=="socks" then ("tcp:"+(.listen_port|tostring))
            else empty end' "$1"
 }
 all_listening() {
@@ -385,6 +386,8 @@ all_listening() {
                     grep -h -E "^iff:[[:space:]]+$dev$" /proc/"$pid"/fdinfo/* >/dev/null 2>&1 || return 1;;
             udp:*) n=${port#*:}; [[ $n =~ ^[1-9][0-9]{0,4}$ ]] && [ "$n" -le 65535 ] &&
                     listening "$pid" "$(printf '%04X' "$n")" || return 1;;
+            tcp:*) n=${port#*:}; [[ $n =~ ^[1-9][0-9]{0,4}$ ]] && [ "$n" -le 65535 ] &&
+                    listening "$pid" "$(printf '%04X' "$n")" tcp || return 1;;
             *) return 1;;
         esac
     done <<< "$ports"

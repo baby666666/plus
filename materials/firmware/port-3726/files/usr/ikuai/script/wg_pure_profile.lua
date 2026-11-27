@@ -47,10 +47,15 @@ function M.phone(m,ip,pin)
     return c
 end
 
-function M.bundle(m,ip,pin)
+function M.bundle(m,ip,pin,gateway)
     require_access(m)
-    return {format='nativerouting-pure-hy2-device',version=1,purpose='access',
+    local bundle={format='nativerouting-pure-hy2-device',version=1,purpose='access',
         transport={server=ip,server_port=m.port,password=m.password,certificate_public_key_sha256=pin}}
+    if m.reverse then
+        local reverse=dofile('/usr/ikuai/script/wg_reverse_config.lua')
+        bundle.version=2;bundle.reverse=reverse.bundle(m.reverse,gateway)
+    end
+    return bundle
 end
 
 local function uri_component(text)
@@ -100,6 +105,13 @@ function M.center(m,ip,local_ips,management)
         table.insert(c.route.rules,3,{ip_cidr=locals,network='tcp',port=ports,action='route',outbound='internet'})
     end
     if #excluded>0 then table.insert(c.route.rules,3,{ip_cidr=excluded,action='reject'}) end
+    if m.reverse then
+        local reverse=dofile('/usr/ikuai/script/wg_reverse_config.lua')
+        reverse.saved(m.reverse)
+        -- Only this authenticated device's gateway control listener is reachable.
+        table.insert(c.route.rules,3,{ip_cidr={management.gateway..'/32'},network='tcp',
+            port={reverse.control_port},action='route',outbound='internet'})
+    end
     -- Both policy sockets and the DNS lookup for a hostname enter the same
     -- registered client interface. Only the outer QUIC transport uses the WAN mark.
     c.outbounds[1].netns=namespace

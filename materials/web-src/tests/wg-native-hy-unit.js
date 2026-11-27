@@ -295,7 +295,7 @@ function managementPanels(component) {
   assert.deepEqual(lastParams(),{TYPE:'client_endpoint',interface:'wg6',force:'1'});
   assert.equal(choice('hyr_port_mode'),undefined);
   assert.equal(choice('wg_role','lend'),undefined);
-  assert.deepEqual({...editor.parameters()},{...origin,wg_transport:'pure_hy2',wg_role:'access',hyr_public_ip:'8.8.8.8',hyr_addr_mode:'auto',hyr_port_mode:'wg',exit_peer:'no'});
+  assert.deepEqual({...editor.parameters()},{...origin,wg_transport:'pure_hy2',wg_role:'access',hyr_public_ip:'8.8.8.8',hyr_addr_mode:'auto',hyr_port_mode:'wg',hyr_reverse_hex:Buffer.from('{"enabled":false,"mappings":[]}').toString('hex'),exit_peer:'no'});
   const long={...hr,members:[m1,{...m2,password:pass,transport:'pure_hy2',mode:'access',addr_mode:'auto',public_ip:'8.8.8.8'}]};
   read(long);assert.equal(await editor.saved(),true);
   assert.deepEqual(managers(), []);
