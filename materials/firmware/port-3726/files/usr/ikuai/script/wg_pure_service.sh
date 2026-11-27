@@ -10,12 +10,18 @@ management=/usr/ikuai/script/wg_pure_ingress.sh
 admin_root=/tmp/iktmp/wg-pure-ingress
 dns=/usr/ikuai/script/native_dns_bind.sh
 units=/tmp/iktmp/wg-hy-engine
+reverse=/usr/ikuai/script/wg_hy_reverse.sh
+reverse_units=/tmp/iktmp/wg-hy-reverse
 op=${1:-}
 stage=${2:--}
 scope=${3:-*}
 case "$op" in check|sync|status|stop|hold) ;; *) exit 2;; esac
 fail(){ printf '%s\n' "$*" >&2; return 1; }
 selected(){ [[ "$scope" = '*' || " $scope " = *" $1 "* ]]; }
+reverse_stop(){
+    [ -e "$reverse_units/$1" ] || [ -L "$reverse_units/$1" ] || return 0
+    "$reverse" stop "$1"
+}
 valid_port(){ [[ $1 =~ ^[1-9][0-9]{0,4}$ ]] && [ "$1" -le 65535 ]; }
 stun_pid(){
     local pid ticks exe
@@ -61,7 +67,11 @@ read_admin(){
     [[ $admin_http =~ ^(0|[1-9][0-9]{0,4})$ && $admin_https =~ ^(0|[1-9][0-9]{0,4})$ ]] &&
         [ "$admin_http" -le 65535 ] && [ "$admin_https" -le 65535 ]
 }
-admin_call(){ "$management" "$1" "$dev" "$id" "$admin_peer" "$admin_gateway" 1 "$admin_http" "$admin_https" "$stage/admin.$id"; }
+admin_call(){
+    local control=0
+    [ ! -s "$stage/reverse-server.$id" ] || control=49871
+    "$management" "$1" "$dev" "$id" "$admin_peer" "$admin_gateway" 1 "$admin_http" "$admin_https" "$stage/admin.$id" "$control"
+}
 admin_cleanup(){
     if [[ $dev =~ ^wg[0-9]{1,10}$ ]] &&
         { [ -e "$admin_root/$dev" ] || [ -L "$admin_root/$dev" ] || [ -e "$unit/admin-binding" ]; };then
@@ -84,7 +94,7 @@ admin_sync(){
     cp "$stage/admin.$id" "$unit/admin-binding"
 }
 stop_unit(){
-    "$engine" "puh-$id" stop >/dev/null && stop_stun && admin_cleanup && firewall remove &&
+    reverse_stop "puh-$id" && "$engine" "puh-$id" stop >/dev/null && stop_stun && admin_cleanup && firewall remove &&
         rm -f "$unit/device" "$unit/policy"
 }
 # On a cold boot a persisted server can start before any receiver or
@@ -96,6 +106,18 @@ if [ -e "$units" ] || [ -L "$units" ];then
     [ -d "$units" ] && [ ! -L "$units" ] && [ "$(stat -c '%u:%a' "$units")" = 0:700 ] || exit 1
 fi
 if [[ "$op" = stop || "$op" = hold || "$op" = sync ]];then
+    # Mapping edits may leave the normal HY2 JSON identical; independently
+    # revoke changed/orphaned reverse workers before exposing new settings.
+    for reverse_unit in "$reverse_units"/puh-[0-9]*;do
+        [ -d "$reverse_unit" ] || continue
+        reverse_id=${reverse_unit##*/puh-}
+        [[ $reverse_id =~ ^[1-9][0-9]{0,9}$ ]] || exit 1
+        reverse_dev=$(cat "$reverse_unit/device" 2>/dev/null) || reverse_dev=
+        if [ "$op" = hold ] && [ "$reverse_dev" ] && ! selected "$reverse_dev";then continue;fi
+        if [ "$op" = sync ] && [ -s "$stage/reverse-server.$reverse_id" ] &&
+            cmp -s "$stage/reverse-server.$reverse_id" "$reverse_unit/live.json";then continue;fi
+        "$reverse" stop "puh-$reverse_id" || exit 1
+    done
     for unit in "$units"/puh-[0-9]*;do
         [ -d "$unit" ] || continue
         id=${unit##*/puh-}
@@ -121,6 +143,12 @@ while read -r dev id port inner extra;do
     unit="$units/puh-$id"
     if [ "$op" = check ];then
         selected "$dev" || continue
+        [ ! -e "$stage/reverse-error.$id" ] || { fail 'HY2 反向映射配置或端口不可用';exit 1; }
+        # Reject a conflicting public reverse port before the slower carrier
+        # checks so a failed edit cannot time out while holding the WG lock.
+        if [ -s "$stage/reverse-server.$id" ];then
+            "$reverse" check "puh-$id" "$stage/reverse-server.$id" "$dev" || exit 1
+        fi
         "$engine" check "$stage/pure.$id" || exit 1
         read_admin || exit 1
         # A projected new interface may not exist yet. Synchronization checks real
@@ -154,7 +182,7 @@ while read -r dev id port inner extra;do
     # egress marks, ordered fallback, and prohibit routes for every client.
     if ! admin_sync;then stop_unit || exit 1;rc=1;continue;fi
     if ! "$dns" ready "ppphy${dev#wg}" && ! "$dns" ensure "ppphy${dev#wg}";then
-        "$engine" "puh-$id" stop >/dev/null && firewall remove || exit 1
+        reverse_stop "puh-$id" && "$engine" "puh-$id" stop >/dev/null && firewall remove || exit 1
         rc=1;continue
     fi
     if ! firewall install ||
@@ -162,6 +190,18 @@ while read -r dev id port inner extra;do
           ! "$engine" "puh-$id" start "$config"; };then
         stop_unit || exit 1
         if selected "$dev";then rc=1;fi
+        continue
     fi
+    if [ -s "$stage/reverse-server.$id" ];then
+        # A reverse failure leaves ordinary HY2 egress intact, but is returned
+        # to the caller and cannot be displayed as a successful reverse link.
+        if ! "$reverse" start "puh-$id" "$stage/reverse-server.$id" "$dev";then
+            "$reverse" stop "puh-$id" || exit 1
+            rc=1
+        fi
+    fi
+    # Saved reverse data can become unusable after a different native setting
+    # changes. Report the failure without stopping this peer's normal HY2 path.
+    [ ! -e "$stage/reverse-error.$id" ] || rc=1
 done <"$stage/pure-bindings"
 [ "$rc" = 0 ] || fail '纯 HY2 进程或网络接口未就绪，请检查公网端口'

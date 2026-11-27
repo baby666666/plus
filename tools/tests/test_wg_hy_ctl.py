@@ -371,6 +371,203 @@ echo metadata""")
                 self.assertNotIn('routed_enabled',saved)
             self.assertFalse((self.state.parent/'change').exists())
 
+    def test_preflight_checks_projection_without_freezing_or_publishing(self):
+        self.prepare_reverse()
+        actual, shadow, _, _ = self.projection_databases()
+        saved_state = self.state.read_bytes()
+        saved_db = actual.read_bytes()
+        self.tool('lua', '''
+            case "$2" in
+                check_mode) exit 0;;
+                set_mode)
+                    test "$3" = "$PROJECTED" || exit 1
+                    test "$SCENARIO" != invalid || { echo invalid-fields;exit 1; }
+                    echo '{"unpublished":"new-credentials"}' >"$5/next";;
+                *) echo unexpected-model >>"$OPERATIONS";exit 1;;
+            esac
+        ''')
+        self.tool('pure-service', '''
+            test "$1" = check || { echo "pure-$1" >>"$OPERATIONS";exit 1; }
+            test -f "$2/next" && test "$3" = wg8 || exit 1
+            test "$SCENARIO" != conflict || { echo '反向映射端口已被占用';exit 1; }
+        ''')
+        for cmd in ('engine', 'ports', 'direction', 'iptables', 'ip6tables', 'fsync'):
+            self.tool(cmd, 'echo unexpected-runtime >>"$OPERATIONS";exit 1')
+        args = [shadow, '1', 'wg8', 'access', '', '', '', 'wg', 'auto', '', 'pure_hy2']
+        for scenario in ('invalid', 'conflict', 'valid'):
+            with self.subTest(scenario=scenario):
+                result = subprocess.run(['bash', self.controller, 'hyr', actual, 'preflight', *args],
+                    text=True, capture_output=True, env={**os.environ, 'PROJECTED':str(shadow),
+                    'SCENARIO':scenario, 'OPERATIONS':str(self.log)})
+                self.assertEqual(result.returncode == 0, scenario == 'valid', result.stdout + result.stderr)
+                self.assertNotIn('new-credentials', result.stdout + result.stderr)
+                self.assertEqual(self.state.read_bytes(), saved_state)
+                self.assertEqual(actual.read_bytes(), saved_db)
+                self.assertFalse(self.log.exists())
+                self.assertFalse(list(self.data.glob('change*')))
+                runtime = self.root/'runtime-reverse'
+                self.assertFalse(list(runtime.glob('work.*')))
+                self.assertFalse((runtime/'fence').exists())
+                self.assertFalse((runtime/'scope').exists())
+
+    def test_preflight_storage_and_tls_errors_do_not_stop_existing_workers(self):
+        self.prepare_reverse()
+        self.state.write_text('{"enabled":true,"members":{"1":{"transport":"pure_hy2","mode":"access"}}}')
+        saved = self.state.read_bytes()
+        for cmd in ('engine', 'pure-service', 'ports', 'direction', 'iptables', 'ip6tables', 'lua', 'fsync'):
+            self.tool(cmd, 'echo unexpected-runtime >>"$OPERATIONS";exit 1')
+        args = ['projected', '1', 'wg8', 'access', 'existing', '', '']
+        for scenario in ('registry-permission', 'tls-permission', 'tls-missing', 'pending-journal'):
+            with self.subTest(scenario=scenario):
+                if scenario == 'registry-permission': self.state.chmod(0o644)
+                if scenario == 'tls-permission': (self.data/'tls/key.pem').chmod(0o644)
+                if scenario == 'tls-missing': (self.data/'tls').rename(self.data/'saved-tls')
+                if scenario == 'pending-journal': (self.data/'change').mkdir(mode=0o700)
+                result = self.reverse('preflight', arguments=args)
+                self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertFalse(self.log.exists())
+                self.assertEqual(self.state.read_bytes(), saved)
+                if scenario == 'registry-permission': self.state.chmod(0o600)
+                if scenario == 'tls-permission': (self.data/'tls/key.pem').chmod(0o600)
+                if scenario == 'tls-missing': (self.data/'saved-tls').rename(self.data/'tls')
+                if scenario == 'pending-journal': (self.data/'change').rmdir()
+
+    def peer_change_fixture(self, scenario, operation='edit'):
+        case = self.root/(scenario+'-'+operation)
+        case.mkdir()
+        actual = case/'config.db'
+        with sqlite3.connect(actual) as db:
+            db.executescript("CREATE TABLE wireguard(id INTEGER PRIMARY KEY);"
+                "CREATE TABLE wireguard_peers(id INTEGER PRIMARY KEY AUTOINCREMENT,interface,peer_publickey,comment);"
+                "INSERT INTO wireguard_peers VALUES(1,'wg8','peer-key','old');"
+                "CREATE TABLE wg_site_clients(relay_port INTEGER UNIQUE);"
+                "INSERT INTO wg_site_clients VALUES(23000);")
+        registry = case/'registry'
+        registry.mkdir()
+        state = registry/'state.json'
+        state.write_text('{"members":{"1":{"id":"current","interface":"wg8","transport":"pure_hy2"}}}')
+        saved_state = state.read_bytes()
+        script = wireguard_source()
+        for original, replacement in (
+            ('/etc/mnt/ikuai/wg-hyr', registry),
+            ('/etc/mnt/ikuai/wg-tcp', case/'tcp'),
+            ('/tmp/iktmp/wg-mode.', str(case/'wg-mode.')),
+            ('/tmp/iktmp/wg-site-client', case/'client'),
+            ('/usr/ikuai/script/wg_hy_ctl.sh', self.root/'peer-hy'),
+            ('/usr/ikuai/script/wg_hy_engine.sh', self.root/'installed'),
+            ('/usr/ikuai/script/wg_native_role.sh', self.root/'peer-role'),
+            ('/usr/ikuai/script/wg_site.sh', self.root/'peer-site'),
+            (str(SCRIPTS/'wg_pure_routing.sh'), self.root/'peer-routing')):
+            script = script.replace(str(original), str(replacement))
+        wireguard = case/'wireguard.sh'
+        wireguard.write_text(script)
+        self.tool('installed', 'test "$1" = installed')
+        self.tool('peer-role', 'echo "role-$2" >>"$OPERATIONS"')
+        self.tool('peer-site', 'echo "site-$1" >>"$OPERATIONS"')
+        self.tool('peer-routing', 'echo "routing-$1" >>"$OPERATIONS"')
+        self.tool('peer-hy', '''
+            case "$3" in
+                check_mode) test "$5" = current;;
+                preflight|prepare)
+                    echo "$3" >>"$OPERATIONS"
+                    test "$(sqlite3 "$4" "SELECT comment FROM wireguard_peers WHERE id=$5")" = new || exit 1
+                    test "$(sqlite3 "$2" "SELECT comment FROM wireguard_peers WHERE id=1")" = old || exit 1
+                    test "$(sqlite3 "$4" 'SELECT relay_port FROM wg_site_clients')" = 23000 || exit 1
+                    if [ "$SCENARIO" = conflict ] || { [ "$SCENARIO" = late-failure ] && [ "$3" = prepare ]; };then
+                        echo '反向映射端口已被占用';exit 1
+                    fi;;
+                hold|sync) echo "$3" >>"$OPERATIONS";;
+                *) exit 1;;
+            esac
+        ''')
+        log = case/'operations'
+        result = subprocess.run(['bash', '-c', '''
+            Include(){ :; };source "$1"
+            Lock(){ echo lock >>"$OPERATIONS"; }
+            unLock(){ echo unlock >>"$OPERATIONS"; }
+            __wg_hyr_scope(){ echo "$interface"; }
+            __wg_hyr_check_origin(){ :; };__wg_native_origin_ok(){ :; }
+            __wg_native_edit_only_comment(){ return 1; }
+            __wg_site_client_conflict(){ :; }
+            __wg_site_client_sync(){ echo client-sync >>"$OPERATIONS"; }
+            sql_config_get_list(){ echo old_interface=wg8 old_peer_publickey=peer-key old_presharedkey=psk; }
+            __check_param_add(){
+                if [ "$SCENARIO" = invalid ];then echo '字段无效';return 1;fi
+            }
+            __check_allowip_conflict(){ :; };__check_key_valid(){ :; }
+            sql_config_update(){
+                [ "$1" != "$IK_DB_CONFIG" ] || echo write >>"$OPERATIONS"
+                sqlite3 "$1" "UPDATE wireguard_peers SET comment='new' WHERE $3"
+            }
+            sql_config_insert(){
+                [ "$1" != "$IK_DB_CONFIG" ] || echo write >>"$OPERATIONS"
+                sqlite3 "$1" "INSERT INTO wireguard_peers(interface,peer_publickey,comment) VALUES('wg9','new-key','new');SELECT last_insert_rowid()"
+            }
+            NewOldVarl(){ return 0; }
+            __wg_apply_iface(){ echo apply >>"$OPERATIONS"; }
+            __wg_iface_cache_update(){ echo cache >>"$OPERATIONS"; }
+            IK_DB_CONFIG=$2;id=1;interface=wg8;hyr_id=current
+            if [ "$3" = add ];then interface=wg9;hyr_id=;fi
+            wg_transport=pure_hy2;wg_role=access;hyr_addr_mode=manual;hyr_public_ip=198.51.100.4
+            client_dns=10.0.8.1;peer_publickey=peer-key;presharedkey=psk;peer_privatekey=synthetic
+            allowips=10.0.8.2/32;comment=new
+            "$3"
+        ''', 'peer-change', wireguard, actual, operation], text=True, capture_output=True,
+            env={**os.environ, 'SCENARIO':scenario, 'OPERATIONS':str(log)})
+        self.assertEqual(state.read_bytes(), saved_state)
+        self.assertFalse(list(case.glob('wg-mode.*')))
+        return result, log.read_text().splitlines(), actual
+
+    def test_rejected_peer_preflight_never_changes_existing_runtime_or_database(self):
+        for operation in ('add', 'edit'):
+            for scenario in ('invalid', 'conflict'):
+                with self.subTest(operation=operation, scenario=scenario):
+                    result, events, actual = self.peer_change_fixture(scenario, operation)
+                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertIn('字段无效' if scenario == 'invalid' else '端口已被占用', result.stdout)
+                    self.assertEqual(events, ['lock', *(['preflight'] if scenario == 'conflict' else []), 'unlock'])
+                    with sqlite3.connect(actual) as db:
+                        self.assertEqual(db.execute('SELECT id,comment FROM wireguard_peers').fetchall(), [(1, 'old')])
+
+    def test_successful_peer_save_fences_only_after_preflight(self):
+        for operation in ('add', 'edit'):
+            with self.subTest(operation=operation):
+                result, events, actual = self.peer_change_fixture('valid', operation)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(events, ['lock', 'preflight', 'hold', 'role-before', 'prepare', 'write',
+                    'apply', 'cache', 'site-sync', 'sync', 'client-sync', 'routing-sync', 'role-after', 'unlock'])
+                with sqlite3.connect(actual) as db:
+                    expected = [(1, 'old'), (2, 'new')] if operation == 'add' else [(1, 'new')]
+                    self.assertEqual(db.execute('SELECT id,comment FROM wireguard_peers').fetchall(), expected)
+
+    def test_second_prepare_failure_keeps_recovery_hooks_and_original_error(self):
+        result, events, actual = self.peer_change_fixture('late-failure')
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('端口已被占用', result.stdout)
+        self.assertEqual(events, ['lock', 'preflight', 'hold', 'role-before', 'prepare',
+            'sync', 'client-sync', 'routing-sync', 'role-after', 'unlock'])
+        with sqlite3.connect(actual) as db:
+            self.assertEqual(db.execute('SELECT id,comment FROM wireguard_peers').fetchall(), [(1, 'old')])
+
+    def test_reverse_port_conflict_precedes_slow_carrier_checks(self):
+        stage = self.root/'projected'
+        stage.mkdir()
+        (stage/'pure-bindings').write_text('wg7 7 51707 21707\n')
+        (stage/'pure.7').write_text('{}\n')
+        (stage/'reverse-server.7').write_text('{}\n')
+        self.tool('reverse-check', 'echo reverse-check >>"$OPERATIONS";exit 1')
+        self.tool('engine', 'echo unexpected-carrier-check >>"$OPERATIONS";exit 1')
+        self.tool('management', 'echo unexpected-ingress-check >>"$OPERATIONS";exit 1')
+        script = (SCRIPTS/'wg_pure_service.sh').read_text()
+        script = script.replace('/usr/ikuai/script/wg_hy_reverse.sh', str(self.root/'reverse-check'))
+        script = script.replace('/usr/ikuai/script/wg_hy_engine.sh', str(self.root/'engine'))
+        script = script.replace('/usr/ikuai/script/wg_pure_ingress.sh', str(self.root/'management'))
+        script = script.replace('/tmp/iktmp/wg-hy-engine', str(self.root/'instances'))
+        result = subprocess.run(['bash', '-c', script, 'pure-check', 'check', stage, 'wg7'],
+            text=True, capture_output=True, env={**os.environ, 'OPERATIONS':str(self.log)})
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.log.read_text().splitlines(), ['reverse-check'])
+
     def test_interrupted_hy_to_native_role_waits_for_sqlite_authority(self):
         self.prepare_reverse()
         old='{"enabled":true,"members":{},"settings":{"udp_port":8443}}'
@@ -599,15 +796,19 @@ echo metadata""")
         source=wireguard_source().replace('/etc/mnt/ikuai/wg-hyr/state.json',str(registry))
         wireguard=self.root/'wireguard.sh';wireguard.write_text(source)
         for operation in ['add','edit']:
-            result=subprocess.run(['bash','-c',"""
-                Include(){ :; }; source "$1"
-                __wg_peer_write(){ echo direct-native; }
-                mktemp(){ echo unexpected-projection;return 1; }
-                hyr_mode=off;hyr_id='';interface=wg8;id=42;IK_DB_CONFIG=db
-                __wg_save_peer "$2"
-            """,'off-peer',wireguard,operation],text=True,capture_output=True,cwd=self.root)
-            self.assertEqual(result.returncode,0,result.stderr)
-            self.assertEqual(result.stdout.strip(),'direct-native')
+            for phase in ['prepare','preflight']:
+                for mode in ['off','legacy']:
+                    with self.subTest(operation=operation,phase=phase,mode=mode):
+                        result=subprocess.run(['bash','-c',"""
+                            Include(){ :; }; source "$1"
+                            __wg_peer_write(){ echo direct-native; }
+                            mktemp(){ echo unexpected-projection;return 1; }
+                            if [ "$4" = off ];then hyr_mode=off;else unset hyr_mode;fi
+                            hyr_id='';interface=wg8;id=42;IK_DB_CONFIG=db
+                            __wg_save_peer "$2" "$3"
+                        """,'off-peer',wireguard,operation,phase,mode],text=True,capture_output=True,cwd=self.root)
+                        self.assertEqual(result.returncode,0,result.stderr)
+                        self.assertEqual(result.stdout.strip(),'direct-native' if phase=='prepare' else '')
 
     def test_metadata_edit_checks_hy_registration_before_writing(self):
         actual=self.root/'existing.db'
@@ -624,7 +825,7 @@ echo metadata""")
             result=subprocess.run(['bash','-c',"""
               Include(){ :; };source "$1"
               Lock(){ :; };unLock(){ :; }
-              __wg_locked_edit(){ echo write >> "$OPERATIONS"; }
+              __wg_locked_edit(){ [ "${1:-}" = preflight ] || echo write >> "$OPERATIONS"; }
               id=2;IK_DB_CONFIG=$2;hyr_origin_key=peer-key;hyr_origin_iface=wg2
               hyr_id=$3;edit
             """,'legacy-edit',f,actual,token],text=True,capture_output=True,

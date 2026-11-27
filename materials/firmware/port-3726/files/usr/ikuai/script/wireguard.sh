@@ -91,7 +91,7 @@ __wg_retire_missing_client_links(){
 }
 site_client_import()(
  local stage dev
- [ -n "${config_hex:-}" ] && [ "${#config_hex}" -le 32768 ] && [[ $config_hex =~ ^[0-9a-f]+$ ]] && ((${#config_hex}%2==0)) || { echo '组网配置格式无效';return 1; }
+ [ -n "${config_hex:-}" ] && [ "${#config_hex}" -le 131072 ] && [[ $config_hex =~ ^[0-9a-f]+$ ]] && ((${#config_hex}%2==0)) || { echo '组网配置格式无效';return 1; }
  umask 077
  stage=$(mktemp -d /tmp/iktmp/wg-site-import.XXXXXX) || return 1
  trap 'rm -rf "$stage"' EXIT
@@ -728,12 +728,15 @@ __wg_peer_write(){
  fi
 }
 __wg_save_peer()(
- local operation=$1 stage projected actual target registry=/etc/mnt/ikuai/wg-hyr/state.json
- if [ -z "${wg_transport:-}" ] && [ -z "${hyr_mode:-}" ]; then __wg_peer_write "$operation" "$IK_DB_CONFIG";return;fi
+ local operation=$1 phase=${2:-prepare} stage projected actual target registry=/etc/mnt/ikuai/wg-hyr/state.json
+ [[ $phase = preflight || $phase = prepare ]] || return 2
+ if [ -z "${wg_transport:-}" ] && [ -z "${hyr_mode:-}" ]; then
+  [ "$phase" = preflight ] || __wg_peer_write "$operation" "$IK_DB_CONFIG";return
+ fi
  if [ "${hyr_mode:-}" = off ] && [ -z "${hyr_id:-}" ] && [ ! -d "${registry%/*}/change" ]; then
   if [ "$operation" = add ] || [ ! -f "$registry" ] ||
      jq -e --arg peer "$id" '.members[$peer] == null' "$registry" >/dev/null 2>&1; then
-   __wg_peer_write "$operation" "$IK_DB_CONFIG";return
+   [ "$phase" = preflight ] || __wg_peer_write "$operation" "$IK_DB_CONFIG";return
   fi
  fi
  stage=$(mktemp -d /tmp/iktmp/wg-mode.XXXXXX) || return 1
@@ -761,7 +764,17 @@ __wg_save_peer()(
  projected=$(__wg_peer_write "$operation" "$stage/config.db") || { printf '%s\n' "$projected";return 1; }
  if [ "$operation" = add ]; then target=$projected; else target=$id; fi
  [[ $target =~ ^[1-9][0-9]{0,9}$ ]] || { echo '对端编号无效';return 1; }
- /usr/ikuai/script/wg_hy_ctl.sh hyr "$IK_DB_CONFIG" prepare "$stage/config.db" "$target" "$interface" "$hyr_mode" "${hyr_id:-}" "${hyr_public_ip:-}" "${hyr_udp_port:-}" "${hyr_port_mode:-}" "${hyr_addr_mode:-}" "${hyr_resume:-}" "${wg_transport:-}" || return 1
+ local reverse_json=
+ if [ "${hyr_reverse_hex+x}" ];then
+  [ -n "$hyr_reverse_hex" ] && [ "${#hyr_reverse_hex}" -le 131072 ] &&
+   [[ $hyr_reverse_hex =~ ^[0-9a-f]+$ ]] && ((${#hyr_reverse_hex}%2==0)) ||
+   { echo '反向映射配置格式无效';return 1; }
+  # Native HTTP accepts only safe scalar parameters. Decode after that check;
+  # JSON remains a quoted argument and is never interpreted as shell code.
+  reverse_json=$(printf '%s' "$hyr_reverse_hex" | /usr/bin/lua -e 'local h=io.read("*a");io.write((h:gsub("%x%x",function(p)return string.char(tonumber(p,16))end)))') || return 1
+ fi
+ /usr/ikuai/script/wg_hy_ctl.sh hyr "$IK_DB_CONFIG" "$phase" "$stage/config.db" "$target" "$interface" "$hyr_mode" "${hyr_id:-}" "${hyr_public_ip:-}" "${hyr_udp_port:-}" "${hyr_port_mode:-}" "${hyr_addr_mode:-}" "${hyr_resume:-}" "${wg_transport:-}" "$reverse_json" || return 1
+ [ "$phase" != preflight ] || return 0
  actual=$(__wg_peer_write "$operation" "$IK_DB_CONFIG") || { printf '%s\n' "$actual";return 1; }
  if [ "$operation" = add ] && [ "$actual" != "$target" ]; then echo 'WG 隧道编号已变化，请刷新后重试';return 1; fi
  printf '%s\n' "$actual"
@@ -787,6 +800,7 @@ __wg_locked_add() {
 	__check_key_valid "$peer_privatekey" || exit 1
 
 	local sql_param=" enabled:str comment:str interface:str peer_publickey:str peer_privatekey:str presharedkey:str allowips:str endpoint:str endpoint_port:str keepalive:int out_mode:str out_wans:str out_balance:str client_dns:str client_endpoint:str exit_peer:str site_local:str site_remote:str native_role:str"
+	if [ "${1:-}" = preflight ]; then __wg_save_peer add preflight;return;fi
 	if SqlMsg=$(__wg_save_peer add);then
 		id="$SqlMsg"
 
@@ -913,6 +927,7 @@ __wg_locked_edit() {
 
 
 	local sql_param=" comment:str interface:str peer_publickey:str peer_privatekey:str presharedkey:str allowips:str endpoint:str endpoint_port:str keepalive:int out_mode:str out_wans:str out_balance:str client_dns:str client_endpoint:str exit_peer:str site_local:str site_remote:str native_role:str"
+	if [ "${1:-}" = preflight ]; then __wg_save_peer edit preflight;return;fi
 
 	if SqlMsg=$(__wg_save_peer edit);then
         local rekey_endpoints=""
@@ -2089,7 +2104,7 @@ __wg_address_change(){
    __wg_site_client_prepare_enable "$action" "${id:-}" || { unLock wireguard_address;return 1; }
   fi
  fi
- local hyr_state=/etc/mnt/ikuai/wg-hyr/state.json hyr_live=/tmp/iktmp/wg-hy-engine/hyr/live.json hyr_sync=no
+ local hyr_state=/etc/mnt/ikuai/wg-hyr/state.json hyr_live=/tmp/iktmp/wg-hy-engine/hyr/live.json hyr_sync=no hyr_hold=no
  local role_ctl=/usr/ikuai/script/wg_native_role.sh native_scope proposed=
  if [ "$action" = init ]; then
   "$role_ctl" "$IK_DB_CONFIG" schema || { unLock wireguard_address;echo '无法更新原生 WG 设备用途字段';return 1; }
@@ -2149,8 +2164,7 @@ __wg_address_change(){
    unLock wireguard_address;echo '请为此对端分配独立 WG 接口和监听端口';return 1
   fi
   if [ -f "$hyr_state" ] || [ -f "$hyr_live" ];then
-   /usr/ikuai/script/wg_hy_ctl.sh hyr "$IK_DB_CONFIG" hold "$scope" || { unLock wireguard_address;return 1; }
-   hyr_sync=yes
+   hyr_hold=yes;hyr_sync=yes
   fi
  fi
  if [[ "$action" = add || "$action" = edit ]] && [ -n "${hyr_mode:-}" ] && [ "$hyr_mode" != off ];then hyr_sync=yes;fi
@@ -2159,6 +2173,19 @@ __wg_address_change(){
   *) native_scope=$(__wg_hyr_scope "$action") || { unLock wireguard_address;return 1; };;
  esac
  [ -z "${requested_role:-}" ] || proposed=${interface:-}
+ if [[ $action = add || $action = edit ]];then
+  # Validate the fields and projected HY2 ports before any live permission or
+  # process changes. The same WG lock covers the subsequent prepare and write.
+  output=$("__wg_locked_$action" preflight);status=$?
+  if [ "$status" != 0 ];then
+   unLock wireguard_address
+   [ -z "$output" ] || printf '%s\n' "$output"
+   return "$status"
+  fi
+ fi
+ if [ "$hyr_hold" = yes ];then
+  /usr/ikuai/script/wg_hy_ctl.sh hyr "$IK_DB_CONFIG" hold "$scope" || { unLock wireguard_address;return 1; }
+ fi
  if [ "$client_active" = yes ] && [[ $action = up || $action = iface_up ]];then
   /usr/ikuai/script/wg_site_client.sh "$IK_DB_CONFIG" guard || { unLock wireguard_address;return 1; }
  fi

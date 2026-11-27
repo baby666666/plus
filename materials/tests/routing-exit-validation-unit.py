@@ -60,11 +60,14 @@ return {
 }
 ''')
     native = args.native_validator.read_text()
-    # The same two macOS Bash 3.2 portability adaptations as schema tests.
+    # Match the schema fixture's Bash 3.2 / 5.2 portability adaptations. Use a
+    # variable for the literal tilde so neither an escape nor a home path leaks
+    # into the generated Lua ~= operator.
     native = re.sub(r'^\s*IlleStr\s*=.*$',
                     '\tIlleStr = string.char(91,39,34,96,36,59,124,38,92,93)', native, flags=re.M)
-    native = native.replace(r'${__LOGIC//!/\~}', '${__LOGIC//!/~}')
-    native = ('I18nload(){ :; }; Iecho(){ printf \'"native parameter error"\'; };\n'
+    native = native.replace(r'${__LOGIC//!/\~}', '${__LOGIC//!/$NR_TEST_LITERAL_TILDE}')
+    native = ("NR_TEST_LITERAL_TILDE='~';\n"
+              'I18nload(){ :; }; Iecho(){ printf \'"native parameter error"\'; };\n'
               'lua(){ LUA_PATH='+shlex.quote(str(temp / 'lua/?.lua'))+' '+
               shlex.quote(str(args.lua.resolve()))+' "$@"; };\n'+native+'\n')
     interface = (SCRIPTS.parent / 'include/interface.sh').read_text()

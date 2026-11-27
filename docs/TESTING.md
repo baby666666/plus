@@ -22,6 +22,35 @@ WG 接口改动还须在一次性副本验证两种保存结果：临时运行�
 
 纯 HY2 的整机验收还须分别测试有效和无效凭据、直连局域网服务、关闭 WAN Web 后的管理登录页、已保存的配置升级、域名和端口规则命中及断线阻断。用两台独立设备分别匹配入接口和隧道源地址。
 
+## HY2 反向映射
+
+`tools/run_host_tests.py` 包含反向配置模型、进程生命周期、来源限制、v1/v2 导入及原生 Vue 映射编辑和手动状态测试。反向程序在 `materials/native-src/hy2-reverse/`，按其 README 用固定 Go 工具链运行 `go test -race -count=1 ./...`。该测试使用真实本地套接字，覆盖 TCP 半关闭、UDP 边界、会话撤销、错误凭据和重放，仍不能替代两台固件的实流测试。
+
+真实 HY2 传输的宿主检查使用固定归档解出的 sing-box：
+
+```bash
+python3 tools/tests/test_wg_reverse_transport.py \
+  --sing-box /absolute/path/to/sing-box \
+  --binary materials/firmware/port-3726/files/usr/sbin/nr-hy2-reverse \
+  --report /absolute/path/outside-checkout/reverse-transport.json
+```
+
+该程序仅创建 loopback 临时服务，验证实际 SOCKS → HY2 → 反向控制/工作连接、TCP/UDP、传输停止后的撤销及恢复。完整固件验收还须从原生页面保存服务端映射并在第二台导入，验证实际访问客户端爱快管理页和 LAN 服务、来源拒绝、端口冲突、停用撤销，以及反向错误时普通 HY2 仍能使用原有分流。两端均须用本次构建的副本，使用固定材料，报告与实际二进制摘要绑定。
+
+两台完整固件的 QEMU 验证使用同一进程启动两个一次性镜像副本。诊断入口和测试目标只写入副本；所有宿主监听均绑定 `127.0.0.1`，不接触现场路由器。`--browser-python` 指向已安装 Playwright 的 Python，`--chromium` 指向已通过实际启动预检的 Chromium：
+
+```bash
+python3.12 tools/smoke_reverse.py \
+  --image /absolute/path/to/new-candidate.img \
+  --workdir /absolute/path/to/new-private-build \
+  --out /absolute/path/outside-checkout/new-reverse-test \
+  --go /absolute/path/to/go1.26.4/bin/go \
+  --browser-check --browser-python /absolute/path/to/playwright-python \
+  --chromium /absolute/path/to/chromium
+```
+
+真实浏览器检查使用两台固件的完整原生页面及实际 API，在桌面和手机尺寸读取状态并核对布局，禁止发送配置写请求。若宿主禁止浏览器所需 IPC，应保留 `ui_status=blocked`、未完成截图和总体未通过的结论；单独的 `functional_passed` 只说明已执行的双虚拟机流量测试，不表示整页 UI 或实体硬件已验收。
+
 ## 验证边界
 
 - iPhone/iPad 网页、视频、息屏及 Wi-Fi/蜂窝切换后的持续出口能力须实机验证；握手、Linux 核心或后台双向字节均不能单独证明。

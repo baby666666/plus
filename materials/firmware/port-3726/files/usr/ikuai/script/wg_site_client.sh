@@ -10,8 +10,14 @@ engine=$script/wg_hy_engine.sh
 model=$script/wg_site_client.lua
 runtime=/tmp/iktmp/wg-site-client
 units=/tmp/iktmp/wg-hy-engine
+reverse=$script/wg_hy_reverse.sh
+reverse_units=/tmp/iktmp/wg-hy-reverse
 db=$1 action=$2
 scope=${3-'*'}
+reverse_stop(){
+    [ -e "$reverse_units/$1" ] || [ -L "$reverse_units/$1" ] || return 0
+    "$reverse" stop "$1"
+}
 has_table(){
     local count
     count=$(sqlite3 -cmd '.timeout 10000' "$db" "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='wg_site_clients'") || return 2
@@ -24,6 +30,10 @@ case $action in
         [ -d "$runtime" ] || exit 0
         exec 7>"$runtime/service.lock";flock -x 7
         : > "$runtime/shutdown"
+        for reverse_unit in "$reverse_units"/puc-[0-9]*;do
+            [ -d "$reverse_unit" ] || continue
+            "$reverse" stop "${reverse_unit##*/}"
+        done
         for unit in "$units"/hyc-[0-9]* "$units"/puc-[0-9]*;do
             [ -f "$unit/service.pid" ] || continue
             "$engine" "${unit##*/}" stop
@@ -105,6 +115,16 @@ if ! "$script/wg_hyr_direction.sh" "$stage/directions" client;then
     exit 1
 fi
 mv -f "$stage/owners" "$runtime/owners"
+# Reverse configuration has its own identity and may change while the outer
+# HY2 configuration stays equal. Revoke stale sessions before any activation.
+for reverse_unit in "$reverse_units"/puc-[0-9]*;do
+    [ -d "$reverse_unit" ] || continue
+    reverse_id=${reverse_unit##*/puc-}
+    [[ $reverse_id =~ ^[1-9][0-9]{0,4}$ ]] || exit 1
+    if ! cmp -s "$stage/reverse-client.$reverse_id" "$reverse_unit/live.json";then
+        "$reverse" stop "puc-$reverse_id"
+    fi
+done
 # An RC15 worker can still own a reverse listener during a live restore.
 # Revoke stale configs before returning from guard, even for another scope.
 for unit in "$units"/puc-[0-9]*;do
@@ -113,6 +133,7 @@ for unit in "$units"/puc-[0-9]*;do
     [[ $peer_id =~ ^[1-9][0-9]{0,4}$ ]] || exit 1
     [ -f "$unit/service.pid" ] || [ -f "$unit/live.json" ] || continue
     if ! cmp -s "$stage/pure.$peer_id" "$unit/live.json";then
+        reverse_stop "puc-$peer_id"
         "$engine" "puc-$peer_id" stop
     fi
 done
@@ -146,16 +167,27 @@ while read -r dev peer_id readiness;do
     [[ $scope = '*' || " $scope " = *" $dev "* ]] || continue
     unit=puc-$peer_id
     if [ "$readiness" != ready ];then
+        reverse_stop "$unit"
         printf '%s\n' "$dev" >>"$stage/unready"
         failed=73
         continue
     fi
-    if cmp -s "$units/$unit/live.json" "$stage/pure.$peer_id" && "$engine" "$unit" status >/dev/null;then continue;fi
-    if ! "$engine" "$unit" start "$stage/pure.$peer_id" >/dev/null;then
+    if ! { cmp -s "$units/$unit/live.json" "$stage/pure.$peer_id" && "$engine" "$unit" status >/dev/null; } &&
+        ! "$engine" "$unit" start "$stage/pure.$peer_id" >/dev/null;then
+        reverse_stop "$unit"
         "$engine" "$unit" stop >/dev/null || exit 1
         printf '%s\n' "$dev" >>"$stage/unready"
         failed=73
+        continue
     fi
+    if [ -s "$stage/reverse-client.$peer_id" ] &&
+        ! "$reverse" start "$unit" "$stage/reverse-client.$peer_id" "$dev";then
+        "$reverse" stop "$unit"
+        # Keep normal HY2 routing usable. A separate reverse snapshot reports
+        # its failure; the native caller receives a partial-activation error.
+        failed=73
+    fi
+    [ ! -e "$stage/reverse-error.$peer_id" ] || failed=73
 done < "$stage/pure_units"
 if [ ! -s "$stage/directions" ] && [ "$pending" = no ];then rm -f "$runtime/active";fi
 if [ "$action" = monitor ];then

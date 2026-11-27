@@ -55,6 +55,17 @@
 .wg-site-summary dd { margin: 0; overflow-wrap: anywhere; }
 .wg-managed-site { padding: 16px; }
 .wg-managed-site .btn { margin-top: 12px; }
+.wg-reverse-editor { min-width: 0; margin: 18px 0; padding-top: 12px; border-top: 1px solid #ddd; }
+.wg-reverse-editor h4 { margin: 10px 0; }
+.wg-reverse-mapping { min-width: 0; margin: 12px 0; padding: 10px; border: 1px solid #ddd; border-radius: 3px; }
+.wg-reverse-mapping legend { padding: 0 5px; }
+.wg-reverse-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 10px; }
+.wg-reverse-fields .wg-tunnel-field { min-width: 0; overflow-wrap: anywhere; }
+.wg-reverse-fields .wg-tunnel-field:last-child { grid-column: 1 / -1; }
+.wg-reverse-fields .inptText { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
+.wg-reverse-preview, .wg-reverse-status-row { min-width: 0; padding: 10px 0; border-bottom: 1px solid #eee; overflow-wrap: anywhere; }
+.wg-reverse-status, .wg-reverse-editor { overflow-wrap: anywhere; }
+.wg-reverse-status .wg-site-summary { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 
 @media (max-width: 769px) {
     .wg-page .wg-hyr-tunnel {
@@ -110,4 +121,7 @@
     .wg-page .wg-tunnel-controls {
         grid-template-columns: minmax(0, 1fr);
     }
+    .wg-reverse-fields, .wg-reverse-status .wg-site-summary { grid-template-columns: minmax(0, 1fr); }
+    .wg-reverse-status .wg-site-summary { gap: 4px; }
+    .wg-reverse-status .wg-site-summary dd { margin-bottom: 7px; }
 }

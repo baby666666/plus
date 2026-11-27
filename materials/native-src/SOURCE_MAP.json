@@ -166,6 +166,88 @@
         "xz": "5.8.4",
         "recipe": "materials/native-src/hy2-corepack/build.py"
       }
+    },
+    {
+      "runtime_file": "materials/firmware/port-3726/files/usr/sbin/nr-hy2-reverse",
+      "runtime_sha256": "e25e895ba087e0cfc6c3742729a0e92ba8c5b8c7595f6987658e519d78d1334a",
+      "sources": [
+        {
+          "path": "materials/native-src/hy2-reverse/README.md",
+          "sha256": "7299a291921efd8d4990e7753c312f6c091c91bf75e6e7b9360ff46bcde123de"
+        },
+        {
+          "path": "materials/native-src/hy2-reverse/build.py",
+          "sha256": "4b501b3236e698dfb1ea39857f6a503848c516f8601cdbec544dddda4a87ee48"
+        },
+        {
+          "path": "materials/native-src/hy2-reverse/client.go",
+          "sha256": "c0037b79ddcc1db8f7842cd80c0abf49e77888d6414b01828fb3a7e7b92dc75c"
+        },
+        {
+          "path": "materials/native-src/hy2-reverse/config.go",
+          "sha256": "c161e212f6dd834bb02e28e5e2d01fd0ae553b53376b7916c975a293a8fcfe1a"
+        },
+        {
+          "path": "materials/native-src/hy2-reverse/config_test.go",
+          "sha256": "8a7b9956b1626c509982dc738d58d223bf65b7384b192eb0fa0581868c0f9a9a"
+        },
+        {
+          "path": "materials/native-src/hy2-reverse/go.mod",
+          "sha256": "bff244be95b0d8062395e5bd56597171a654818bf00054c4c2b212708b6a9d39"
+        },
+        {
+          "path": "materials/native-src/hy2-reverse/integration_test.go",
+          "sha256": "bed660a186f08892239eb02df2165eccffc5647cfb6eeb3b52d54c83a10097f8"
+        },
+        {
+          "path": "materials/native-src/hy2-reverse/main.go",
+          "sha256": "6757470cb0db4b373edf1d9ca5df2b74f6d367c76498b1251e28bfb877ff60f4"
+        },
+        {
+          "path": "materials/native-src/hy2-reverse/mark_linux.go",
+          "sha256": "4e0b4c409f70dfb15cda3f3e35bb252d61abb8cbc7f80f16bf69e84c5a5fd495"
+        },
+        {
+          "path": "materials/native-src/hy2-reverse/ports_linux.go",
+          "sha256": "b312726f6fc74381b2e8587792b2534a2e8d001be0f690ad0ef0ad41bcbb8f75"
+        },
+        {
+          "path": "materials/native-src/hy2-reverse/ports_test.go",
+          "sha256": "11c9a698404086db06e1040a310f0f8394b42cbfb502ed2e66df9b5f8037f0be"
+        },
+        {
+          "path": "materials/native-src/hy2-reverse/protocol_test.go",
+          "sha256": "ba5907f9afe7f503d05a344a1b4b9d1405167b07824a75272d6d8db63324b921"
+        },
+        {
+          "path": "materials/native-src/hy2-reverse/server.go",
+          "sha256": "7ea96bb40f07ca6658806ab3e38d728c143325b1f0e8c17c0626904ac5e338fb"
+        },
+        {
+          "path": "materials/native-src/hy2-reverse/status.go",
+          "sha256": "52b39e395b61f20e60fad6084cc8f4999cff0ff97c16f548f1fd14736d5f06f6"
+        },
+        {
+          "path": "materials/native-src/hy2-reverse/transport.go",
+          "sha256": "3d587df9ecbf03fae237b88ba56d943358a95a564d07834a82ec8124293312ca"
+        },
+        {
+          "path": "materials/native-src/hy2-reverse/wire.go",
+          "sha256": "b720656162ac95b99d471de364be94b42bdfd9d5b156dc753457dd344b6f40f2"
+        }
+      ],
+      "build": {
+        "compiler": "Go 1.26.4",
+        "target": "linux/amd64",
+        "CGO_ENABLED": "0",
+        "flags": [
+          "-trimpath",
+          "-buildvcs=false",
+          "-ldflags=-s -w -buildid="
+        ],
+        "recipe": "materials/native-src/hy2-reverse/build.py",
+        "dependencies": "Go standard library only"
+      }
     }
   ]
 }

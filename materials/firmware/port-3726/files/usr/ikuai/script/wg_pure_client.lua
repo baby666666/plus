@@ -20,12 +20,15 @@ end
 function M.validate(b,peer)
     local invalid='纯 Hysteria 2 设备配置无效'
     local check=peer.check
-    check(type(b)=='table' and b.format=='nativerouting-pure-hy2-device' and b.version==1,invalid)
+    check(type(b)=='table' and b.format=='nativerouting-pure-hy2-device' and (b.version==1 or b.version==2),invalid)
     check(b.purpose=='access','纯 Hysteria 2 仅支持让这台设备连接路由器上网，请从对端重新导出')
-    check(require_shape(b,' format version purpose transport '),invalid)
+    check(require_shape(b,b.version==1 and ' format version purpose transport ' or ' format version purpose transport reverse '),invalid)
     local t=b.transport
     check(require_shape(t,' server server_port certificate_public_key_sha256 password ') and peer.ipv4(t.server)
         and port(t.server_port) and peer.wgkey(t.certificate_public_key_sha256) and secret(t.password),invalid)
+    if b.version==2 then
+        b.reverse=dofile(script..'wg_reverse_config.lua').import(b.reverse,t.server)
+    end
     return b
 end
 function M.tun_address(id)
@@ -78,12 +81,21 @@ function M.local_addresses()
     return addresses
 end
 function M.config(b,id)
-    assert(b.purpose=='access' and b.reverse==nil)
+    assert(b.purpose=='access')
     local t=b.transport
-    return {log={level='warn'},inbounds={{type='tun',tag='policy',interface_name='nph'..id,
+    local config={log={level='warn'},inbounds={{type='tun',tag='policy',interface_name='nph'..id,
             address={assert(M.tun_address(id))},stack='gvisor',mtu=1500,auto_route=false}},
         outbounds={{type='hysteria2',tag='via-router',server=t.server,server_port=t.server_port,password=t.password,
             routing_mark=1442840576,tls={enabled=true,server_name=t.server,certificate_public_key_sha256={t.certificate_public_key_sha256}}}},
         route={rules={{ip_version=6,action='reject'},{inbound='policy',action='route',outbound='via-router'}},final='via-router',default_mark=1442840576}}
+    if b.reverse then
+        assert(b.version==2)
+        local reverse=dofile(script..'wg_reverse_config.lua')
+        reverse.import(b.reverse,t.server)
+        config.inbounds[#config.inbounds+1]={type='socks',tag='reverse-control',
+            listen=reverse.socks_address(id),listen_port=1080}
+        config.route.rules[#config.route.rules+1]={inbound='reverse-control',action='route',outbound='via-router'}
+    end
+    return config
 end
 return M

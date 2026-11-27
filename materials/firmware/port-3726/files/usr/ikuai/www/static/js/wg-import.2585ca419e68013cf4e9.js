@@ -26,13 +26,147 @@
     function clientHelper() {
         return typeof module==='object' && module.exports ? require('./wg-client-config.js') : window.WGClientConfig;
     }
+    function onlyFields(value,names) {
+        return value && typeof value==='object' && !Array.isArray(value) && Object.keys(value).every(function(name){return names.indexOf(name)>=0;});
+    }
+    function reverseIPv4(value,unicast) {
+        if(typeof value!=='string' || !ipv4(value,false) || value.indexOf('/')>=0 ||
+            value.split('.').some(function(part){return String(Number(part))!==part;}))return false;
+        var first=Number(value.split('.')[0]);
+        return !unicast || first>0 && first<224;
+    }
+    function reverseCIDR(value) {
+        if(typeof value!=='string')return null;
+        var parts=value.split('/');
+        if(parts.length!==2 || !reverseIPv4(parts[0],false) || !/^(?:0|[1-9][0-9]?)$/.test(parts[1]) || Number(parts[1])>32)return null;
+        var bits=Number(parts[1]),address=parts[0].split('.').reduce(function(n,octet){return n*256+Number(octet);},0);
+        var block=Math.pow(2,32-bits),network=Math.floor(address/block)*block;
+        return [Math.floor(network/16777216)%256,Math.floor(network/65536)%256,Math.floor(network/256)%256,network%256].join('.')+'/'+bits;
+    }
+    function reverseMappings(value) {
+        if(!Array.isArray(value) || !value.length || value.length>32)fail(tr('反向映射须包含 1 至 32 条规则。'));
+        var ids={},ports={};
+        return value.map(function(row){
+            if(!onlyFields(row,['id','protocol','listen_port','target_ip','target_port','sources']) ||
+                typeof row.id!=='string' || !/^(?:[1-9]|[12][0-9]|3[0-2])$/.test(row.id) || ids[row.id] ||
+                ['tcp','udp'].indexOf(row.protocol)<0 ||
+                !Number.isInteger(row.listen_port) || row.listen_port<1 || row.listen_port>65535 ||
+                !Number.isInteger(row.target_port) || row.target_port<1 || row.target_port>65535 ||
+                !reverseIPv4(row.target_ip,true))fail(tr('反向映射的编号、协议、端口或目标 IPv4 无效。'));
+            var port=row.protocol+':'+row.listen_port;
+            if(ports[port])fail(tr('同一协议的服务端映射端口不能重复。'));
+            ids[row.id]=true;ports[port]=true;
+            if(!Array.isArray(row.sources) || !row.sources.length || row.sources.length>16)
+                fail(tr('每条反向映射须填写 1 至 16 个允许来源网段。'));
+            var sources=[];
+            row.sources.forEach(function(source){
+                var net=reverseCIDR(source);
+                if(!net)fail(tr('允许来源必须是有效的 IPv4 CIDR 网段。'));
+                if(sources.indexOf(net)<0)sources.push(net);
+            });
+            return {id:row.id,protocol:row.protocol,listen_port:row.listen_port,target_ip:row.target_ip,target_port:row.target_port,sources:sources};
+        });
+    }
+    function validateReverse(value) {
+        if(value===undefined)return {enabled:false,mappings:[]};
+        if(!onlyFields(value,['enabled','mappings']) || typeof value.enabled!=='boolean')
+            fail(tr('反向映射配置无效，请重新读取已保存配置。'));
+        if(!value.enabled){
+            if(value.mappings!==undefined && (!Array.isArray(value.mappings) || value.mappings.length))
+                fail(tr('停用的反向映射不能包含生效规则。'));
+            return {enabled:false,mappings:[]};
+        }
+        return {enabled:true,mappings:reverseMappings(value.mappings)};
+    }
+    function safeCount(value){return Number.isSafeInteger(value) && value>=0 ? value : null;}
+    function safeTimestamp(value){return Number.isSafeInteger(value) && value>0 && value<=253402300799 ? value : null;}
+    function reverseError(value) {
+        var errors={offline:tr('反向通道未连接'),not_connected:tr('反向通道未连接'),
+            target_connect_failed:tr('目标服务连接失败'),target_unreachable:tr('目标服务连接失败'),
+            target_timeout:tr('目标服务连接超时'),timeout:tr('连接超时'),
+            port_in_use:tr('映射端口已被占用'),bind_failed:tr('映射端口监听失败'),
+            authentication_failed:tr('反向通道认证失败'),auth_failed:tr('反向通道认证失败'),
+            authorization_failed:tr('反向映射未获授权'),forbidden:tr('反向映射未获授权'),
+            control_unreachable:tr('无法连接反向服务'),connection_closed:tr('反向通道已断开'),
+            disabled:tr('已停用'),invalid_config:tr('反向映射配置无效'),config_invalid:tr('反向映射配置无效'),
+            port_conflict:tr('映射端口已被占用'),
+            session_replaced:tr('反向通道已被新的连接替换'),
+            configuration_mismatch:tr('两端映射配置不一致，请重新导入。'),
+            client_already_online:tr('此客户端已有在线连接'),mapping_listen_failed:tr('映射端口监听失败'),
+            session_unavailable:tr('反向通道未连接'),invalid_work:tr('反向工作连接无效'),
+            target_mark_failed:tr('无法设置目标连接路由'),socks_unreachable:tr('无法连接本地代理'),
+            socks_rejected:tr('本地代理拒绝连接'),control_lost:tr('反向通道已断开'),
+            work_unreachable:tr('无法建立反向工作连接'),work_timeout:tr('反向工作连接超时'),
+            work_rejected:tr('反向工作连接被拒绝'),session_limit:tr('反向连接数已达上限'),
+            udp_queue_full:tr('UDP 转发队列已满'),udp_error:tr('UDP 转发失败'),
+            transfer_failed:tr('转发连接中断'),protocol_error:tr('反向协议通信失败'),source_denied:tr('访问来源未获授权')};
+        if(typeof value!=='string' || !value)return '';
+        return errors[value] || tr('发生错误，请重新读取连接状态。');
+    }
+    // Keep runtime data separate from saved settings and never retain unexpected API fields.
+    function reverseState(value) {
+        if(!value || typeof value!=='object' || Array.isArray(value))return null;
+        var states=['disabled','stopped','starting','initializing','waiting','connecting','connected','online','disconnected','offline','error','ready'];
+        var rows=Array.isArray(value.mappings)?value.mappings:[],seen={};
+        return {connected:typeof value.connected==='boolean'?value.connected:null,
+            state:states.indexOf(value.state)>=0?value.state:'',error:reverseError(value.error),
+            last_heartbeat:safeTimestamp(value.last_heartbeat),mappings:rows.slice(0,32).filter(function(row){
+                if(!row || typeof row.id!=='string' || !/^(?:[1-9]|[12][0-9]|3[0-2])$/.test(row.id) || seen[row.id])return false;
+                seen[row.id]=true;return true;
+            }).map(function(row){return {id:row.id,listening:typeof row.listening==='boolean'?row.listening:null,
+                active:safeCount(row.active),rx_bytes:safeCount(row.rx_bytes),tx_bytes:safeCount(row.tx_bytes),
+                last_success:safeTimestamp(row.last_success),last_error:reverseError(row.last_error)};})};
+    }
+    function reverseTime(value) {
+        return value===null?tr('无记录'):new Date(value*1000).toISOString().replace('T',' ').replace('.000Z',' UTC');
+    }
+    function renderReverseStatus(h,status,mappings) {
+        function yesNo(value,yes,no){return value===true?yes:value===false?no:tr('无记录');}
+        function count(value){return value===null || value===undefined?tr('无记录'):String(value);}
+        var rows=mappings || [],body=[h('p',{attrs:{role:'status'}},[
+            tr('反向通道'), ' · ',yesNo(status && status.connected,tr('已认证连接'),tr('未连接'))
+        ])];
+        var phases={disabled:tr('已停用'),stopped:tr('已停止'),starting:tr('正在启动'),initializing:tr('正在启动'),
+            waiting:tr('等待客户端连接'),connecting:tr('正在连接'),connected:tr('已认证连接'),online:tr('已认证连接'),
+            disconnected:tr('未连接'),offline:tr('未连接'),error:tr('连接出错'),ready:tr('等待客户端连接')};
+        var phase=status && phases[status.state];
+        if(status && (status.state==='connected' || status.state==='online') && status.connected!==true)phase='';
+        body.push(h('p',[tr('运行阶段'),' · ',phase || tr('无记录')]));
+        body.push(h('p',[tr('最近心跳'),' · ',status?reverseTime(status.last_heartbeat):tr('无记录')]));
+        if(status && status.error)body.push(h('p',{staticClass:'error_tip'},[status.error]));
+        rows.forEach(function(mapping){
+            var found=status && status.mappings.filter(function(row){return row.id===mapping.id;})[0];
+            var values=[
+                [tr('服务端端口监听'),yesNo(found && found.listening,tr('已监听'),tr('未监听'))],
+                [tr('活动连接数'),count(found && found.active)],
+                [tr('接收字节'),count(found && found.rx_bytes)],
+                [tr('发送字节'),count(found && found.tx_bytes)],
+                [tr('最近目标连接成功'),found?reverseTime(found.last_success):tr('无记录')]
+            ];
+            body.push(h('div',{key:mapping.id,staticClass:'wg-reverse-status-row'},[
+                h('strong',[tr('映射'),' ',mapping.id,' · ',mapping.protocol.toUpperCase(),' ',String(mapping.listen_port),' → ',mapping.target_ip,':',String(mapping.target_port)]),
+                h('dl',{staticClass:'wg-site-summary'},values.reduce(function(out,row){return out.concat([h('dt',[row[0]]),h('dd',[row[1]])]);},[])),
+                found && found.last_error?h('p',{staticClass:'error_tip'},[found.last_error]):null
+            ]));
+        });
+        body.push(h('p',{staticClass:'note'},[tr('状态为本次手动读取的快照；没有目标成功记录不表示目标已经验证可达。')]));
+        return h('div',{staticClass:'wg-reverse-status'},body);
+    }
     // The native Action gateway accepts the JSON bundle as lowercase hexadecimal bytes.
     function siteHex(bundle) {
         var bytes=unescape(encodeURIComponent(JSON.stringify(bundle)));
-        if(bytes.length>16384)fail(tr('配置过长，请每次导入一份接口及一个隧道。'));
+        if(bytes.length>65536)fail(tr('配置过长，请每次导入一份接口及一个隧道。'));
         var encoded='';
         for(var i=0;i<bytes.length;i++)encoded+=('0'+bytes.charCodeAt(i).toString(16)).slice(-2);
         return encoded;
+    }
+    function reverseHex(value){return siteHex(validateReverse(value));}
+    function reverseFromHex(value){
+        if(typeof value!=='string' || !value.length || value.length>131072 || value.length%2 || !/^[0-9a-f]+$/.test(value))
+            fail(tr('反向端口映射配置无效'));
+        var text='';
+        for(var i=0;i<value.length;i+=2)text+=String.fromCharCode(parseInt(value.substr(i,2),16));
+        try{return validateReverse(JSON.parse(text));}catch(e){fail(tr('反向端口映射配置无效'));}
     }
     function validateSite(bundle) {
         function fields(o,names){return o && typeof o==='object' && !Array.isArray(o) && Object.keys(o).every(function(k){return names.indexOf(k)>=0;});}
@@ -43,14 +177,22 @@
             var carrier=bundle.transport;
             if(bundle.purpose==='both' || bundle.purpose==='lend')
                 fail(tr('纯 Hysteria 2 仅支持让这台设备连接路由器上网，请从对端重新导出'));
-            if(bundle.version!==1 || bundle.purpose!=='access' ||
-                !fields(bundle,['format','version','purpose','transport']) ||
+            if([1,2].indexOf(bundle.version)<0 || bundle.purpose!=='access' ||
+                !fields(bundle,bundle.version===2?['format','version','purpose','transport','reverse']:['format','version','purpose','transport']) ||
                 !fields(carrier,['server','server_port','certificate_public_key_sha256','password']) ||
                 typeof carrier.server!=='string' || !ipv4(carrier.server,false) || carrier.server.indexOf('/')>=0 ||
                 carrier.server.split('.').some(function(o){return String(+o)!==o;}) || /^(?:0\.|127\.|169\.254\.)/.test(carrier.server) || +carrier.server.split('.')[0]>=224 ||
                 !port(carrier.server_port) || !validKey(carrier.certificate_public_key_sha256) || !credential(carrier.password))
                 fail(tr('组网配置字段不完整或无效，请从对端重新复制。'));
-            return {transport:'pure_hy2',purpose:'access',server:carrier.server,port:carrier.server_port};
+            var preview={transport:'pure_hy2',purpose:'access',server:carrier.server,port:carrier.server_port};
+            if(bundle.version===2){
+                var reverse=bundle.reverse;
+                if(!fields(reverse,['version','token','server','server_port','mappings']) || reverse.version!==1 ||
+                    !credential(reverse.token) || !reverseIPv4(reverse.server,true) || reverse.server===carrier.server ||
+                    reverse.server_port!==49871)fail(tr('反向映射导入配置无效，请从对端重新导出。'));
+                preview.reverse={enabled:true,mappings:reverseMappings(reverse.mappings)};
+            }
+            return preview;
         }
         if(bundle && bundle.format==='nativerouting-hy2-wg-site')
             fail(tr('此配置使用已停用的 HY2 承载 WG，请从对端重新导出原生 WG 或纯 HY2 配置。'));
@@ -367,9 +509,22 @@
             [tr('公网入口'),site.server+':'+site.port+'/UDP']];
         var directions={access:tr('本机可经对端路由器上网'),lend:tr('对端路由器可经本机上网'),both:tr('双方可互相作为上网出口')};
         rows.push([tr('上网方向'),directions[site.purpose]],[tr('局域网互访'),tr('未设置互访网段')]);
-        return h('dl',{staticClass:'wg-site-summary'},rows.reduce(function(out,r){
+        var content=[h('dl',{staticClass:'wg-site-summary'},rows.reduce(function(out,r){
             return out.concat([h('dt',[r[0]]),h('dd',[r[1]])]);
-        },[]));
+        },[]))];
+        if(site.reverse && site.reverse.enabled){
+            content.push(h('h4',[tr('反向端口映射')]),h('p',{staticClass:'note'},[
+                tr('导入后，对端服务端可通过以下端口访问本机或本机局域网的指定服务。')
+            ]));
+            site.reverse.mappings.forEach(function(mapping){
+                content.push(h('div',{key:mapping.id,staticClass:'wg-reverse-preview'},[
+                    h('strong',[tr('映射'),' ',mapping.id,' · ',mapping.protocol.toUpperCase()]),
+                    h('p',[site.server,':',String(mapping.listen_port),' → ',mapping.target_ip,':',String(mapping.target_port)]),
+                    h('p',[tr('允许访问的来源网段'),' · ',mapping.sources.join(', ')])
+                ]));
+            });
+        }
+        return h('div',content);
     }
     function managed(view,row,interfaceRow,post) {
         var identity={name:interfaceRow?row.name:row.interface,peer:interfaceRow?'':String(row.id)};
@@ -378,7 +533,8 @@
             return;
         }
         var record=view.wgManagedSite={name:identity.name};
-        post({func_name:'wireguard',action:'show',param:{TYPE:'site_client_status'}}).then(function(response){
+        view._wgManagedReload=function(){return managed(view,row,interfaceRow,post);};
+        return post({func_name:'wireguard',action:'show',param:{TYPE:'site_client_status'}}).then(function(response){
             if(view.wgManagedSite!==record)return;
             var data=response && response.data && response.data.Data && response.data.Data.site_client_status;
             var match=data && Array.isArray(data.members) && data.members.filter(function(m){
@@ -392,7 +548,9 @@
             var scopes=clientHelper().siteFields(m.site_local,m.site_remote);
             if(['native','pure_hy2'].indexOf(transport)<0 || ['access','lend','both'].indexOf(purpose)<0 || scopes.local.length)throw Error();
             view.wgManagedSite={name:identity.name,transport:transport,purpose:purpose,server:m.server,port:m.server_port,
-                local:scopes.local,remote:scopes.remote,retired:m.retired===true,enabled:m.enabled===true || m.enabled==='yes',running:m.running===true};
+                local:scopes.local,remote:scopes.remote,retired:m.retired===true,enabled:m.enabled===true || m.enabled==='yes',running:typeof m.running==='boolean'?m.running:null,
+                reverse:transport==='pure_hy2'?validateReverse(m.reverse):{enabled:false,mappings:[]},
+                reverse_status:transport==='pure_hy2'?reverseState(m.reverse_status):null};
         }).catch(function(){if(view.wgManagedSite===record)view.wgManagedSite={name:identity.name,error:true};});
     }
     function renderManaged(view,h){
@@ -402,10 +560,14 @@
             h('div',{staticClass:'wrapper clearfix row'},[h('div',{staticClass:'box wg-managed-site'},[
                 site.local && !site.retired?summary(h,site):view._e(),
                 h('p',{attrs:{role:'status'}},[site.retired?(site.transport==='hysteria2'?tr('原 HY2 承载 WG 隧道已停用。请删除此记录并导入新的配置。'):tr('原纯 HY2 借线用途已停用，请删除此记录并从对端重新导入。')):site.orphan?tr('组网隧道缺少匹配的中继配置，请重新导入组网配置'):site.error?tr('设备已被删除或更改，请返回列表并重新打开。'):site.local?
-                    (!site.enabled?tr('已停用'):site.transport==='native'?(site.running?tr('WG 接口运行中'):tr('WG 接口未运行')):site.running?tr('客户端运行中'):tr('客户端未运行')):tr('处理中…')]),
+                    (!site.enabled?tr('已停用'):site.running===null?tr('无记录'):site.transport==='native'?(site.running?tr('WG 接口运行中'):tr('WG 接口未运行')):site.running?tr('客户端运行中'):tr('客户端未运行')):tr('处理中…')]),
+                site.reverse && site.reverse.enabled?renderReverseStatus(h,site.reverse_status,site.reverse.mappings):view._e(),
+                site.reverse && site.reverse.enabled?h('button',{staticClass:'btn',attrs:{type:'button'},on:{click:function(){
+                    if(view._wgManagedReload)return view._wgManagedReload();
+                }}},[tr('读取连接状态')]):view._e(),
                 site.retired?view._e():h('p',{staticClass:'note'},[tr('可在隧道列表启用、停用或删除此设备。')]),
                 h('button',{staticClass:'btn',attrs:{type:'button'},on:{click:function(){
-                    view.wgManagedSite=null;
+                    view.wgManagedSite=null;view._wgManagedReload=null;
                     view.$nextTick(function(){
                         if(view.$refs.dtable)view.$refs.dtable.reload();
                         if(view.$refs.dtable1)view.$refs.dtable1.reload();
@@ -443,5 +605,7 @@
             ])])
         ]);
     }
-    return {sameInterface:sameInterface,validateSite:validateSite,managed:managed,parse: parse, open: open, close: close, submit: submit, render: render};
+    return {sameInterface:sameInterface,validateSite:validateSite,validateReverse:validateReverse,reverseMappings:reverseMappings,
+        reverseHex:reverseHex,reverseFromHex:reverseFromHex,
+        reverseState:reverseState,renderReverseStatus:renderReverseStatus,managed:managed,parse: parse, open: open, close: close, submit: submit, render: render};
 }));

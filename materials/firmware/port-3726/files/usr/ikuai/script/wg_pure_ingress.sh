@@ -10,7 +10,7 @@ op=${1:-}; dev=${2:-}; id=${3:-}; peer=${4:-}; gateway=${5:-}
 admin=${6:-0}; requested_http=${7:-0}; requested_https=${8:-0}
 admin_helper=/usr/ikuai/script/wg_pure_admin.sh
 admin_http=0;admin_https=0
-binding=${9:-}; lan_rows=()
+binding=${9:-}; reverse_port=${10:-0}; lan_rows=()
 read_lans(){
     [ -n "$binding" ] || return 0
     [ -f "$binding" ] && [ ! -L "$binding" ] || return 1
@@ -113,6 +113,12 @@ management_ports(){
 input_guards(){
     local mode=$1 port
     rule "$input" ! -s "$peer/32" -j DROP || return 1
+    # Only the authenticated device's namespace may reach its dedicated
+    # reverse control listener. This is never a general router-service grant.
+    if [ "$reverse_port" = 49871 ];then
+        rule "$input" -s "$peer/32" -d "$gateway/32" -p tcp -m tcp --dport 49871 \
+            -m conntrack --ctorigdst "$gateway" --ctorigdstport 49871 -j ACCEPT || return 1
+    elif [ "$reverse_port" != 0 ];then return 1;fi
     local dst line ldev addr rest
     local destinations=("$gateway")
     for line in ${lan_rows[@]+"${lan_rows[@]}"};do
@@ -318,6 +324,7 @@ up(){
 }
 check(){ preflight; }
 identity || { fail;exit 1; }
+[[ $reverse_port = 0 || $reverse_port = 49871 ]] || { fail;exit 1; }
 read_lans || { fail;exit 1; }
 management_ports || { fail;exit 1; }
 case "$op" in check|ready)

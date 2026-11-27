@@ -57,6 +57,8 @@ python3.12 -m venv ../nr-3.0-python
 
 小盘 HY2 的压缩工具使用 `materials/native-src/hy2-corepack/` 中的固定源码包。更改工具时，使用 Zig 0.14.1 运行该目录的 `build.py --zig /path/to/zig --work /path/to/new-build`，按 `materials/native-src/SOURCE_MAP.json` 核对对应 ELF。若镜像编码发生变化，还需重新固定镜像长度、摘要并用真实固件验证挂载、重启与连接。
 
+反向映射程序位于 `materials/native-src/hy2-reverse/`，随运行覆盖提供静态 Linux/amd64 二进制。修改其源码时先使用 Go 1.26.4 执行该目录的 `build.py --go /absolute/path/to/go`，运行其真实套接字及 race 测试，再更新 `SOURCE_MAP.json`、材料摘要和权限清单。它仅依赖 Go 标准库；协议变更须用同一候选的两端验证，不沿用旧二进制的连接结果。
+
 ## 4. 生成镜像并运行宿主回归
 
 ```bash

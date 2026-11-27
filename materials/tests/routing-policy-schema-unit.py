@@ -181,10 +181,13 @@ with tempfile.TemporaryDirectory(prefix='routing-policy-schema-') as directory:
         native_validator = re.sub(r'^\s*IlleStr\s*=.*$',
                                   '\tIlleStr = string.char(91,39,34,96,36,59,124,38,92,93)',
                                   native_validator, flags=re.M)
-        # Bash 3.2 also preserves the escaped tilde in parameter replacement,
-        # unlike firmware Bash. Emit the same intended Lua ~= operator.
-        native_validator = native_validator.replace(r'${__LOGIC//!/\~}', '${__LOGIC//!/~}')
-        native_preamble = ('interface_check_routing_exit(){ return 0; }; I18nload(){ :; };\n'
+        # Bash 3.2 preserves the escaped tilde in parameter replacement, while
+        # Bash 5.2 expands an unquoted literal tilde to the home directory. A
+        # fixture variable emits the intended Lua ~= operator on both hosts.
+        native_validator = native_validator.replace(r'${__LOGIC//!/\~}',
+                                                     '${__LOGIC//!/$NR_TEST_LITERAL_TILDE}')
+        native_preamble = ("NR_TEST_LITERAL_TILDE='~';\n"
+                           'interface_check_routing_exit(){ return 0; }; I18nload(){ :; };\n'
                            'Iecho(){ printf \'"native validation error"\'; };\n'
                            'lua(){ LUA_PATH='+shlex.quote(str(temp / 'lua/?.lua'))+' '+
                            shlex.quote(str(args.lua.resolve()))+' "$@"; };\n'+

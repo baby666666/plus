@@ -1,10 +1,10 @@
 {
-  "chunk": "34.d56c2d998efcb654bdb4.js",
-  "manifest": "manifest.featureport.5cb336e70825ef000033.js",
-  "helper": "wg-import.a39f4ac0f3f6f66ce5eb.js",
+  "chunk": "34.d1401e4f149b419d7428.js",
+  "manifest": "manifest.featureport.2bedb086b72d02557a1a.js",
+  "helper": "wg-import.2585ca419e68013cf4e9.js",
   "planner": "wg-address.64d58b057de6a79e2529.js",
   "client": "wg-client.46c0234997338376060e.js",
   "singbox": "wg-singbox.a668ae63923893ecfd48.js",
-  "i18n": "wg-i18n.5780203391cb476b493e.js",
-  "css": "wg-actions.222045a1ffdbfce7dee0.css"
+  "i18n": "wg-i18n.aa20e4aea06b3f0956b6.js",
+  "css": "wg-actions.32dca6350d1365a1210a.css"
 }
