@@ -142,6 +142,36 @@ func startSOCKS(t *testing.T, closeBothOnEOF ...bool) *socksFixture {
 					remote.Close()
 					return
 				}
+				if len(closeBothOnEOF) > 1 && closeBothOnEOF[1] {
+					// Model a lazy carrier which has not committed its first
+					// buffered message when the application closes immediately.
+					first, readErr := readMessage(c)
+					if readErr != nil {
+						remote.Close()
+						return
+					}
+					_ = c.SetReadDeadline(time.Now().Add(25 * time.Millisecond))
+					var extra [1]byte
+					n, readErr := c.Read(extra[:])
+					if readErr == io.EOF {
+						remote.Close()
+						return
+					}
+					if readErr != nil {
+						if timeout, ok := readErr.(net.Error); !ok || !timeout.Timeout() {
+							remote.Close()
+							return
+						}
+					}
+					if writeMessage(remote, first) != nil {
+						remote.Close()
+						return
+					}
+					if n > 0 && writeAll(remote, extra[:n]) != nil {
+						remote.Close()
+						return
+					}
+				}
 				_ = c.SetDeadline(time.Time{})
 				if len(closeBothOnEOF) > 0 && closeBothOnEOF[0] {
 					// Some real SOCKS/HY2 relays close both directions on
@@ -261,6 +291,24 @@ func TestTCPHalfCloseAndAllWorkUsesSOCKS(t *testing.T) {
 
 func TestTCPHalfCloseAcrossCarrierThatClosesBothDirectionsOnEOF(t *testing.T) {
 	testTCPHalfClose(t, true)
+}
+
+func TestTargetFailureWaitsForDeliveryAcrossBufferedCarrier(t *testing.T) {
+	listen := freeAddress(t, "tcp")
+	s, c, _, _, _ := connectPair(t, []Mapping{{ID: "1", Protocol: "tcp", Listen: listen,
+		Target: freeAddress(t, "tcp"), Allow: []string{"127.0.0.0/8"}}}, false, true)
+	conn, err := net.Dial("tcp4", listen)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+	waitFor(t, "target failure delivered before short work stream closes", func() bool {
+		return s.stat.snapshot().Mappings[0].LastError == "target_unreachable" &&
+			c.stat.snapshot().Mappings[0].LastError == "target_unreachable"
+	})
+	if !s.stat.snapshot().Connected || !c.stat.snapshot().Connected {
+		t.Fatal("target failure killed the control session")
+	}
 }
 
 func testTCPHalfClose(t *testing.T, closeBothOnEOF bool) {

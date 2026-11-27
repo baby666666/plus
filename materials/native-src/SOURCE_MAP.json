@@ -169,11 +169,11 @@
     },
     {
       "runtime_file": "materials/firmware/port-3726/files/usr/sbin/nr-hy2-reverse",
-      "runtime_sha256": "9089728ad8dec260aa391abc936cd616d723c2bd905d5b58f14f7b456570a575",
+      "runtime_sha256": "e25e895ba087e0cfc6c3742729a0e92ba8c5b8c7595f6987658e519d78d1334a",
       "sources": [
         {
           "path": "materials/native-src/hy2-reverse/README.md",
-          "sha256": "073b11dcdea991608bc07ac3a5b0f2967b2b1b677eca00f14343099542c27967"
+          "sha256": "7299a291921efd8d4990e7753c312f6c091c91bf75e6e7b9360ff46bcde123de"
         },
         {
           "path": "materials/native-src/hy2-reverse/build.py",
@@ -181,7 +181,7 @@
         },
         {
           "path": "materials/native-src/hy2-reverse/client.go",
-          "sha256": "87708036a8a7987e77803f4c87c663099b92c6497855a84aa10f98d6ac12aad4"
+          "sha256": "c0037b79ddcc1db8f7842cd80c0abf49e77888d6414b01828fb3a7e7b92dc75c"
         },
         {
           "path": "materials/native-src/hy2-reverse/config.go",
@@ -197,11 +197,11 @@
         },
         {
           "path": "materials/native-src/hy2-reverse/integration_test.go",
-          "sha256": "8152cd0bee67254d199ae9391a148c3b09abffa295a9279eed7ca1d7c0257949"
+          "sha256": "bed660a186f08892239eb02df2165eccffc5647cfb6eeb3b52d54c83a10097f8"
         },
         {
           "path": "materials/native-src/hy2-reverse/main.go",
-          "sha256": "3fe8c867e7552fc611c82c744a86826c52c43a852fc85dbffaedce348472408f"
+          "sha256": "6757470cb0db4b373edf1d9ca5df2b74f6d367c76498b1251e28bfb877ff60f4"
         },
         {
           "path": "materials/native-src/hy2-reverse/mark_linux.go",
@@ -221,7 +221,7 @@
         },
         {
           "path": "materials/native-src/hy2-reverse/server.go",
-          "sha256": "0f717ad0e4bb3ebd51ae45081ec032fe8a1393161a36f01921ca0b916eaa6ed4"
+          "sha256": "7ea96bb40f07ca6658806ab3e38d728c143325b1f0e8c17c0626904ac5e338fb"
         },
         {
           "path": "materials/native-src/hy2-reverse/status.go",

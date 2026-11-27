@@ -204,10 +204,14 @@ func (j *clientJob) forward() {
 		}
 		return
 	}
+	ack, err := readMessage(work)
 	if targetErr != nil {
+		// Keep the carrier open until the server acknowledges or closes it.
+		// A successful local Write is not proof that a lazy SOCKS/HY2 relay
+		// delivered this short failure report before a subsequent Close.
+		// Preserve the locally observed target error if that ACK is lost.
 		return
 	}
-	ack, err := readMessage(work)
 	if err != nil || ack.Kind != "attached" || !ack.OK || ack.Job != j.id || ack.Session != se.id {
 		if se.ctx.Err() == nil {
 			se.stat.mapError(j.mapping.ID, "work_rejected")

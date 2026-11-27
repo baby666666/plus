@@ -80,6 +80,10 @@ table rather than editing these worker files.
    stream. Its authenticated `work` header binds the token, mapping digest,
    session, job, mapping ID, and target-connect result. Only a pending job can
    claim it once. Replay, duplicate work, wrong mapping, and stale sessions fail.
+   A failed target connection is also acknowledged before its short work
+   stream closes; this prevents a buffered HY2 carrier from dropping the error
+   report. The client keeps its independently observed target error if that
+   acknowledgement is lost.
 7. After `attached`, TCP uses a two-byte big-endian frame header: lengths 1
    through 32,768 carry that many payload bytes, 0 is logical FIN, and 65,535
    acknowledges the peer's FIN after its preceding bytes reach the local

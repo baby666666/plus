@@ -11,7 +11,7 @@ import (
 	"syscall"
 )
 
-const version = "1.0.1"
+const version = "1.0.2"
 
 func main() { os.Exit(cli(os.Args[1:])) }
 func cli(args []string) int {

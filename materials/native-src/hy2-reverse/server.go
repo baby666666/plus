@@ -226,8 +226,14 @@ func (s *reverseServer) handle(conn net.Conn) {
 		}
 		job.claimed = true
 		if !m.OK {
+			job.work = conn
 			job.mu.Unlock()
-			job.result <- workResult{code: safeCode(m.Error)}
+			code := safeCode(m.Error)
+			// Receipt is authoritative even if the acknowledgement cannot be
+			// delivered. Acknowledge before releasing the job/closing work so
+			// the client does not close a still-buffered carrier notification.
+			_ = writeMessage(conn, message{Kind: "attached", Error: code, Session: se.id, Job: job.id})
+			job.result <- workResult{code: code}
 			return
 		}
 		// Make the in-flight acknowledgement cancellable without keeping a

@@ -52,7 +52,7 @@ func main() {
  go func(){b:=make([]byte,65535);for {n,a,e:=u.ReadFrom(b);if e!=nil{return};u.WriteTo(b[:n],a)}}()
  fmt.Println("READY")
  slots:=make(chan struct{},8)
- for {c,e:=l.Accept();if e!=nil{return};select {case slots<-struct{}{}:go func(){defer func(){<-slots;c.Close()}();c.SetDeadline(time.Now().Add(90*time.Second));b,e:=io.ReadAll(io.LimitReader(c,2<<20));if e==nil {c.Write(append(b,[]byte("\nHALF_CLOSE_OK\n")...))}}();default:c.Close()}}
+ for {c,e:=l.Accept();if e!=nil{return};select {case slots<-struct{}{}:go func(){defer func(){<-slots;c.Close()}();c.SetDeadline(time.Now().Add(300*time.Second));b,e:=io.ReadAll(io.LimitReader(c,2<<20));if e==nil {c.Write(append(b,[]byte("\nHALF_CLOSE_OK\n")...))}}();default:c.Close()}}
 }
 '''
 
@@ -601,7 +601,10 @@ def main():
             parameters = dict(fields, id=str(saved['peer_id']), hyr_id=saved['id'],
                 hyr_origin_key=remote['pubkey'], hyr_origin_iface='wg21',
                 native_origin_role='', native_origin_exit='no', hyr_reverse_hex=hex_json(value))
+            beginning = time.monotonic()
+            print('center: applying native reverse edit' + ('' if success else ' (expected port-conflict rejection)'), flush=True)
             result = center.request('wireguard', 'edit', parameters)
+            print(f'center: native reverse edit returned in {time.monotonic() - beginning:.1f}s', flush=True)
             if success:
                 assert result.get('Result') == 30000, ('center', 'edit', result.get('Result'), result.get('ErrMsg'))
             else:
